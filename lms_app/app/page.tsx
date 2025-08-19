@@ -108,87 +108,22 @@ export default function Home() {
     const htmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello.html</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 800px;
-            width: 100%;
-        }
-        h1 {
-            color: #333;
-            font-size: 48px;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .content {
-            color: #666;
-            font-size: 18px;
-            line-height: 1.8;
-            margin-bottom: 30px;
-        }
-        .footer {
-            color: #999;
-            font-size: 14px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello.html</title>
 </head>
-<body>
-    <div class="container">
-        <h1>Hello</h1>
-        <div class="content">
-            ${content.split('\n').filter(line => line.trim()).map(line => 
-              `<p style="margin-bottom: 15px;">${line}</p>`
-            ).join('')}
-        </div>
-        <div class="footer">
-            Generated from LMS Tab Content
-        </div>
+<body style="margin:0; padding:20px; font-family:Arial, sans-serif; min-height:100vh; background: #ffffff; display:flex; align-items:center; justify-content:center;">
+  <div style="background:rgba(255,255,255,0.95); padding:40px; border-radius:15px; box-shadow:0 20px 40px rgba(0,0,0,0.1); text-align:center; max-width:800px; width:100%;">
+    <h1 style="color:#333; font-size:48px; margin:0 0 30px; text-shadow:2px 2px 4px rgba(0,0,0,0.1);">Hello</h1>
+    <div>
+      ${content.split('\n').filter(line => line.trim()).map(line => `<p style=\"margin:0 0 15px; color:#666; font-size:18px; line-height:1.8;\">${line}</p>`).join('')}
     </div>
-    
-    <script>
-        console.log("Hello.html loaded successfully!");
-        console.log("Content from tab: ${tabs[activeTab]}");
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add a subtle animation
-            const container = document.querySelector('.container');
-            container.style.opacity = '0';
-            container.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                container.style.transition = 'all 0.5s ease';
-                container.style.opacity = '1';
-                container.style.transform = 'translateY(0)';
-            }, 100);
-            
-            // Add click effect
-            document.addEventListener('click', function() {
-                container.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    container.style.transform = 'scale(1)';
-                }, 150);
-            });
-        });
-    </script>
+    <div style="color:#999; font-size:14px; border-top:1px solid #eee; padding-top:20px;">Generated from LMS Tab Content</div>
+  </div>
+  <script>
+    console.log('Hello.html loaded successfully!');
+    console.log('Content from tab: ${tabs[activeTab]}');
+  </script>
 </body>
 </html>`;
     
