@@ -1,6 +1,7 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import Header from "../Components/header";
+import Footer from '../Components/Footer';
+import Header from '../Components/header';
 
 export default function CourtRoom() {
   return (
@@ -33,6 +34,7 @@ export default function CourtRoom() {
         </div>
       </div>
       </div>
+      <Footer />
     </div>
   );
 } 

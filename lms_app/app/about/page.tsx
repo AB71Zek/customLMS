@@ -1,5 +1,6 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
+import Footer from "../Components/Footer";
 import Header from "../Components/header";
 
 export default function About() {
@@ -55,6 +56,7 @@ export default function About() {
         </div>
       </div>
       </div>
+      <Footer />
     </div>
   );
 } 

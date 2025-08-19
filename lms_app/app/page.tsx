@@ -1,6 +1,7 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useRef, useState } from "react";
+import Footer from './Components/Footer';
 import Header from './Components/header';
 
 const images = [
@@ -177,6 +178,7 @@ export default function Home() {
           <h1>Welcome to My Next.js App</h1>
         </div>
       </div>
+      <Footer />
     </div>
   );
 } 

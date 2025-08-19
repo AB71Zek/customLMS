@@ -1,6 +1,7 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import Header from "../Components/header";
+import Footer from '../Components/Footer';
+import Header from '../Components/header';
 
 export default function EscapeRoom() {
   return (
@@ -32,6 +33,7 @@ export default function EscapeRoom() {
         </div>
       </div>
       </div>
+      <Footer />
     </div>
   );
 } 
