@@ -1,29 +1,65 @@
 // components/HamburgerMenu.tsx
 'use client'
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './hamburgerMenu.module.css';
 
 const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const toggleMenu = () => {
-    setIsOpen(!isOpen);
+    setIsOpen(prev => !prev);
   };
+
+  // Close on Escape, and click outside
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    const onClickOutside = (e: MouseEvent) => {
+      if (!menuRef.current || !buttonRef.current) return;
+      if (!menuRef.current.contains(e.target as Node) && !buttonRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('mousedown', onClickOutside);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('mousedown', onClickOutside);
+    };
+  }, []);
 
   return (
     <div className={styles.container}>
-      <div className={styles.hamburger} onClick={toggleMenu}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className={styles.hamburger}
+        aria-haspopup="true"
+        aria-controls="site-menu"
+        aria-expanded={isOpen}
+        aria-label={isOpen ? 'Close menu' : 'Open menu'}
+        onClick={toggleMenu}
+      >
         <div className={isOpen ? styles.barOpen : styles.bar}></div>
         <div className={isOpen ? styles.barOpen : styles.bar}></div>
         <div className={isOpen ? styles.barOpen : styles.bar}></div>
-      </div>
-      <nav className={isOpen ? styles.menuOpen : styles.menu}>
+      </button>
+      <nav
+        id="site-menu"
+        ref={menuRef}
+        className={isOpen ? styles.menuOpen : styles.menu}
+        role="menu"
+        aria-label="Main menu"
+      >
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/escape-room">Escape Room</a></li>
-          <li><a href="/coding-races">Coding Races</a></li>
-          <li><a href="/court-room">Court Room</a></li>
+          <li role="none"><a role="menuitem" href="/">Home</a></li>
+          <li role="none"><a role="menuitem" href="/about">About</a></li>
+          <li role="none"><a role="menuitem" href="/escape-room">Escape Room</a></li>
+          <li role="none"><a role="menuitem" href="/coding-races">Coding Races</a></li>
+          <li role="none"><a role="menuitem" href="/court-room">Court Room</a></li>
         </ul>
       </nav>
     </div>
