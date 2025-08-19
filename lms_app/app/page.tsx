@@ -1,47 +1,83 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Footer from './Components/Footer';
 import HamburgerMenu from './Components/hamburgerMenu';
 
-const images = [
-  {
-    src: "https://media.geeksforgeeks.org/wp-content/uploads/20211213172224/1.png",
-    alt: "One Image",
-    captionTitle: "One Image",
-    captionText: "Image 1 from GeeksforGeeks without 403 Error Protection"
-  },
-  {
-    src: "https://media.geeksforgeeks.org/wp-content/uploads/20211213172225/2.png",
-    alt: "Two Image",
-    captionTitle: "Two Image",
-    captionText: "Image 2 from GeeksforGeeks without 403 Error Protection"
-  },
-  {
-    src: "https://media.geeksforgeeks.org/wp-content/uploads/20211213172226/3.png",
-    alt: "Image 3",
-    captionTitle: "Image 3",
-    captionText: "Image 3 from GeeksforGeeks without 403 Error Protection"
-  }
-];
-
 export default function Home() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const carouselRef = useRef<HTMLDivElement | null>(null);
-  
-  // Handle the previous slide using the carousel API from Bootstrap
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+  const [tabs, setTabs] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<number | null>(null);
+  const [tabContents, setTabContents] = useState<{ [key: number]: string }>({});
+  const [outputCode, setOutputCode] = useState<string>('');
+
+  const addTab = () => {
+    if (tabs.length < 15) {
+      const newTabIndex = tabs.length;
+      const newTabName = `Tab ${newTabIndex + 1}`;
+      setTabs([...tabs, newTabName]);
+      setTabContents({ ...tabContents, [newTabIndex]: '' });
+      setActiveTab(newTabIndex);
+    }
   };
 
-  // Handle the next slide using the carousel API from Bootstrap
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+  const removeTab = (index: number) => {
+    const newTabs = tabs.filter((_, i) => i !== index);
+    const newTabContents = { ...tabContents };
+    delete newTabContents[index];
+    
+    // Adjust indices for remaining tabs
+    const adjustedTabContents: { [key: number]: string } = {};
+    Object.keys(newTabContents).forEach((key, newIndex) => {
+      adjustedTabContents[newIndex] = newTabContents[parseInt(key)];
+    });
+    
+    setTabs(newTabs);
+    setTabContents(adjustedTabContents);
+    
+    if (activeTab === index) {
+      setActiveTab(newTabs.length > 0 ? 0 : null);
+    } else if (activeTab !== null && activeTab > index) {
+      setActiveTab(activeTab - 1);
+    }
   };
 
-  // Handle dot click to change the slide
-  const handleDotClick = (index: number) => {
-    setCurrentIndex(index);
+  const updateTabContent = (index: number, content: string) => {
+    setTabContents({ ...tabContents, [index]: content });
+  };
+
+  const generateOutput = () => {
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello.html</title>
+</head>
+<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #f0f0f0;">
+    <div style="text-align: center; padding: 50px;">
+        <h1 style="color: #333; font-size: 48px; margin-bottom: 20px;">Hello</h1>
+        <p style="color: #666; font-size: 24px;">Welcome to the LMS Output!</p>
+    </div>
+    <script>
+        console.log("Hello from the LMS!");
+        document.addEventListener('DOMContentLoaded', function() {
+            alert('Hello.html loaded successfully!');
+        });
+    </script>
+</body>
+</html>`;
+    
+    setOutputCode(htmlContent);
+    
+    // Create and download the HTML file
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Hello.html';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -108,135 +144,151 @@ export default function Home() {
         </div>
       </div>
 
-      <div style={{ marginTop: "80px" }}>
-        <div
-          id="myCarousel"
-          className="carousel slide"
-          data-bs-ride="carousel"
-          ref={carouselRef}
-          style={{ position: "relative" }}
-        >
-          {/* Indicators (Dots) */}
-          <ol className="carousel-indicators">
-            {images.map((_, index) => (
-              <li
-                key={index}
-                data-bs-target="#myCarousel"
-                data-bs-slide-to={index}
-                className={index === currentIndex ? "active" : ""}
-                onClick={() => handleDotClick(index)}
-                style={{
-                  backgroundColor: index === currentIndex ? "#007bff" : "#bbb",
-                  borderRadius: "50%",
-                  width: "15px",
-                  height: "15px",
-                  margin: "0 5px",
-                  cursor: "pointer"
-                }}
-              ></li>
-            ))}
-          </ol>
-
-          {/* Wrapper for slides */}
-          <div className="carousel-inner" role="listbox">
-            {images.map((image, index) => (
-              <div
-                key={index}
-                className={`carousel-item ${index === currentIndex ? "active" : ""}`}
+      {/* Main Content - 3 Sections */}
+      <div style={{ marginTop: "80px", padding: "20px" }}>
+        <div className="row" style={{ minHeight: "70vh" }}>
+          
+          {/* Left Section - Tabs */}
+          <div className="col-md-3">
+            <div style={{
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              padding: "20px",
+              borderRadius: "10px",
+              border: "2px solid #007bff",
+              height: "100%"
+            }}>
+              <h3 style={{ color: "#007bff", marginBottom: "20px", textAlign: "center" }}>Tabs</h3>
+              
+              {/* Add Tab Button */}
+              <button 
+                className="btn btn-success w-100 mb-3"
+                onClick={addTab}
+                disabled={tabs.length >= 15}
+                style={{ marginBottom: "15px" }}
               >
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  width="200"
-                  height="300"
-                  className="d-block w-70 mx-auto"
-                />
-                <div className="carousel-caption" style={{ color: "white" }}>
-                  <h3>{image.captionTitle}</h3>
-                  <p>{image.captionText}</p>
-                </div>
+                + Add Tab ({tabs.length}/15)
+              </button>
+
+              {/* Tab List */}
+              <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                {tabs.map((tab, index) => (
+                  <div key={index} style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "10px",
+                    padding: "8px",
+                    backgroundColor: activeTab === index ? "#007bff" : "rgba(255, 255, 255, 0.1)",
+                    borderRadius: "5px",
+                    cursor: "pointer"
+                  }} onClick={() => setActiveTab(index)}>
+                    <span style={{ 
+                      color: activeTab === index ? "white" : "#007bff",
+                      flex: 1,
+                      fontSize: "14px"
+                    }}>
+                      {tab}
+                    </span>
+                    <button 
+                      className="btn btn-sm btn-danger"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeTab(index);
+                      }}
+                      style={{ padding: "2px 6px", fontSize: "10px" }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
 
-          {/* Left (Prev) and Right (Next) Controls */}
-          <a
-            className="carousel-control-prev"
-            href="#myCarousel"
-            role="button"
-            data-bs-slide="prev"
-            onClick={(e) => {
-              e.preventDefault();
-              prevSlide();
-            }}
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "0",
-              transform: "translateY(-50%)",
-              zIndex: 10,
-              backgroundColor: "black",
-              borderRadius: "50%",
-              padding: "10px",
-              color: "white",
-            }}
-          >
-            <span
-              className="carousel-control-prev-icon"
-              aria-hidden="true"
-              style={{
-                backgroundColor: "white",
-                borderRadius: "50%",
-                width: "30px",
-                height: "30px",
-                backgroundSize: "contain",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }}
-            ></span>
-            <span className="sr-only">Previous</span>
-          </a>
+          {/* Middle Section - Tabs Content */}
+          <div className="col-md-5">
+            <div style={{
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              padding: "20px",
+              borderRadius: "10px",
+              border: "2px solid #007bff",
+              height: "100%"
+            }}>
+              <h3 style={{ color: "#007bff", marginBottom: "20px", textAlign: "center" }}>Tabs Content</h3>
+              
+              {activeTab !== null ? (
+                <div>
+                  <h5 style={{ color: "white", marginBottom: "15px" }}>
+                    {tabs[activeTab]}
+                  </h5>
+                  <textarea
+                    className="form-control"
+                    value={tabContents[activeTab] || ''}
+                    onChange={(e) => updateTabContent(activeTab, e.target.value)}
+                    placeholder="Write your content here..."
+                    style={{
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      border: "1px solid #007bff",
+                      color: "white",
+                      minHeight: "300px",
+                      resize: "vertical"
+                    }}
+                  />
+                </div>
+              ) : (
+                <div style={{ 
+                  color: "#666", 
+                  textAlign: "center", 
+                  padding: "50px 20px",
+                  fontSize: "16px"
+                }}>
+                  Select a tab to start writing content
+                </div>
+              )}
+            </div>
+          </div>
 
-          <a
-            className="carousel-control-next"
-            href="#myCarousel"
-            role="button"
-            data-bs-slide="next"
-            onClick={(e) => {
-              e.preventDefault();
-              nextSlide();
-            }}
-            style={{
-              position: "absolute",
-              top: "50%",
-              right: "0",
-              transform: "translateY(-50%)",
-              zIndex: 10,
-              backgroundColor: "black",
-              borderRadius: "50%",
-              padding: "10px",
-              color: "white",
-            }}
-          >
-            <span
-              className="carousel-control-next-icon"
-              aria-hidden="true"
-              style={{
-                backgroundColor: "white",
-                borderRadius: "50%",
-                width: "30px",
-                height: "30px",
-                backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22%23fff%22 viewBox=%220 0 24 24%22 width=%2224%22 height=%2224%22%3E%3Cpath d=%22M9.41 7.41L14.83 12l-5.42 4.59L10.83 18l7-6-7-6z%22/%3E%3C/svg%3E')",
-                backgroundSize: "contain",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }}
-            ></span>
-            <span className="sr-only">Next</span>
-          </a>
-        </div>
-        <div>
-          <h1>Welcome to My Next.js App</h1>
+          {/* Right Section - Output */}
+          <div className="col-md-4">
+            <div style={{
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              padding: "20px",
+              borderRadius: "10px",
+              border: "2px solid #007bff",
+              height: "100%"
+            }}>
+              <h3 style={{ color: "#007bff", marginBottom: "20px", textAlign: "center" }}>Output</h3>
+              
+              {/* Generate Output Button */}
+              <button 
+                className="btn btn-primary w-100 mb-3"
+                onClick={generateOutput}
+                style={{ marginBottom: "15px" }}
+              >
+                Generate Hello.html
+              </button>
+
+              {/* Output Code Display */}
+              <div style={{
+                backgroundColor: "rgba(0, 0, 0, 0.9)",
+                border: "1px solid #007bff",
+                borderRadius: "5px",
+                padding: "15px",
+                maxHeight: "400px",
+                overflowY: "auto"
+              }}>
+                <pre style={{
+                  color: "#00ff00",
+                  fontSize: "12px",
+                  margin: 0,
+                  whiteSpace: "pre-wrap",
+                  wordWrap: "break-word"
+                }}>
+                  {outputCode || "Click 'Generate Hello.html' to see the output code"}
+                </pre>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       <Footer />
