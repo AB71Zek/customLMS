@@ -8,53 +8,54 @@ export default function About() {
     <div className="container" style={{ backgroundColor: "black", padding: "0", minHeight: "100vh", marginBottom: "100px" }}>
       <Header studentNumber="21406232" />
       <div style={{ marginTop: "80px" }}>
-      <div className="row justify-content-center">
-        <div className="col-md-8">
-          <div className="text-center text-white">
-            <h1 className="display-4 mb-4">About Us</h1>
-            <div className="card bg-dark text-white border-secondary mb-4">
-              <div className="card-body">
-                <h2 className="card-title">Our Story</h2>
-                <p className="card-text">
-                  Welcome to our Learning Management System (LMS). We are passionate about education 
-                  and technology, committed to providing innovative solutions for modern learning needs.
-                </p>
+        <div className="row justify-content-center">
+          <div className="col-md-8">
+            <div className="text-center text-white">
+              <h1 className="display-4 mb-4">About</h1>
+              
+              {/* Student Information */}
+              <div className="card bg-dark text-white border-secondary mb-4">
+                <div className="card-body">
+                  <h2 className="card-title mb-3">Student Information</h2>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <p className="card-text">
+                        <strong>Name:</strong> Arunjot Babra
+                      </p>
+                    </div>
+                    <div className="col-md-6">
+                      <p className="card-text">
+                        <strong>Student Number:</strong> 21406232
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <div className="card bg-dark text-white border-secondary mb-4">
-              <div className="card-body">
-                <h2 className="card-title">Our Mission</h2>
-                <p className="card-text">
-                  To empower educators and learners with cutting-edge tools and platforms that 
-                  enhance the educational experience and make learning accessible to everyone.
-                </p>
-              </div>
-            </div>
-            
-            <div className="card bg-dark text-white border-secondary mb-4">
-              <div className="card-body">
-                <h2 className="card-title">What We Do</h2>
-                <p className="card-text">
-                  We develop and maintain comprehensive learning management systems that integrate 
-                  seamlessly with modern educational workflows, providing both students and teachers 
-                  with the tools they need to succeed.
-                </p>
-              </div>
-            </div>
-            
-            <div className="card bg-dark text-white border-secondary">
-              <div className="card-body">
-                <h2 className="card-title">Get in Touch</h2>
-                <p className="card-text">
-                  Ready to transform your learning experience? Our LMS provides innovative 
-                  solutions for modern educational needs.
-                </p>
+
+              {/* Video Section */}
+              <div className="card bg-dark text-white border-secondary">
+                <div className="card-body">
+                  <h2 className="card-title mb-3">Video Presentation</h2>
+                  <div className="video-placeholder" style={{
+                    backgroundColor: "#333",
+                    border: "2px dashed #007bff",
+                    borderRadius: "10px",
+                    padding: "60px 20px",
+                    margin: "20px 0"
+                  }}>
+                    <div style={{ color: "#007bff", fontSize: "18px" }}>
+                      <i className="fas fa-video" style={{ marginRight: "10px" }}></i>
+                      Video will be displayed here
+                    </div>
+                    <div style={{ color: "#666", fontSize: "14px", marginTop: "10px" }}>
+                      (Video placeholder - you can add your video later)
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
       <Footer />
     </div>
