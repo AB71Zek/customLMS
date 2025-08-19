@@ -15,7 +15,7 @@ export default function About() {
         backgroundColor: "rgba(0, 0, 0, 0.95)",
         padding: "15px 20px",
         zIndex: 1001,
-        borderBottom: "2px solid #007bff",
+                       borderBottom: "2px solid #dc3545",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center"
@@ -25,10 +25,10 @@ export default function About() {
           backgroundColor: "rgba(0, 0, 0, 0.8)",
           padding: "8px 15px",
           borderRadius: "20px",
-          border: "2px solid #007bff"
+                           border: "2px solid #dc3545"
         }}>
           <span style={{
-            color: "#007bff",
+            color: "#dc3545",
             fontWeight: "bold",
             fontSize: "16px"
           }}>
@@ -39,7 +39,7 @@ export default function About() {
         {/* Center - MOODLE LMS Title */}
         <div>
           <h1 style={{
-            color: "#007bff",
+            color: "#dc3545",
             fontSize: "2.5rem",
             fontWeight: "bold",
             textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
@@ -54,8 +54,8 @@ export default function About() {
           <button 
             className="btn btn-outline-primary"
             style={{
-              borderColor: "#007bff",
-              color: "#007bff",
+              borderColor: "#dc3545",
+              color: "#dc3545",
               padding: "10px 20px",
               borderRadius: "25px",
               fontSize: "16px",
@@ -99,12 +99,12 @@ export default function About() {
                   <h2 className="card-title mb-3">Video Presentation</h2>
                   <div className="video-placeholder" style={{
                     backgroundColor: "#333",
-                    border: "2px dashed #007bff",
+                    border: "2px dashed #dc3545",
                     borderRadius: "10px",
                     padding: "60px 20px",
                     margin: "20px 0"
                   }}>
-                    <div style={{ color: "#007bff", fontSize: "18px" }}>
+                    <div style={{ color: "#dc3545", fontSize: "18px" }}>
                       <i className="fas fa-video" style={{ marginRight: "10px" }}></i>
                       Video will be displayed here
                     </div>

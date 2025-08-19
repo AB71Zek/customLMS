@@ -216,7 +216,7 @@ export default function Home() {
   };
 
   return (
-    <div className="container" style={{ backgroundColor: "black", padding: "0", marginBottom: "100px" }}>
+    <div style={{ backgroundColor: "#2a2a2a", padding: "0", marginBottom: "100px", minHeight: "100vh" }}>
       {/* Top Bar - Student Number, Title, Toggle Button, Hamburger Menu */}
       <div style={{
         position: "fixed",
@@ -226,7 +226,7 @@ export default function Home() {
         backgroundColor: "rgba(0, 0, 0, 0.95)",
         padding: "15px 20px",
         zIndex: 1001,
-        borderBottom: "2px solid #007bff",
+                       borderBottom: "2px solid #dc3545",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center"
@@ -236,10 +236,10 @@ export default function Home() {
           backgroundColor: "rgba(0, 0, 0, 0.8)",
           padding: "8px 15px",
           borderRadius: "20px",
-          border: "2px solid #007bff"
+          border: "2px solid #dc3545"
         }}>
           <span style={{
-            color: "#007bff",
+            color: "#dc3545",
             fontWeight: "bold",
             fontSize: "16px"
           }}>
@@ -250,7 +250,7 @@ export default function Home() {
         {/* Center - MOODLE LMS Title */}
         <div>
           <h1 style={{
-            color: "#007bff",
+            color: "#dc3545",
             fontSize: "2.5rem",
             fontWeight: "bold",
             textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
@@ -265,8 +265,8 @@ export default function Home() {
           <button 
             className="btn btn-outline-primary"
             style={{
-              borderColor: "#007bff",
-              color: "#007bff",
+              borderColor: "#dc3545",
+              color: "#dc3545",
               padding: "10px 20px",
               borderRadius: "25px",
               fontSize: "16px",
@@ -289,10 +289,10 @@ export default function Home() {
               backgroundColor: "rgba(0, 0, 0, 0.8)",
               padding: "20px",
               borderRadius: "10px",
-              border: "2px solid #007bff",
+              border: "2px solid #dc3545",
               height: "100%"
             }}>
-              <h3 style={{ color: "#007bff", marginBottom: "20px", textAlign: "center" }}>Tabs</h3>
+              <h3 style={{ color: "#dc3545", marginBottom: "20px", textAlign: "center" }}>Tabs</h3>
               <small style={{ color: "#666", display: "block", textAlign: "center", marginBottom: "15px" }}>
                 Double-click tab names to edit them
               </small>
@@ -315,12 +315,12 @@ export default function Home() {
                     alignItems: "center",
                     marginBottom: "10px",
                     padding: "8px",
-                    backgroundColor: activeTab === index ? "#007bff" : "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: activeTab === index ? "#dc3545" : "rgba(255, 255, 255, 0.1)",
                     borderRadius: "5px",
                     cursor: "pointer"
                   }} onClick={() => setActiveTab(index)} onDoubleClick={() => startEditingTab(index)}>
                     <span style={{ 
-                      color: activeTab === index ? "white" : "#007bff",
+                      color: activeTab === index ? "white" : "#dc3545",
                       flex: 1,
                       fontSize: "14px"
                     }}>
@@ -335,7 +335,7 @@ export default function Home() {
                           style={{
                             backgroundColor: "transparent",
                             border: "none",
-                            color: activeTab === index ? "white" : "#007bff",
+                            color: activeTab === index ? "white" : "#dc3545",
                             fontSize: "14px",
                             fontWeight: "bold",
                             width: "100%",
@@ -368,10 +368,10 @@ export default function Home() {
               backgroundColor: "rgba(0, 0, 0, 0.8)",
               padding: "20px",
               borderRadius: "10px",
-              border: "2px solid #007bff",
+              border: "2px solid #dc3545",
               height: "100%"
             }}>
-              <h3 style={{ color: "#007bff", marginBottom: "20px", textAlign: "center" }}>Tabs Content</h3>
+              <h3 style={{ color: "#dc3545", marginBottom: "20px", textAlign: "center" }}>Tabs Content</h3>
               
               {activeTab !== null ? (
                 <div>
@@ -385,7 +385,7 @@ export default function Home() {
                     placeholder="Write your content here..."
                     style={{
                       backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      border: "1px solid #007bff",
+                      border: "1px solid #dc3545",
                       color: "white",
                       minHeight: "300px",
                       resize: "vertical"
@@ -411,10 +411,10 @@ export default function Home() {
               backgroundColor: "rgba(0, 0, 0, 0.8)",
               padding: "20px",
               borderRadius: "10px",
-              border: "2px solid #007bff",
+              border: "2px solid #dc3545",
               height: "100%"
             }}>
-              <h3 style={{ color: "#007bff", marginBottom: "20px", textAlign: "center" }}>Output</h3>
+              <h3 style={{ color: "#dc3545", marginBottom: "20px", textAlign: "center" }}>Output</h3>
               
               {/* Generate Output Button */}
               <button 
@@ -439,7 +439,7 @@ export default function Home() {
               {/* Output Code Display */}
               <div style={{
                 backgroundColor: "rgba(0, 0, 0, 0.9)",
-                border: "1px solid #007bff",
+                border: "1px solid #dc3545",
                 borderRadius: "5px",
                 padding: "15px",
                 maxHeight: "400px",
