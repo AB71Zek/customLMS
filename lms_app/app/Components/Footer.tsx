@@ -44,8 +44,8 @@ const Footer = () => {
                 Student Number: <strong>21406232</strong>
               </span>
               <span style={{ color: "white", margin: "0 10px" }}>,</span>
-              <span style={{ color: "#dc3545" }}>
-                Date: <strong>{currentDate}</strong>
+              <span style={{ color: "#ffffff" }}>
+                <strong>{currentDate}</strong>
               </span>
             </div>
           </div>

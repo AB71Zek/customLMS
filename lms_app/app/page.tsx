@@ -260,23 +260,23 @@ export default function Home() {
           </h1>
         </div>
 
-        {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
-        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-          <button 
-            className="btn btn-outline-primary"
-            style={{
-              borderColor: "#dc3545",
-              color: "#dc3545",
-              padding: "10px 20px",
-              borderRadius: "25px",
-              fontSize: "16px",
-              fontWeight: "bold"
-            }}
-          >
-            🌙 Dark Mode
-          </button>
-          <HamburgerMenu />
-        </div>
+                       {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
+               <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+                 <button 
+                   className="btn btn-outline-primary"
+                   style={{
+                     borderColor: "#dc3545",
+                     color: "#dc3545",
+                     padding: "8px 16px",
+                     borderRadius: "20px",
+                     fontSize: "14px",
+                     fontWeight: "bold"
+                   }}
+                 >
+                   🌙 Dark
+                 </button>
+                 <HamburgerMenu />
+               </div>
       </div>
 
       {/* Main Content - 3 Sections */}

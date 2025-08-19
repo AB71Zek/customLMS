@@ -50,19 +50,19 @@ export default function CodingRaces() {
         </div>
 
         {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
-        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button 
             className="btn btn-outline-primary"
             style={{
               borderColor: "#dc3545",
               color: "#dc3545",
-              padding: "10px 20px",
-              borderRadius: "25px",
-              fontSize: "16px",
+              padding: "8px 16px",
+              borderRadius: "20px",
+              fontSize: "14px",
               fontWeight: "bold"
             }}
           >
-            🌙 Dark Mode
+            🌙 Dark
           </button>
           <HamburgerMenu />
         </div>
