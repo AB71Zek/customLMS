@@ -8,7 +8,7 @@ export default function CourtRoom() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="container theme-transition" style={{ backgroundColor: "var(--background)", padding: "0", minHeight: "100vh", marginBottom: "100px" }} data-theme={theme}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", marginBottom: "100px" }} data-theme={theme}>
       {/* Top Bar - Student Number, Title, Toggle Button, Hamburger Menu */}
       <div style={{
         position: "fixed",
@@ -60,12 +60,13 @@ export default function CourtRoom() {
         </div>
 
         {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginRight: "0px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <button 
-            className="btn btn-outline-primary theme-transition"
+            className="btn btn-outline-primary theme-transition theme-toggle-btn"
             onClick={toggleTheme}
             style={{
-              borderColor: "var(--accent-color)",
+              backgroundColor: "var(--section-bg)",
+              border: "2px solid var(--border-color)",
               color: "var(--accent-color)",
               padding: "8px 16px",
               borderRadius: "20px",

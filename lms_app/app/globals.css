@@ -19,7 +19,7 @@
 
 [data-theme="light"] {
   /* Light Theme */
-  --background: #f5f5f5;
+  --background: #ffffff;
   --foreground: #000000;
   --header-bg: rgba(128, 128, 128, 0.95);
   --footer-bg: rgba(128, 128, 128, 0.9);
@@ -73,6 +73,13 @@ html, body, #__next, [data-nextjs-page] {
   background-color: transparent !important;
 }
 
+/* Theme toggle button should have pill background like student number */
+.theme-toggle-btn {
+  background-color: var(--section-bg) !important;
+  border: 2px solid var(--border-color) !important;
+  color: var(--accent-color) !important;
+}
+
 /* Override any Tailwind backgrounds */
 .bg-white {
   background-color: var(--background) !important;
@@ -108,4 +115,11 @@ html, body, #__next, [data-nextjs-page] {
 
 [data-theme="light"] .tab-item.active {
   color: white !important;
+}
+
+/* Strong override: ensure page background is pure white in light mode */
+html[data-theme="light"],
+html[data-theme="light"] body,
+html[data-theme="light"] #__next {
+  background-color: #ffffff !important;
 }
