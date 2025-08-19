@@ -24,7 +24,6 @@ const HamburgerMenu = () => {
           <li><a href="/escape-room">Escape Room</a></li>
           <li><a href="/coding-races">Coding Races</a></li>
           <li><a href="/court-room">Court Room</a></li>
-          <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
     </div>

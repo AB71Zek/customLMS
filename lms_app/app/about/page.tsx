@@ -46,10 +46,9 @@ export default function About() {
               <div className="card-body">
                 <h2 className="card-title">Get in Touch</h2>
                 <p className="card-text">
-                  Ready to transform your learning experience? Contact us to learn more about 
-                  how our LMS can benefit your educational institution.
+                  Ready to transform your learning experience? Our LMS provides innovative 
+                  solutions for modern educational needs.
                 </p>
-                <a href="/contact" className="btn btn-primary">Contact Us</a>
               </div>
             </div>
           </div>
