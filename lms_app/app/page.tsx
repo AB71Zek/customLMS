@@ -5,6 +5,17 @@ import Footer from './Components/Footer';
 import HamburgerMenu from './Components/hamburgerMenu';
 import { useTheme } from './Components/ThemeContext';
 
+// Cookie helpers
+function setCookie(name: string, value: string, days: number) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
+
+function getCookie(name: string): string | null {
+  const matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+  return matches ? decodeURIComponent(matches[1]) : null;
+}
+
 export default function Home() {
   const { theme, toggleTheme } = useTheme();
   
@@ -21,7 +32,8 @@ export default function Home() {
   useEffect(() => {
     const savedTabs = localStorage.getItem('lms-tabs');
     const savedContents = localStorage.getItem('lms-tab-contents');
-    const savedActiveTab = localStorage.getItem('lms-active-tab');
+    const savedActiveTabLocal = localStorage.getItem('lms-active-tab');
+    const savedActiveTabCookie = getCookie('lms-active-tab');
     
     if (savedTabs) {
       setTabs(JSON.parse(savedTabs));
@@ -29,8 +41,14 @@ export default function Home() {
     if (savedContents) {
       setTabContents(JSON.parse(savedContents));
     }
-    if (savedActiveTab !== null) {
-      setActiveTab(parseInt(savedActiveTab));
+
+    // Prefer cookie if present, else fallback to localStorage
+    if (savedActiveTabCookie !== null) {
+      const parsed = parseInt(savedActiveTabCookie);
+      if (!Number.isNaN(parsed)) setActiveTab(parsed);
+    } else if (savedActiveTabLocal !== null) {
+      const parsed = parseInt(savedActiveTabLocal);
+      if (!Number.isNaN(parsed)) setActiveTab(parsed);
     }
   }, []);
 
@@ -39,7 +57,9 @@ export default function Home() {
     localStorage.setItem('lms-tabs', JSON.stringify(tabs));
     localStorage.setItem('lms-tab-contents', JSON.stringify(tabContents));
     if (activeTab !== null) {
-      localStorage.setItem('lms-active-tab', activeTab.toString());
+      const value = activeTab.toString();
+      localStorage.setItem('lms-active-tab', value);
+      setCookie('lms-active-tab', value, 365);
     }
   }, [tabs, tabContents, activeTab]);
 
