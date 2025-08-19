@@ -46,38 +46,117 @@ export default function Home() {
   };
 
   const generateOutput = () => {
-    const htmlContent = `
-<!DOCTYPE html>
+    if (activeTab === null) return;
+    
+    const content = tabContents[activeTab] || '';
+    const htmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hello.html</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            font-size: 48px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .content {
+            color: #666;
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        .footer {
+            color: #999;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
 </head>
-<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #f0f0f0;">
-    <div style="text-align: center; padding: 50px;">
-        <h1 style="color: #333; font-size: 48px; margin-bottom: 20px;">Hello</h1>
-        <p style="color: #666; font-size: 24px;">Welcome to the LMS Output!</p>
+<body>
+    <div class="container">
+        <h1>Hello</h1>
+        <div class="content">
+            ${content.split('\n').filter(line => line.trim()).map(line => 
+              `<p style="margin-bottom: 15px;">${line}</p>`
+            ).join('')}
+        </div>
+        <div class="footer">
+            Generated from LMS Tab Content
+        </div>
     </div>
+    
     <script>
-        console.log("Hello from the LMS!");
+        console.log("Hello.html loaded successfully!");
+        console.log("Content from tab: ${tabs[activeTab]}");
+        
         document.addEventListener('DOMContentLoaded', function() {
-            alert('Hello.html loaded successfully!');
+            // Add a subtle animation
+            const container = document.querySelector('.container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.5s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Add click effect
+            document.addEventListener('click', function() {
+                container.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    container.style.transform = 'scale(1)';
+                }, 150);
+            });
         });
     </script>
 </body>
 </html>`;
     
     setOutputCode(htmlContent);
-    
-    // Create and download the HTML file
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Hello.html';
-    a.click();
-    URL.revokeObjectURL(url);
+  };
+
+  const copyToClipboard = async () => {
+    if (outputCode) {
+      try {
+        await navigator.clipboard.writeText(outputCode);
+        // You could add a toast notification here
+        alert('Code copied to clipboard!');
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = outputCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Code copied to clipboard!');
+      }
+    }
   };
 
   return (
@@ -262,9 +341,20 @@ export default function Home() {
               <button 
                 className="btn btn-primary w-100 mb-3"
                 onClick={generateOutput}
+                disabled={activeTab === null}
                 style={{ marginBottom: "15px" }}
               >
-                Generate Hello.html
+                Generate Code from Tab Content
+              </button>
+
+              {/* Copy Code Button */}
+              <button 
+                className="btn btn-success w-100 mb-3"
+                onClick={copyToClipboard}
+                disabled={!outputCode}
+                style={{ marginBottom: "15px" }}
+              >
+                📋 Copy Code to Clipboard
               </button>
 
               {/* Output Code Display */}
@@ -283,7 +373,7 @@ export default function Home() {
                   whiteSpace: "pre-wrap",
                   wordWrap: "break-word"
                 }}>
-                  {outputCode || "Click 'Generate Hello.html' to see the output code"}
+                  {outputCode || "Click 'Generate Code from Tab Content' to create a complete Hello.html file that you can copy and paste into a blank file"}
                 </pre>
               </div>
             </div>
