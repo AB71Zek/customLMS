@@ -2,7 +2,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useRef, useState } from "react";
 import Footer from './Components/Footer';
-import Header from './Components/header';
+import HamburgerMenu from './Components/hamburgerMenu';
 
 const images = [
   {
@@ -46,7 +46,7 @@ export default function Home() {
 
   return (
     <div className="container" style={{ backgroundColor: "black", padding: "0", marginBottom: "100px" }}>
-      {/* Top Bar - Student Number, Title, Toggle Button */}
+      {/* Top Bar - Student Number, Title, Toggle Button, Hamburger Menu */}
       <div style={{
         position: "fixed",
         top: 0,
@@ -89,8 +89,8 @@ export default function Home() {
           </h1>
         </div>
 
-        {/* Right - Light/Dark Mode Toggle Button */}
-        <div>
+        {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
           <button 
             className="btn btn-outline-primary"
             style={{
@@ -104,12 +104,11 @@ export default function Home() {
           >
             🌙 Dark Mode
           </button>
+          <HamburgerMenu />
         </div>
       </div>
 
-      <Header />
-      
-      <div style={{ marginTop: "140px" }}>
+      <div style={{ marginTop: "80px" }}>
         <div
           id="myCarousel"
           className="carousel slide"

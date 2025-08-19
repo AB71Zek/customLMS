@@ -1,12 +1,12 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
 import Footer from "../Components/Footer";
-import Header from "../Components/header";
+import HamburgerMenu from "../Components/hamburgerMenu";
 
 export default function About() {
   return (
     <div className="container" style={{ backgroundColor: "black", padding: "0", minHeight: "100vh", marginBottom: "100px" }}>
-      {/* Top Bar - Student Number, Title, Toggle Button */}
+      {/* Top Bar - Student Number, Title, Toggle Button, Hamburger Menu */}
       <div style={{
         position: "fixed",
         top: 0,
@@ -49,8 +49,8 @@ export default function About() {
           </h1>
         </div>
 
-        {/* Right - Light/Dark Mode Toggle Button */}
-        <div>
+        {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
           <button 
             className="btn btn-outline-primary"
             style={{
@@ -64,16 +64,16 @@ export default function About() {
           >
             🌙 Dark Mode
           </button>
+          <HamburgerMenu />
         </div>
       </div>
 
-      <Header />
-      <div style={{ marginTop: "140px" }}>
+      <div style={{ marginTop: "80px" }}>
         <div className="row justify-content-center">
           <div className="col-md-8">
             <div className="text-center text-white">
               <h1 className="display-4 mb-4">About</h1>
-              
+
               {/* Student Information */}
               <div className="card bg-dark text-white border-secondary mb-4">
                 <div className="card-body">

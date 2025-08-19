@@ -1,12 +1,12 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
 import Footer from '../Components/Footer';
-import Header from '../Components/header';
+import HamburgerMenu from '../Components/hamburgerMenu';
 
 export default function CourtRoom() {
   return (
     <div className="container" style={{ backgroundColor: "black", padding: "0", minHeight: "100vh", marginBottom: "100px" }}>
-      {/* Top Bar - Student Number, Title, Toggle Button */}
+      {/* Top Bar - Student Number, Title, Toggle Button, Hamburger Menu */}
       <div style={{
         position: "fixed",
         top: 0,
@@ -49,8 +49,8 @@ export default function CourtRoom() {
           </h1>
         </div>
 
-        {/* Right - Light/Dark Mode Toggle Button */}
-        <div>
+        {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
           <button 
             className="btn btn-outline-primary"
             style={{
@@ -64,36 +64,37 @@ export default function CourtRoom() {
           >
             🌙 Dark Mode
           </button>
+          <HamburgerMenu />
         </div>
       </div>
 
-      <Header />
-      <div style={{ marginTop: "140px" }}>
-      <div className="row justify-content-center">
-        <div className="col-md-8">
-          <div className="text-center text-white">
-            <h1 className="display-4 mb-4">Court Room</h1>
-            <div className="card bg-dark text-white border-secondary">
-              <div className="card-body">
-                <h2 className="card-title">⚖️ Court Room</h2>
-                <p className="card-text">
-                  Step into the virtual courtroom! Experience legal proceedings, debates, and 
-                  argumentative exercises in an interactive learning environment.
-                </p>
-                <div className="alert alert-info">
-                  <strong>🚧 Under Construction</strong><br />
-                  This page is currently being developed. Prepare for engaging legal simulations!
+      <div style={{ marginTop: "80px" }}>
+        <div className="row justify-content-center">
+          <div className="col-md-8">
+            <div className="text-center text-white">
+              <h1 className="display-4 mb-4">Court Room</h1>
+              <p className="lead mb-4">
+                Step into the virtual courtroom and experience interactive legal scenarios and debates!
+              </p>
+              <div className="card bg-dark text-white border-secondary mb-4">
+                <div className="card-body">
+                  <h2 className="card-title mb-3">Courtroom Experience</h2>
+                  <p className="card-text">
+                    The virtual courtroom provides realistic legal scenarios where you can practice 
+                    argumentation, evidence presentation, and legal reasoning skills.
+                  </p>
+                  <button className="btn btn-primary" disabled>
+                    Enter Courtroom (Coming Soon)
+                  </button>
                 </div>
-                <div className="mt-4">
-                  <button className="btn btn-primary me-2" disabled>Enter Court</button>
-                  <button className="btn btn-secondary" disabled>View Cases</button>
-                  <button className="btn btn-warning" disabled>Join Trial</button>
-                </div>
+              </div>
+              <div className="alert alert-info">
+                <strong>Note:</strong> This feature is currently under development. 
+                Prepare for engaging legal simulations!
               </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
       <Footer />
     </div>
