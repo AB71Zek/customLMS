@@ -219,7 +219,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ backgroundColor: "var(--background)", padding: "0", marginBottom: "100px", minHeight: "100vh" }} className="theme-transition" data-theme={theme}>
+    <div style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", marginBottom: "100px", minHeight: "100vh" }} className="theme-transition" data-theme={theme}>
       {/* Top Bar - Student Number, Title, Toggle Button, Hamburger Menu */}
       <div style={{
         position: "fixed",
@@ -273,10 +273,11 @@ export default function Home() {
         {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <button 
-            className="btn btn-outline-primary theme-transition"
+            className="btn btn-outline-primary theme-transition theme-toggle-btn"
             onClick={toggleTheme}
             style={{
-              borderColor: "var(--accent-color)",
+              backgroundColor: "var(--section-bg)",
+              border: "2px solid var(--border-color)",
               color: "var(--accent-color)",
               padding: "8px 16px",
               borderRadius: "20px",
