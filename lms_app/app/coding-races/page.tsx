@@ -5,6 +5,21 @@ import HamburgerMenu from '../Components/hamburgerMenu';
 export default function CodingRaces() {
   return (
     <div className="container" style={{ backgroundColor: "black", padding: "0", minHeight: "100vh" }}>
+      {/* Student Number Display */}
+      <div style={{ 
+        position: "absolute", 
+        top: "20px", 
+        left: "20px", 
+        zIndex: 1000,
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        padding: "8px 15px",
+        borderRadius: "20px",
+        border: "2px solid #007bff"
+      }}>
+        <span style={{ color: "#007bff", fontWeight: "bold", fontSize: "16px" }}>
+          Student No: 21406232
+        </span>
+      </div>
       <br />
       <div className="row justify-content-center">
         <div className="col-md-8">
