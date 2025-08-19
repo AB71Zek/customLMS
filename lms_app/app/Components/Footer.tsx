@@ -21,31 +21,30 @@ const Footer = () => {
       color: "white",
       padding: "20px 0",
       borderTop: "2px solid #007bff",
-      marginTop: "auto",
-      position: "relative",
+      position: "fixed",
       bottom: 0,
-      width: "100%"
+      left: 0,
+      right: 0,
+      width: "100%",
+      zIndex: 999
     }}>
       <div className="container">
         <div className="row">
           <div className="col-md-12 text-center">
-            <div style={{ marginBottom: "10px" }}>
+            <div style={{ fontSize: "14px" }}>
               <span style={{ color: "#007bff", fontWeight: "bold" }}>
-                © 2024 Learning Management System. All rights reserved.
+                © 2025 Learning Management System. All rights reserved.
               </span>
-            </div>
-            <div style={{ marginBottom: "10px" }}>
+              <span style={{ color: "white", margin: "0 10px" }}>,</span>
               <span style={{ color: "white" }}>
                 Student: <strong>Arunjot Babra</strong>
               </span>
-            </div>
-            <div style={{ marginBottom: "10px" }}>
+              <span style={{ color: "white", margin: "0 10px" }}>,</span>
               <span style={{ color: "white" }}>
                 Student Number: <strong>21406232</strong>
               </span>
-            </div>
-            <div>
-              <span style={{ color: "#007bff", fontSize: "14px" }}>
+              <span style={{ color: "white", margin: "0 10px" }}>,</span>
+              <span style={{ color: "#007bff" }}>
                 Date: <strong>{currentDate}</strong>
               </span>
             </div>

@@ -45,7 +45,7 @@ export default function Home() {
   };
 
   return (
-    <div className="container" style={{ backgroundColor: "black", padding: "0" }}>
+    <div className="container" style={{ backgroundColor: "black", padding: "0", marginBottom: "100px" }}>
       <Header studentNumber="21406232" />
       <div style={{ marginTop: "80px" }}>
         <div

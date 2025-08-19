@@ -5,7 +5,7 @@ import Header from "../Components/header";
 
 export default function About() {
   return (
-    <div className="container" style={{ backgroundColor: "black", padding: "0", minHeight: "100vh" }}>
+    <div className="container" style={{ backgroundColor: "black", padding: "0", minHeight: "100vh", marginBottom: "100px" }}>
       <Header studentNumber="21406232" />
       <div style={{ marginTop: "80px" }}>
       <div className="row justify-content-center">
