@@ -1,46 +1,47 @@
 'use client';
 import HamburgerMenu from './hamburgerMenu';
 
-// New header component - positioned below top bar
-export default function Header() {
+interface HeaderProps {
+  studentNumber: string;
+}
+
+const Header = ({ studentNumber }: HeaderProps) => {
   return (
     <header style={{
       position: "fixed",
-      top: "60px", // Positioned below the top bar
+      top: 0,
       left: 0,
       right: 0,
       backgroundColor: "rgba(0, 0, 0, 0.9)",
       padding: "15px 20px",
       zIndex: 1000,
-                   borderBottom: "2px solid #dc3545"
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      borderBottom: "2px solid #007bff"
     }}>
+      {/* Student Number on the left */}
       <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        padding: "8px 15px",
+        borderRadius: "20px",
+        border: "2px solid #007bff"
       }}>
-        {/* Left side - Action Button */}
-        <div>
-          <button 
-            className="btn btn-primary"
-            style={{
-              backgroundColor: "#007bff",
-              borderColor: "#007bff",
-              padding: "8px 16px",
-              borderRadius: "20px",
-              fontSize: "14px",
-              fontWeight: "bold"
-            }}
-          >
-            Action
-          </button>
-        </div>
+        <span style={{
+          color: "#007bff",
+          fontWeight: "bold",
+          fontSize: "16px"
+        }}>
+          Student No: {studentNumber}
+        </span>
+      </div>
 
-        {/* Right side - Hamburger Menu */}
-        <div>
-          <HamburgerMenu />
-        </div>
+      {/* Hamburger Menu on the right */}
+      <div style={{ marginLeft: "auto" }}>
+        <HamburgerMenu />
       </div>
     </header>
   );
-}
+};
+
+export default Header;
