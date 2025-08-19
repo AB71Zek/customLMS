@@ -28,7 +28,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
         border: "2px solid #007bff"
       }}>
         <span style={{ 
-          color: "#007bff", 
+          color: "#ffffff", 
           fontWeight: "bold", 
           fontSize: "16px" 
         }}>
