@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MOODLE LMS (Next.js)
 
-## Getting Started
+A Learning Management System prototype built with Next.js (App Router). Includes multi-page layout, dark/light themes, tabbed content editor with output generator, and accessibility improvements.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Dev server: http://localhost:3000
+- Node 18+ recommended
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Header with student number (left), centered title, theme toggle + hamburger menu (right)
+- Footer (fixed): © 2025, Arunjot Babra, 21406232, Date
+- Pages: Home, About, Escape Room, Coding Races, Court Room
+- Dark/Light mode with persistence
+- Hamburger menu with CSS transform animation and a11y (button, aria-expanded, ESC/Click-outside)
+- Tabs (Home):
+  - Up to 15 tabs (+ / -)
+  - Rename tab headings (double-click)
+  - Per-tab content editing
+  - Persisted to localStorage
+  - Last active tab remembered via cookie
+- Output generator:
+  - Produces HTML with ONLY inline CSS (no classes, no <style>)
+  - Copy to clipboard and paste as Hello.html to open in a browser
 
-## Learn More
+## Branching
 
-To learn more about Next.js, take a look at the following resources:
+- main: stable integration
+- feature/theme-toggle: theme + header standardization + a11y fixes
+- feature/tabs-and-output: tabs, localStorage, inline-only output
+- feature/accessibility: accessibility enhancements
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev     # start dev server
+npm run build   # build
+npm start       # run production build
+```
 
-## Deploy on Vercel
+## Repository Hygiene
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- node_modules is excluded via root .gitignore
+- .next and .DS_Store also ignored
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+
+- Video demo to be added later (1, 3, 5 tabs outputs)
