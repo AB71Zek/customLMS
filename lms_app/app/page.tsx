@@ -3,8 +3,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import Footer from './Components/Footer';
 import HamburgerMenu from './Components/hamburgerMenu';
+import { useTheme } from './Components/ThemeContext';
 
 export default function Home() {
+  const { theme, toggleTheme } = useTheme();
+  
+  // Debug: Log current theme
+  console.log('Current theme:', theme);
   const [tabs, setTabs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<number | null>(null);
   const [tabContents, setTabContents] = useState<{ [key: number]: string }>({});
@@ -199,11 +204,9 @@ export default function Home() {
     if (outputCode) {
       try {
         await navigator.clipboard.writeText(outputCode);
-        // You could add a toast notification here
         alert('Code copied to clipboard!');
       } catch (err) {
         console.error('Failed to copy: ', err);
-        // Fallback for older browsers
         const textArea = document.createElement('textarea');
         textArea.value = outputCode;
         document.body.appendChild(textArea);
@@ -216,30 +219,30 @@ export default function Home() {
   };
 
   return (
-    <div style={{ backgroundColor: "#2a2a2a", padding: "0", marginBottom: "100px", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "var(--background)", padding: "0", marginBottom: "100px", minHeight: "100vh" }} className="theme-transition" data-theme={theme}>
       {/* Top Bar - Student Number, Title, Toggle Button, Hamburger Menu */}
       <div style={{
         position: "fixed",
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.95)",
+        backgroundColor: "var(--header-bg)",
         padding: "15px 20px",
         zIndex: 1001,
-                       borderBottom: "2px solid #dc3545",
+        borderBottom: "2px solid var(--border-color)",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center"
-      }}>
+      }} className="theme-transition" data-theme={theme}>
         {/* Left - Student Number */}
         <div style={{
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          backgroundColor: "var(--section-bg)",
           padding: "8px 15px",
           borderRadius: "20px",
-          border: "2px solid #dc3545"
-        }}>
+          border: "2px solid var(--border-color)"
+        }} className="theme-transition">
           <span style={{
-            color: "#dc3545",
+            color: "var(--accent-color)",
             fontWeight: "bold",
             fontSize: "16px"
           }}>
@@ -248,35 +251,43 @@ export default function Home() {
         </div>
 
         {/* Center - MOODLE LMS Title */}
-        <div>
+        <div style={{
+          position: "fixed",
+          left: "50%",
+          top: "15px",
+          transform: "translateX(-50%)",
+          zIndex: 1002
+        }}>
           <h1 style={{
-            color: "#dc3545",
+            color: "var(--accent-color)",
             fontSize: "2.5rem",
             fontWeight: "bold",
             textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-            margin: 0
+            margin: 0,
+            whiteSpace: "nowrap"
           }}>
             MOODLE LMS
           </h1>
         </div>
 
-                       {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
-               <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                 <button 
-                   className="btn btn-outline-primary"
-                   style={{
-                     borderColor: "#dc3545",
-                     color: "#dc3545",
-                     padding: "8px 16px",
-                     borderRadius: "20px",
-                     fontSize: "14px",
-                     fontWeight: "bold"
-                   }}
-                 >
-                   🌙 Dark
-                 </button>
-                 <HamburgerMenu />
-               </div>
+        {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
+        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+          <button 
+            className="btn btn-outline-primary theme-transition"
+            onClick={toggleTheme}
+            style={{
+              borderColor: "var(--accent-color)",
+              color: "var(--accent-color)",
+              padding: "8px 16px",
+              borderRadius: "20px",
+              fontSize: "14px",
+              fontWeight: "bold"
+            }}
+          >
+            {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+          </button>
+          <HamburgerMenu />
+        </div>
       </div>
 
       {/* Main Content - 3 Sections */}
@@ -286,14 +297,14 @@ export default function Home() {
           {/* Left Section - Tabs */}
           <div className="col-md-3">
             <div style={{
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              backgroundColor: "var(--section-bg)",
               padding: "20px",
               borderRadius: "10px",
-              border: "2px solid #dc3545",
+              border: "2px solid var(--border-color)",
               height: "100%"
-            }}>
-              <h3 style={{ color: "#dc3545", marginBottom: "20px", textAlign: "center" }}>Tabs</h3>
-              <small style={{ color: "#666", display: "block", textAlign: "center", marginBottom: "15px" }}>
+            }} className="theme-transition" data-theme={theme}>
+              <h3 style={{ color: "var(--accent-color)", marginBottom: "20px", textAlign: "center" }}>Tabs</h3>
+              <small style={{ color: "var(--text-secondary)", display: "block", textAlign: "center", marginBottom: "15px" }}>
                 Double-click tab names to edit them
               </small>
               
@@ -315,12 +326,12 @@ export default function Home() {
                     alignItems: "center",
                     marginBottom: "10px",
                     padding: "8px",
-                    backgroundColor: activeTab === index ? "#dc3545" : "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: activeTab === index ? "var(--accent-color)" : "var(--tab-inactive-bg)",
                     borderRadius: "5px",
                     cursor: "pointer"
                   }} onClick={() => setActiveTab(index)} onDoubleClick={() => startEditingTab(index)}>
                     <span style={{ 
-                      color: activeTab === index ? "white" : "#dc3545",
+                      color: activeTab === index ? "white" : "var(--tab-inactive-text)",
                       flex: 1,
                       fontSize: "14px"
                     }}>
@@ -335,7 +346,7 @@ export default function Home() {
                           style={{
                             backgroundColor: "transparent",
                             border: "none",
-                            color: activeTab === index ? "white" : "#dc3545",
+                            color: activeTab === index ? "white" : "var(--tab-inactive-text)",
                             fontSize: "14px",
                             fontWeight: "bold",
                             width: "100%",
@@ -365,28 +376,28 @@ export default function Home() {
           {/* Middle Section - Tabs Content */}
           <div className="col-md-5">
             <div style={{
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              backgroundColor: "var(--section-bg)",
               padding: "20px",
               borderRadius: "10px",
-              border: "2px solid #dc3545",
+              border: "2px solid var(--border-color)",
               height: "100%"
-            }}>
-              <h3 style={{ color: "#dc3545", marginBottom: "20px", textAlign: "center" }}>Tabs Content</h3>
+            }} className="theme-transition" data-theme={theme}>
+              <h3 style={{ color: "var(--accent-color)", marginBottom: "20px", textAlign: "center" }}>Tabs Content</h3>
               
               {activeTab !== null ? (
                 <div>
-                  <h5 style={{ color: "white", marginBottom: "15px" }}>
+                  <h5 style={{ color: "var(--text-primary)", marginBottom: "15px" }}>
                     {tabs[activeTab]}
                   </h5>
                   <textarea
-                    className="form-control"
+                    className="form-control theme-transition"
                     value={tabContents[activeTab] || ''}
                     onChange={(e) => updateTabContent(activeTab, e.target.value)}
                     placeholder="Write your content here..."
                     style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      border: "1px solid #dc3545",
-                      color: "white",
+                      backgroundColor: "var(--textarea-bg)",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--text-primary)",
                       minHeight: "300px",
                       resize: "vertical"
                     }}
@@ -394,7 +405,7 @@ export default function Home() {
                 </div>
               ) : (
                 <div style={{ 
-                  color: "#666", 
+                  color: "var(--text-secondary)", 
                   textAlign: "center", 
                   padding: "50px 20px",
                   fontSize: "16px"
@@ -408,13 +419,13 @@ export default function Home() {
           {/* Right Section - Output */}
           <div className="col-md-4">
             <div style={{
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              backgroundColor: "var(--section-bg)",
               padding: "20px",
               borderRadius: "10px",
-              border: "2px solid #dc3545",
+              border: "2px solid var(--border-color)",
               height: "100%"
-            }}>
-              <h3 style={{ color: "#dc3545", marginBottom: "20px", textAlign: "center" }}>Output</h3>
+            }} className="theme-transition" data-theme={theme}>
+              <h3 style={{ color: "var(--accent-color)", marginBottom: "20px", textAlign: "center" }}>Output</h3>
               
               {/* Generate Output Button */}
               <button 
@@ -438,15 +449,15 @@ export default function Home() {
 
               {/* Output Code Display */}
               <div style={{
-                backgroundColor: "rgba(0, 0, 0, 0.9)",
-                border: "1px solid #dc3545",
+                backgroundColor: "var(--code-bg)",
+                border: "1px solid var(--border-color)",
                 borderRadius: "5px",
                 padding: "15px",
                 maxHeight: "400px",
                 overflowY: "auto"
-              }}>
+              }} className="theme-transition">
                 <pre style={{
-                  color: "#00ff00",
+                  color: "var(--text-primary)",
                   fontSize: "12px",
                   margin: 0,
                   whiteSpace: "pre-wrap",
