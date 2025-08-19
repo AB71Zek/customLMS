@@ -1,7 +1,7 @@
 // components/HamburgerMenu.tsx
 'use client'
 import { useState } from 'react';
-import styles from './HamburgerMenu.module.css';
+import styles from './hamburgerMenu.module.css';
 
 const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
