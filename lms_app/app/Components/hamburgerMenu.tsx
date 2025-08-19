@@ -19,7 +19,7 @@ const HamburgerMenu = () => {
       </div>
       <nav className={isOpen ? styles.menuOpen : styles.menu}>
         <ul>
-          <li><a href="/home">Home</a></li>
+          <li><a href="/">Home</a></li>
           <li><a href="/about">About</a></li>
           <li><a href="/escape-room">Escape Room</a></li>
           <li><a href="/coding-races">Coding Races</a></li>
