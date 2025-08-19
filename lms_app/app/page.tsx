@@ -1,6 +1,7 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useRef, useState } from "react";
+import HamburgerMenu from './Components/hamburgerMenu';
 //import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Ensure Bootstrap JS is loaded
 
 const images = [
@@ -27,9 +28,6 @@ const images = [
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement | null>(null);
-
-
-
   // Handle the previous slide using the carousel API from Bootstrap
   const prevSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
@@ -175,6 +173,11 @@ export default function Home() {
           <span className="sr-only">Next</span>
         </a>
       </div>
+      <div>
+      <HamburgerMenu />
+      <h1>Welcome to My Next.js App</h1>
+      </div>
     </div>
   );
 }
+
