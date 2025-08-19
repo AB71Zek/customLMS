@@ -1,6 +1,6 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from './Components/Footer';
 import HamburgerMenu from './Components/hamburgerMenu';
 
@@ -9,6 +9,34 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<number | null>(null);
   const [tabContents, setTabContents] = useState<{ [key: number]: string }>({});
   const [outputCode, setOutputCode] = useState<string>('');
+  const [editingTab, setEditingTab] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState<string>('');
+
+  // Load tabs and content from localStorage on component mount
+  useEffect(() => {
+    const savedTabs = localStorage.getItem('lms-tabs');
+    const savedContents = localStorage.getItem('lms-tab-contents');
+    const savedActiveTab = localStorage.getItem('lms-active-tab');
+    
+    if (savedTabs) {
+      setTabs(JSON.parse(savedTabs));
+    }
+    if (savedContents) {
+      setTabContents(JSON.parse(savedContents));
+    }
+    if (savedActiveTab !== null) {
+      setActiveTab(parseInt(savedActiveTab));
+    }
+  }, []);
+
+  // Save tabs and content to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('lms-tabs', JSON.stringify(tabs));
+    localStorage.setItem('lms-tab-contents', JSON.stringify(tabContents));
+    if (activeTab !== null) {
+      localStorage.setItem('lms-active-tab', activeTab.toString());
+    }
+  }, [tabs, tabContents, activeTab]);
 
   const addTab = () => {
     if (tabs.length < 15) {
@@ -43,6 +71,34 @@ export default function Home() {
 
   const updateTabContent = (index: number, content: string) => {
     setTabContents({ ...tabContents, [index]: content });
+  };
+
+  const startEditingTab = (index: number) => {
+    setEditingTab(index);
+    setEditingName(tabs[index]);
+  };
+
+  const saveTabName = (index: number) => {
+    if (editingName.trim()) {
+      const newTabs = [...tabs];
+      newTabs[index] = editingName.trim();
+      setTabs(newTabs);
+    }
+    setEditingTab(null);
+    setEditingName('');
+  };
+
+  const cancelEditingTab = () => {
+    setEditingTab(null);
+    setEditingName('');
+  };
+
+  const handleTabNameKeyPress = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === 'Enter') {
+      saveTabName(index);
+    } else if (e.key === 'Escape') {
+      cancelEditingTab();
+    }
   };
 
   const generateOutput = () => {
@@ -237,6 +293,9 @@ export default function Home() {
               height: "100%"
             }}>
               <h3 style={{ color: "#007bff", marginBottom: "20px", textAlign: "center" }}>Tabs</h3>
+              <small style={{ color: "#666", display: "block", textAlign: "center", marginBottom: "15px" }}>
+                Double-click tab names to edit them
+              </small>
               
               {/* Add Tab Button */}
               <button 
@@ -259,13 +318,33 @@ export default function Home() {
                     backgroundColor: activeTab === index ? "#007bff" : "rgba(255, 255, 255, 0.1)",
                     borderRadius: "5px",
                     cursor: "pointer"
-                  }} onClick={() => setActiveTab(index)}>
+                  }} onClick={() => setActiveTab(index)} onDoubleClick={() => startEditingTab(index)}>
                     <span style={{ 
                       color: activeTab === index ? "white" : "#007bff",
                       flex: 1,
                       fontSize: "14px"
                     }}>
-                      {tab}
+                      {editingTab === index ? (
+                        <input
+                          type="text"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onBlur={() => saveTabName(index)}
+                          onKeyPress={(e) => handleTabNameKeyPress(e, index)}
+                          autoFocus
+                          style={{
+                            backgroundColor: "transparent",
+                            border: "none",
+                            color: activeTab === index ? "white" : "#007bff",
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            width: "100%",
+                            outline: "none"
+                          }}
+                        />
+                      ) : (
+                        tab
+                      )}
                     </span>
                     <button 
                       className="btn btn-sm btn-danger"
