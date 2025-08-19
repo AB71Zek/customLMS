@@ -360,9 +360,9 @@ export default function Home() {
                   />
                 </div>
               ) : (
-                <div style={{ 
-                  color: "var(--text-secondary)", 
-                  textAlign: "center", 
+                <div style={{
+                  color: "var(--text-secondary)",
+                  textAlign: "center",
                   padding: "50px 20px",
                   fontSize: "16px"
                 }}>
