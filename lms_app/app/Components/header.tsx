@@ -137,7 +137,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
               e.currentTarget.style.borderColor = "transparent";
             }
           }}>
-            🏠 Home
+            HOME
           </a>
 
           {/* Divider */}
@@ -176,7 +176,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
               e.currentTarget.style.borderColor = "transparent";
             }
           }}>
-            ℹ️ About
+            ABOUT
           </a>
 
           {/* Divider */}
@@ -215,7 +215,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
               e.currentTarget.style.borderColor = "transparent";
             }
           }}>
-            🚪 Escape Room
+            ESCAPE ROOM
           </a>
 
           {/* Divider */}
@@ -254,7 +254,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
               e.currentTarget.style.borderColor = "transparent";
             }
           }}>
-            🏁 Coding Races
+            CODING RACES
           </a>
 
           {/* Divider */}
@@ -293,7 +293,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
               e.currentTarget.style.borderColor = "transparent";
             }
           }}>
-            ⚖️ Court Room
+            COURT ROOM
           </a>
         </div>
       </nav>
