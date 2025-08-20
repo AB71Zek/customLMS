@@ -2,7 +2,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import Footer from './Components/Footer';
-import HamburgerMenu from './Components/hamburgerMenu';
+import Header from './Components/header';
 import { useTheme } from './Components/ThemeContext';
 
 // Cookie helpers
@@ -17,7 +17,7 @@ function getCookie(name: string): string | null {
 }
 
 export default function Home() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   
   // Debug: Log current theme
   console.log('Current theme:', theme);
@@ -175,79 +175,10 @@ export default function Home() {
 
   return (
     <div style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", marginBottom: "100px", minHeight: "100vh" }} className="theme-transition" data-theme={theme}>
-      {/* Top Bar - Student Number, Title, Toggle Button, Hamburger Menu */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: "var(--header-bg)",
-        padding: "15px 20px",
-        zIndex: 1001,
-        borderBottom: "2px solid var(--border-color)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }} className="theme-transition" data-theme={theme}>
-        {/* Left - Student Number */}
-        <div style={{
-          backgroundColor: "var(--section-bg)",
-          padding: "8px 15px",
-          borderRadius: "20px",
-          border: "2px solid var(--border-color)"
-        }} className="theme-transition">
-          <span style={{
-            color: "var(--accent-color)",
-            fontWeight: "bold",
-            fontSize: "16px"
-          }}>
-            Student No: 21406232
-          </span>
-        </div>
-
-        {/* Center - MOODLE LMS Title */}
-        <div style={{
-          position: "fixed",
-          left: "50%",
-          top: "15px",
-          transform: "translateX(-50%)",
-          zIndex: 1002
-        }}>
-          <h1 style={{
-            color: "var(--accent-color)",
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-            margin: 0,
-            whiteSpace: "nowrap"
-          }}>
-            MOODLE LMS
-          </h1>
-        </div>
-
-        {/* Right - Light/Dark Mode Toggle Button + Hamburger Menu */}
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <button 
-            className="btn btn-outline-primary theme-transition theme-toggle-btn"
-            onClick={toggleTheme}
-            style={{
-              backgroundColor: "var(--section-bg)",
-              border: "2px solid var(--border-color)",
-              color: "var(--accent-color)",
-              padding: "8px 16px",
-              borderRadius: "20px",
-              fontSize: "14px",
-              fontWeight: "bold"
-            }}
-          >
-            {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
-          </button>
-          <HamburgerMenu />
-        </div>
-      </div>
+      <Header studentNumber="21406232" />
 
       {/* Main Content - 3 Sections */}
-      <div style={{ marginTop: "80px", padding: "20px" }}>
+      <div style={{ marginTop: "140px", padding: "20px" }}>
         <div className="row" style={{ minHeight: "70vh" }}>
           
           {/* Left Section - Tabs */}
@@ -405,7 +336,6 @@ export default function Home() {
 
               {/* Output Code Display */}
               <div style={{
-                backgroundColor: "var(--code-bg)",
                 border: "1px solid var(--border-color)",
                 borderRadius: "5px",
                 padding: "15px",
@@ -413,7 +343,7 @@ export default function Home() {
                 overflowY: "auto"
               }} className="theme-transition">
                 <pre style={{
-                  color: "var(--text-primary)",
+                  color: "var(--text-secondary)",
                   fontSize: "12px",
                   margin: 0,
                   whiteSpace: "pre-wrap",
