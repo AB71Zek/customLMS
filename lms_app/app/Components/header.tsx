@@ -1,4 +1,5 @@
 'use client';
+import { usePathname } from 'next/navigation';
 import { useTheme } from './ThemeContext';
 import HamburgerMenu from './hamburgerMenu';
 
@@ -8,6 +9,13 @@ interface HeaderProps {
 
 const Header = ({ studentNumber }: HeaderProps) => {
   const { theme, toggleTheme } = useTheme();
+  const pathname = usePathname();
+
+  const isActivePage = (path: string) => {
+    if (path === '/' && pathname === '/') return true;
+    if (path !== '/' && pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <>
@@ -85,145 +93,208 @@ const Header = ({ studentNumber }: HeaderProps) => {
       {/* Navigation Bar */}
       <nav style={{
         position: "fixed",
-        top: "80px",
+        top: "76px",
         left: 0,
         right: 0,
         backgroundColor: "var(--section-bg)",
         borderBottom: "2px solid var(--border-color)",
         zIndex: 999,
-        padding: "10px 0"
+        padding: "5px 0"
       }} className="theme-transition">
-        <div className="container">
-          <ul style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            listStyle: "none",
-            margin: 0,
-            padding: 0,
-            gap: "40px"
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0 20px"
+        }}>
+          {/* Home */}
+          <a href="/" style={{
+            color: isActivePage('/') ? "white" : "var(--text-primary)",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            padding: "6px 14px",
+            borderRadius: "18px",
+            transition: "all 0.3s ease",
+            backgroundColor: isActivePage('/') ? "var(--accent-color)" : "transparent",
+            border: isActivePage('/') ? "2px solid var(--accent-color)" : "2px solid transparent",
+            minWidth: "120px",
+            textAlign: "center"
+          }} 
+          onMouseEnter={(e) => {
+            if (!isActivePage('/')) {
+              e.currentTarget.style.backgroundColor = "var(--accent-color)";
+              e.currentTarget.style.color = "white";
+              e.currentTarget.style.borderColor = "var(--accent-color)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isActivePage('/')) {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "var(--text-primary)";
+              e.currentTarget.style.borderColor = "transparent";
+            }
           }}>
-            <li>
-              <a href="/" style={{
-                color: "var(--text-primary)",
-                textDecoration: "none",
-                fontSize: "16px",
-                fontWeight: "bold",
-                padding: "8px 16px",
-                borderRadius: "20px",
-                transition: "all 0.3s ease",
-                border: "2px solid transparent"
-              }} 
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--accent-color)";
-                e.currentTarget.style.color = "white";
-                e.currentTarget.style.borderColor = "var(--accent-color)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--text-primary)";
-                e.currentTarget.style.borderColor = "transparent";
-              }}>
-                🏠 Home
-              </a>
-            </li>
-            <li>
-              <a href="/about" style={{
-                color: "var(--text-primary)",
-                textDecoration: "none",
-                fontSize: "16px",
-                fontWeight: "bold",
-                padding: "8px 16px",
-                borderRadius: "20px",
-                transition: "all 0.3s ease",
-                border: "2px solid transparent"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--accent-color)";
-                e.currentTarget.style.color = "white";
-                e.currentTarget.style.borderColor = "var(--accent-color)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--text-primary)";
-                e.currentTarget.style.borderColor = "transparent";
-              }}>
-                ℹ️ About
-              </a>
-            </li>
-            <li>
-              <a href="/escape-room" style={{
-                color: "var(--text-primary)",
-                textDecoration: "none",
-                fontSize: "16px",
-                fontWeight: "bold",
-                padding: "8px 16px",
-                borderRadius: "20px",
-                transition: "all 0.3s ease",
-                border: "2px solid transparent"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--accent-color)";
-                e.currentTarget.style.color = "white";
-                e.currentTarget.style.borderColor = "var(--accent-color)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--text-primary)";
-                e.currentTarget.style.borderColor = "transparent";
-              }}>
-                🚪 Escape Room
-              </a>
-            </li>
-            <li>
-              <a href="/coding-races" style={{
-                color: "var(--text-primary)",
-                textDecoration: "none",
-                fontSize: "16px",
-                fontWeight: "bold",
-                padding: "8px 16px",
-                borderRadius: "20px",
-                transition: "all 0.3s ease",
-                border: "2px solid transparent"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--accent-color)";
-                e.currentTarget.style.color = "white";
-                e.currentTarget.style.borderColor = "var(--accent-color)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--text-primary)";
-                e.currentTarget.style.borderColor = "transparent";
-              }}>
-                🏁 Coding Races
-              </a>
-            </li>
-            <li>
-              <a href="/court-room" style={{
-                color: "var(--text-primary)",
-                textDecoration: "none",
-                fontSize: "16px",
-                fontWeight: "bold",
-                padding: "8px 16px",
-                borderRadius: "20px",
-                transition: "all 0.3s ease",
-                border: "2px solid transparent"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--accent-color)";
-                e.currentTarget.style.color = "white";
-                e.currentTarget.style.borderColor = "var(--accent-color)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--text-primary)";
-                e.currentTarget.style.borderColor = "transparent";
-              }}>
-                ⚖️ Court Room
-              </a>
-            </li>
-          </ul>
+            🏠 Home
+          </a>
+
+          {/* Divider */}
+          <div style={{
+            width: "2px",
+            height: "20px",
+            backgroundColor: "var(--border-color)",
+            borderRadius: "1px"
+          }}></div>
+
+          {/* About */}
+          <a href="/about" style={{
+            color: isActivePage('/about') ? "white" : "var(--text-primary)",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            padding: "6px 14px",
+            borderRadius: "18px",
+            transition: "all 0.3s ease",
+            backgroundColor: isActivePage('/about') ? "var(--accent-color)" : "transparent",
+            border: isActivePage('/about') ? "2px solid var(--accent-color)" : "2px solid transparent",
+            minWidth: "120px",
+            textAlign: "center"
+          }}
+          onMouseEnter={(e) => {
+            if (!isActivePage('/about')) {
+              e.currentTarget.style.backgroundColor = "var(--accent-color)";
+              e.currentTarget.style.color = "white";
+              e.currentTarget.style.borderColor = "var(--accent-color)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isActivePage('/about')) {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "var(--text-primary)";
+              e.currentTarget.style.borderColor = "transparent";
+            }
+          }}>
+            ℹ️ About
+          </a>
+
+          {/* Divider */}
+          <div style={{
+            width: "2px",
+            height: "20px",
+            backgroundColor: "var(--border-color)",
+            borderRadius: "1px"
+          }}></div>
+
+          {/* Escape Room */}
+          <a href="/escape-room" style={{
+            color: isActivePage('/escape-room') ? "white" : "var(--text-primary)",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            padding: "6px 14px",
+            borderRadius: "18px",
+            transition: "all 0.3s ease",
+            backgroundColor: isActivePage('/escape-room') ? "var(--accent-color)" : "transparent",
+            border: isActivePage('/escape-room') ? "2px solid var(--accent-color)" : "2px solid transparent",
+            minWidth: "120px",
+            textAlign: "center"
+            }}
+          onMouseEnter={(e) => {
+            if (!isActivePage('/escape-room')) {
+              e.currentTarget.style.backgroundColor = "var(--accent-color)";
+              e.currentTarget.style.color = "white";
+              e.currentTarget.style.borderColor = "var(--accent-color)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isActivePage('/escape-room')) {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "var(--text-primary)";
+              e.currentTarget.style.borderColor = "transparent";
+            }
+          }}>
+            🚪 Escape Room
+          </a>
+
+          {/* Divider */}
+          <div style={{
+            width: "2px",
+            height: "20px",
+            backgroundColor: "var(--border-color)",
+            borderRadius: "1px"
+          }}></div>
+
+          {/* Coding Races */}
+          <a href="/coding-races" style={{
+            color: isActivePage('/coding-races') ? "white" : "var(--text-primary)",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            padding: "6px 14px",
+            borderRadius: "18px",
+            transition: "all 0.3s ease",
+            backgroundColor: isActivePage('/coding-races') ? "var(--accent-color)" : "transparent",
+            border: isActivePage('/coding-races') ? "2px solid var(--accent-color)" : "2px solid transparent",
+            minWidth: "120px",
+            textAlign: "center"
+          }}
+          onMouseEnter={(e) => {
+            if (!isActivePage('/coding-races')) {
+              e.currentTarget.style.backgroundColor = "var(--accent-color)";
+              e.currentTarget.style.color = "white";
+              e.currentTarget.style.borderColor = "var(--accent-color)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isActivePage('/coding-races')) {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "var(--text-primary)";
+              e.currentTarget.style.borderColor = "transparent";
+            }
+          }}>
+            🏁 Coding Races
+          </a>
+
+          {/* Divider */}
+          <div style={{
+            width: "2px",
+            height: "20px",
+            backgroundColor: "var(--border-color)",
+            borderRadius: "1px"
+          }}></div>
+
+          {/* Court Room */}
+          <a href="/court-room" style={{
+            color: isActivePage('/court-room') ? "white" : "var(--text-primary)",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            padding: "6px 14px",
+            borderRadius: "18px",
+            transition: "all 0.3s ease",
+            backgroundColor: isActivePage('/court-room') ? "var(--accent-color)" : "transparent",
+            border: isActivePage('/court-room') ? "2px solid var(--accent-color)" : "2px solid transparent",
+            minWidth: "120px",
+            textAlign: "center"
+          }}
+          onMouseEnter={(e) => {
+            if (!isActivePage('/court-room')) {
+              e.currentTarget.style.backgroundColor = "var(--accent-color)";
+              e.currentTarget.style.color = "white";
+              e.currentTarget.style.borderColor = "var(--accent-color)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isActivePage('/court-room')) {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "var(--text-primary)";
+              e.currentTarget.style.borderColor = "transparent";
+            }
+          }}>
+            ⚖️ Court Room
+          </a>
         </div>
       </nav>
     </>

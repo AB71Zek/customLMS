@@ -8,10 +8,10 @@ export default function About() {
   const { theme } = useTheme();
 
   return (
-    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", marginBottom: "100px" }} data-theme={theme}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", marginBottom: "60px" }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
-      <div style={{ marginTop: "140px" }}>
+      <div style={{ marginTop: "133px" }}>
         <div className="row justify-content-center">
           <div className="col-md-8">
             <div className="text-center" style={{ color: "var(--text-primary)" }}>
