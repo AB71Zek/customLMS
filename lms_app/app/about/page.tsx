@@ -48,20 +48,34 @@ export default function About() {
               }}>
                 <div className="card-body">
                   <h2 className="card-title mb-3">Video Presentation</h2>
-                  <div className="video-placeholder" style={{
-                    backgroundColor: "var(--textarea-bg)",
-                    border: "2px dashed var(--border-color)",
+                  <div className="video-container" style={{
+                    position: "relative",
+                    width: "100%",
+                    maxWidth: "800px",
+                    margin: "20px auto",
                     borderRadius: "10px",
-                    padding: "60px 20px",
-                    margin: "20px 0"
+                    overflow: "hidden",
+                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)"
                   }}>
-                    <div style={{ color: "var(--accent-color)", fontSize: "18px" }}>
-                      <i className="fas fa-video" style={{ marginRight: "10px" }}></i>
-                      Video will be displayed here
-                    </div>
-                    <div style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "10px" }}>
-                      (Video placeholder - you can add your video later)
-                    </div>
+                    <iframe
+                      src="/Moodle LMS Front End.mp4"
+                      title="Moodle LMS Front End Demo"
+                      style={{
+                        width: "100%",
+                        height: "450px",
+                        border: "none",
+                        borderRadius: "10px"
+                      }}
+                      allowFullScreen
+                    />
+                  </div>
+                  <div style={{ 
+                    textAlign: "center", 
+                    color: "var(--text-secondary)", 
+                    fontSize: "14px", 
+                    marginTop: "10px" 
+                  }}>
+                    <strong>Moodle LMS Front End Demo</strong> - Interactive demonstration of the learning management system features
                   </div>
                 </div>
               </div>
