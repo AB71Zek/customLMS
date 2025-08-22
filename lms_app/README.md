@@ -26,7 +26,7 @@ npm run dev
   - Persisted to localStorage
   - Last active tab remembered via cookie
 - Output generator:
-  - Produces HTML with ONLY inline CSS (no classes, no <style>)
+  - Produces HTML with ONLY inline CSS (no classes, no <style></style>)
   - Copy to clipboard and paste as Hello.html to open in a browser
 
 ## Branching
@@ -51,4 +51,4 @@ npm start       # run production build
 
 ## Notes
 
-- Video demo to be added later (1, 3, 5 tabs outputs)
+- My Github Repository for the code : https://github.com/AB71Zek/customLMS.git
