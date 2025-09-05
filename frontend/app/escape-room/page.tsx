@@ -14,16 +14,23 @@ export default function EscapeRoom() {
   const [userCode, setUserCode] = useState(`<!DOCTYPE html>
 <html>
 <head>
-<title>My Website</title>
+  <title>My Website</title>
 </head>
 <body>
-<h1>Welcome</h1>
-<p>This is a paragraph with <strong>bold text</strong> and <em>italic text</em>.</p>
-<ul>
-<li>Item 1</li>
-<li>Item 2</li>
-<li>Item 3</li>
-</ul>
+  <h1>Welcome</h1>
+  <p>This is a paragraph with <strong>bold text</strong> and <em>italic text</em>.</p>
+  <ul>
+    <li>Item 1
+    <li>Item 2</li>
+    <li>Item 3</li>
+  </ul>
+  <div clas="container">
+    <h2>About Us</h2>
+    <p>This is some content without proper spacing and<span class="highlight">highlighted text</span></p>
+  </div>
+  <footer>
+    <p>Copyright 2024</p>
+  </footer>
 </body>
 </html>`);
   const [showHint, setShowHint] = useState(false);
@@ -70,15 +77,54 @@ export default function EscapeRoom() {
     <li>Item 2</li>
     <li>Item 3</li>
   </ul>
+  <div class="container">
+    <h2>About Us</h2>
+    <p>This is some content without proper spacing and <span class="highlight">highlighted text</span></p>
+  </div>
+  <footer>
+    <p>Copyright 2024</p>
+  </footer>
 </body>
 </html>`;
 
   const checkFormatting = () => {
-    // Normalize whitespace and compare
-    const normalizedUser = userCode.replace(/\s+/g, ' ').trim();
-    const normalizedCorrect = correctCode.replace(/\s+/g, ' ').trim();
+    // More detailed formatting check
+    const userLines = userCode.split('\n');
+    const correctLines = correctCode.split('\n');
     
-    const isCorrect = normalizedUser === normalizedCorrect;
+    // Check if number of lines match
+    if (userLines.length !== correctLines.length) {
+      setIsAnswerCorrect(false);
+      alert('Incorrect formatting. Check your line breaks and structure. Try again or use the hint!');
+      return;
+    }
+    
+    // Check each line for proper indentation
+    let isCorrect = true;
+    for (let i = 0; i < userLines.length; i++) {
+      const userLine = userLines[i];
+      const correctLine = correctLines[i];
+      
+      // Remove leading/trailing whitespace for comparison
+      const userTrimmed = userLine.trim();
+      const correctTrimmed = correctLine.trim();
+      
+      // Check if the content matches (ignoring indentation)
+      if (userTrimmed !== correctTrimmed) {
+        isCorrect = false;
+        break;
+      }
+      
+      // Check indentation by counting leading spaces
+      const userIndent = userLine.length - userLine.trimStart().length;
+      const correctIndent = correctLine.length - correctLine.trimStart().length;
+      
+      if (userIndent !== correctIndent) {
+        isCorrect = false;
+        break;
+      }
+    }
+    
     setIsAnswerCorrect(isCorrect);
     
     if (isCorrect) {
@@ -95,6 +141,29 @@ export default function EscapeRoom() {
   const handleRetry = () => {
     setIsAnswerCorrect(null);
     setShowHint(false);
+    // Reset code to original malformed version
+    setUserCode(`<!DOCTYPE html>
+<html>
+<head>
+  <title>My Website</title>
+</head>
+<body>
+  <h1>Welcome</h1>
+  <p>This is a paragraph with <strong>bold text</strong> and <em>italic text</em>.</p>
+  <ul>
+    <li>Item 1
+    <li>Item 2</li>
+    <li>Item 3</li>
+  </ul>
+  <div clas="container">
+    <h2>About Us</h2>
+    <p>This is some content without proper spacing and<span class="highlight">highlighted text</span></p>
+  </div>
+  <footer>
+    <p>Copyright 2024</p>
+  </footer>
+</body>
+</html>`);
   };
 
   const handleNextStage = () => {
@@ -241,7 +310,14 @@ export default function EscapeRoom() {
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h4 className="mb-0">Stage 1: HTML Code Formatting</h4>
                   <div className="d-flex gap-2">
-                    <button className="btn btn-outline-secondary btn-sm" onClick={resetGame}>
+                    <button 
+                      className="btn btn-outline-secondary btn-sm" 
+                      onClick={resetGame}
+                      style={{
+                        color: "var(--text-primary)",
+                        borderColor: "var(--border-color)"
+                      }}
+                    >
                       Back to Menu
                     </button>
                   </div>
@@ -277,12 +353,13 @@ export default function EscapeRoom() {
                       color: "var(--text-primary)",
                       borderColor: "var(--border-color)"
                     }}>
-                      <strong>Hint:</strong> Proper HTML formatting includes:
+                      <strong>Hint:</strong> Look for these common HTML formatting issues:
                       <ul className="mb-0 mt-2">
-                        <li>Consistent indentation (2 or 4 spaces)</li>
-                        <li>Nested elements should be indented more than their parent</li>
-                        <li>Proper spacing around tags</li>
-                        <li>Clean, readable structure</li>
+                        <li>Missing closing tags (like &lt;/li&gt; or &lt;/p&gt;)</li>
+                        <li>Misspelled attributes (like "clas" instead of "class")</li>
+                        <li>Missing spaces around content</li>
+                        <li>Proper nesting structure</li>
+                        <li>All tags should be properly closed</li>
                       </ul>
                     </div>
                   )}
@@ -293,12 +370,21 @@ export default function EscapeRoom() {
                         <button 
                           className="btn btn-primary"
                           onClick={checkFormatting}
+                          style={{
+                            color: "white",
+                            backgroundColor: "#007bff",
+                            borderColor: "#007bff"
+                          }}
                         >
                           Submit
                         </button>
                         <button 
                           className="btn btn-outline-info"
                           onClick={handleHint}
+                          style={{
+                            color: "var(--text-primary)",
+                            borderColor: "#17a2b8"
+                          }}
                         >
                           Hint
                         </button>
@@ -308,6 +394,11 @@ export default function EscapeRoom() {
                         <button 
                           className="btn btn-warning"
                           onClick={handleRetry}
+                          style={{
+                            color: "var(--text-primary)",
+                            backgroundColor: "#ffc107",
+                            borderColor: "#ffc107"
+                          }}
                         >
                           Retry
                         </button>
@@ -315,6 +406,11 @@ export default function EscapeRoom() {
                           className={`btn ${isAnswerCorrect ? 'btn-success' : 'btn-secondary'}`}
                           onClick={handleNextStage}
                           disabled={!isAnswerCorrect}
+                          style={{
+                            color: isAnswerCorrect ? "white" : "var(--text-primary)",
+                            backgroundColor: isAnswerCorrect ? "#28a745" : "#6c757d",
+                            borderColor: isAnswerCorrect ? "#28a745" : "#6c757d"
+                          }}
                         >
                           Next Stage
                         </button>
