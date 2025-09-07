@@ -38,7 +38,6 @@ function reverseString(str) {
 }`;
 
   const correctedCode = `function calculateSum(numbers) {
-  if (numbers.length === 0) return 0; // Added null check
   let sum = 0;
   for (let i = 0; i < numbers.length; i++) { // Fixed: < instead of <=
     sum += numbers[i];
@@ -58,7 +57,6 @@ function findMax(arr) {
 }
 
 function reverseString(str) {
-  if (str.length === 0) return ""; // Added null check
   let reversed = "";
   for (let i = str.length - 1; i >= 0; i--) { // Fixed: str.length - 1
     reversed += str[i];
@@ -69,43 +67,43 @@ function reverseString(str) {
   const debugItems = [
     { 
       id: 1, 
-      x: 90, 
-      y: 80, 
-      isCorrect: false, 
+      x: 420, 
+      y: 70, 
+      isCorrect: true, 
       hint: "Array bounds error - should be < not <=",
-      description: "Off-by-one error in loop condition"
+      description: "Off-by-one error in loop condition (line 3)"
     },
     { 
       id: 2, 
-      x: 90, 
-      y: 120, 
-      isCorrect: true, 
-      hint: "Missing null check for empty array",
-      description: "Should check if array is empty first"
+      x: 220, 
+      y: 90, 
+      isCorrect: false, 
+      hint: "This is correct code",
+      description: "This line is actually fine"
     },
     { 
       id: 3, 
-      x: 90, 
-      y: 160, 
-      isCorrect: false, 
-      hint: "String index out of bounds",
-      description: "Should start from str.length - 1"
+      x: 220, 
+      y: 220, 
+      isCorrect: true, 
+      hint: "Missing null check for empty array",
+      description: "Should check if array is empty first (line 8)"
     },
     { 
       id: 4, 
-      x: 90, 
-      y: 200, 
-      isCorrect: true, 
-      hint: "Missing error handling",
-      description: "Should handle edge cases"
+      x: 370, 
+      y: 245, 
+      isCorrect: false, 
+      hint: "This is correct code",
+      description: "This line is actually fine"
     },
     { 
       id: 5, 
-      x: 90, 
-      y: 240, 
+      x: 280, 
+      y: 420, 
       isCorrect: true, 
-      hint: "Potential division by zero",
-      description: "Should check for zero before division"
+      hint: "String index out of bounds",
+      description: "Should start from str.length - 1 (line 16)"
     }
   ];
 
@@ -168,13 +166,28 @@ function reverseString(str) {
       </p>
       
       <div className="mb-4">
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <label className="form-label mb-0">Debug Points Found: {progress}/{correctItems.length}</label>
-          <div className="progress" style={{ width: '200px', height: '20px' }}>
+        <div className="d-flex justify-content-center">
+          <div 
+            className="progress" 
+            style={{ 
+              width: '300px', 
+              height: '30px',
+              border: '2px solid #dc3545',
+              borderRadius: '15px',
+              overflow: 'hidden'
+            }}
+          >
             <div 
-              className="progress-bar bg-success" 
-              style={{ width: `${(progress / correctItems.length) * 100}%` }}
-            ></div>
+              className="progress-bar bg-success d-flex align-items-center justify-content-center" 
+              style={{ 
+                width: `${(progress / correctItems.length) * 100}%`, //progress updated
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: 'white'
+              }}
+            >
+              {progress > 0 && `Debugs Found: ${progress}/${correctItems.length}`}
+            </div>
           </div>
         </div>
       </div>
