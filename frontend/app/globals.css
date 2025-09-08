@@ -117,6 +117,10 @@ html, body, #__next, [data-nextjs-page] {
   color: white !important;
 }
 
+[data-theme="dark"] ::placeholder {
+  color: rgba(206, 199, 199, 0.95) !important;
+}
+
 /* Strong override: ensure page background is pure white in light mode */
 html[data-theme="light"],
 html[data-theme="light"] body,
