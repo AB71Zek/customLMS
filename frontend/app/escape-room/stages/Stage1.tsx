@@ -174,7 +174,7 @@ const Stage1 = ({ onComplete }: Stage1Props) => {
           <strong>Hint:</strong> Look for these common HTML formatting issues:
           <ul className="mb-0 mt-2">
             <li>Missing closing tags (like &lt;/li&gt; or &lt;/p&gt;)</li>
-            <li>Misspelled attributes (like "clas" instead of "class")</li>
+            <li>Misspelled attributes (like &quot;clas&quot; instead of &quot;class&quot;)</li>
             <li>Missing spaces around content</li>
             <li>Proper nesting structure</li>
             <li>All tags should be properly closed</li>

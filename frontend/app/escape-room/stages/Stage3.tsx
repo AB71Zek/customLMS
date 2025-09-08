@@ -183,7 +183,7 @@ function reverseString(str) {
                 width: `${(progress / correctItems.length) * 100}%`, //progress updated
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: 'white'
+                color: 'black'
               }}
             >
               {progress > 0 && `Debugs Found: ${progress}/${correctItems.length}`}
