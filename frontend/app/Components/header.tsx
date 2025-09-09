@@ -25,7 +25,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: "var(--header-bg)",
+        backgroundColor: "var(--text-tertiary)",
         padding: "15px 20px",
         zIndex: 1000,
         display: "flex",
@@ -58,7 +58,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
           zIndex: 1001
         }}>
           <h1 style={{
-            color: "var(--accent-color)",
+            color: "var(--accent-color-tertiary)",
             fontSize: "2.5rem",
             fontWeight: "bold",
             textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
@@ -125,8 +125,8 @@ const Header = ({ studentNumber }: HeaderProps) => {
           }} 
           onMouseEnter={(e) => {
             if (!isActivePage('/')) {
-              e.currentTarget.style.backgroundColor = "var(--accent-color)";
-              e.currentTarget.style.color = "white";
+              e.currentTarget.style.backgroundColor = "none";
+              e.currentTarget.style.color = "var(--text-primary)";
               e.currentTarget.style.borderColor = "var(--accent-color)";
             }
           }}
@@ -164,8 +164,8 @@ const Header = ({ studentNumber }: HeaderProps) => {
           }}
           onMouseEnter={(e) => {
             if (!isActivePage('/about')) {
-              e.currentTarget.style.backgroundColor = "var(--accent-color)";
-              e.currentTarget.style.color = "white";
+              e.currentTarget.style.backgroundColor = "none";
+              e.currentTarget.style.color = "var(--text-primary)";
               e.currentTarget.style.borderColor = "var(--accent-color)";
             }
           }}
@@ -203,8 +203,8 @@ const Header = ({ studentNumber }: HeaderProps) => {
             }}
           onMouseEnter={(e) => {
             if (!isActivePage('/escape-room')) {
-              e.currentTarget.style.backgroundColor = "var(--accent-color)";
-              e.currentTarget.style.color = "white";
+              e.currentTarget.style.backgroundColor = "none";
+              e.currentTarget.style.color = "var(--text-primary)";
               e.currentTarget.style.borderColor = "var(--accent-color)";
             }
           }}
@@ -242,8 +242,8 @@ const Header = ({ studentNumber }: HeaderProps) => {
           }}
           onMouseEnter={(e) => {
             if (!isActivePage('/coding-races')) {
-              e.currentTarget.style.backgroundColor = "var(--accent-color)";
-              e.currentTarget.style.color = "white";
+              e.currentTarget.style.backgroundColor = "none";
+              e.currentTarget.style.color = "var(--text-primary)";
               e.currentTarget.style.borderColor = "var(--accent-color)";
             }
           }}
@@ -281,8 +281,8 @@ const Header = ({ studentNumber }: HeaderProps) => {
           }}
           onMouseEnter={(e) => {
             if (!isActivePage('/court-room')) {
-              e.currentTarget.style.backgroundColor = "var(--accent-color)";
-              e.currentTarget.style.color = "white";
+              e.currentTarget.style.backgroundColor = "none";
+              e.currentTarget.style.color = "var(--text-primary)";
               e.currentTarget.style.borderColor = "var(--accent-color)";
             }
           }}
