@@ -1,5 +1,6 @@
 // components/HamburgerMenu.tsx
 'use client'
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import styles from './hamburgerMenu.module.css';
 
@@ -55,11 +56,11 @@ const HamburgerMenu = () => {
         aria-label="Main menu"
       >
         <ul>
-          <li role="none"><a role="menuitem" href="/">Home</a></li>
-          <li role="none"><a role="menuitem" href="/about">About</a></li>
-          <li role="none"><a role="menuitem" href="/escape-room">Escape Room</a></li>
-          <li role="none"><a role="menuitem" href="/coding-races">Coding Races</a></li>
-          <li role="none"><a role="menuitem" href="/court-room">Court Room</a></li>
+          <li role="none"><Link role="menuitem" href="/">Home</Link></li>
+          <li role="none"><Link role="menuitem" href="/about">About</Link></li>
+          <li role="none"><Link role="menuitem" href="/escape-room">Escape Room</Link></li>
+          <li role="none"><Link role="menuitem" href="/coding-races">Coding Races</Link></li>
+          <li role="none"><Link role="menuitem" href="/court-room">Court Room</Link></li>
         </ul>
       </nav>
     </div>

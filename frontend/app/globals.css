@@ -8,8 +8,11 @@
   --footer-bg: rgba(0, 0, 0, 0.9);
   --section-bg: rgba(0, 0, 0, 0.8);
   --accent-color: #dc3545;
+  --accent-color-secondary: #ffffff;
+  --accent-color-tertiary: #dc3545;
   --text-primary: #ffffff;
   --text-secondary: #666666;
+  --text-tertiary: #000000;
   --border-color: #dc3545;
   --tab-inactive-bg: rgba(255, 255, 255, 0.1);
   --tab-inactive-text: #dc3545;
@@ -22,11 +25,14 @@
   --background: #ffffff;
   --foreground: #000000;
   --header-bg: rgba(128, 128, 128, 0.95);
-  --footer-bg: rgba(128, 128, 128, 0.9);
+  --footer-bg: #dc3545;
   --section-bg: #ffffff;
   --accent-color: #dc3545;
+  --accent-color-secondary: #ffffff;
+  --accent-color-tertiary: #ffffff;
   --text-primary: #000000;
   --text-secondary: #333333;
+  --text-tertiary: #dc3545;
   --border-color: #dc3545;
   --tab-inactive-bg: rgba(0, 0, 0, 0.1);
   --tab-inactive-text: #dc3545;
@@ -121,6 +127,9 @@ html, body, #__next, [data-nextjs-page] {
   color: rgba(206, 199, 199, 0.95) !important;
 }
 
+[data-theme="light"] footer {
+  color: white !important;
+}
 /* Strong override: ensure page background is pure white in light mode */
 html[data-theme="light"],
 html[data-theme="light"] body,

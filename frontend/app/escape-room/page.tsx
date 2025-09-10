@@ -26,7 +26,7 @@ export default function EscapeRoom() {
   const handleTimerSelect = (timerValue: number) => {
     setSelectedTimer(timerValue);
   };
-
+  //Custom timer
   const handleCustomTimerChange = (value: string) => {
     const numValue = parseInt(value);
     if (!isNaN(numValue) && numValue >= 60 && numValue <= 1800) {
@@ -211,6 +211,34 @@ export default function EscapeRoom() {
                   </div>
                 </div>
                 {renderStage()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {gameState === 'completed' && (
+          <div className="row justify-content-center">
+            <div className="col-md-8">
+              <div className="text-center" style={{ color: "var(--text-primary)" }}>
+                <h1 className="display-4 mb-4">🎉 Congratulations!</h1>
+                <div className="card" style={{
+                  backgroundColor: "var(--section-bg)",
+                  color: "var(--text-primary)",
+                  borderColor: "var(--border-color)"
+                }}>
+                  <div className="card-body">
+                    <h2 className="card-title mb-3">Escape Room Completed!</h2>
+                    <p className="card-text">
+                      You have successfully completed all 4 stages of the escape room challenge!
+                    </p>
+                    <button 
+                      className="btn btn-success"
+                      onClick={resetGame}
+                    >
+                      Play Again
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -27,7 +27,7 @@ export default function CodingRaces() {
                 <div className="card-body">
                   <h2 className="card-title mb-3">Race Format</h2>
                   <p className="card-text">
-                    Coding races feature timed challenges where you'll solve programming problems 
+                    Coding races feature timed challenges where you&apos;ll solve programming problems 
                     against the clock and compete with other students for the fastest solution.
                   </p>
                   <button className="btn btn-primary" disabled>

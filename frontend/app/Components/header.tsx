@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from './ThemeContext';
 import HamburgerMenu from './hamburgerMenu';
@@ -110,7 +111,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
           padding: "0 20px"
         }}>
           {/* Home */}
-          <a href="/" style={{
+          <Link href="/" style={{
             color: isActivePage('/') ? "white" : "var(--text-primary)",
             textDecoration: "none",
             fontSize: "16px",
@@ -138,7 +139,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
             }
           }}>
             HOME
-          </a>
+          </Link>
 
           {/* Divider */}
           <div style={{
@@ -149,7 +150,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
           }}></div>
 
           {/* About */}
-          <a href="/about" style={{
+          <Link href="/about" style={{
             color: isActivePage('/about') ? "white" : "var(--text-primary)",
             textDecoration: "none",
             fontSize: "16px",
@@ -177,7 +178,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
             }
           }}>
             ABOUT
-          </a>
+          </Link>
 
           {/* Divider */}
           <div style={{
@@ -188,7 +189,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
           }}></div>
 
           {/* Escape Room */}
-          <a href="/escape-room" style={{
+          <Link href="/escape-room" style={{
             color: isActivePage('/escape-room') ? "white" : "var(--text-primary)",
             textDecoration: "none",
             fontSize: "16px",
@@ -216,7 +217,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
             }
           }}>
             ESCAPE ROOM
-          </a>
+          </Link>
 
           {/* Divider */}
           <div style={{
@@ -227,7 +228,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
           }}></div>
 
           {/* Coding Races */}
-          <a href="/coding-races" style={{
+          <Link href="/coding-races" style={{
             color: isActivePage('/coding-races') ? "white" : "var(--text-primary)",
             textDecoration: "none",
             fontSize: "16px",
@@ -255,7 +256,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
             }
           }}>
             CODING RACES
-          </a>
+          </Link>
 
           {/* Divider */}
           <div style={{
@@ -266,7 +267,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
           }}></div>
 
           {/* Court Room */}
-          <a href="/court-room" style={{
+          <Link href="/court-room" style={{
             color: isActivePage('/court-room') ? "white" : "var(--text-primary)",
             textDecoration: "none",
             fontSize: "16px",
@@ -294,7 +295,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
             }
           }}>
             COURT ROOM
-          </a>
+          </Link>
         </div>
       </nav>
     </>
