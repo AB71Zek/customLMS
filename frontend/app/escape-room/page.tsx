@@ -1,6 +1,6 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Footer from '../Components/Footer';
 import Header from '../Components/header';
 import { useTheme } from '../Components/ThemeContext';
@@ -13,8 +13,9 @@ export default function EscapeRoom() {
   const { theme } = useTheme();
   const [selectedTimer, setSelectedTimer] = useState<number | null>(null);
   const [customTimer, setCustomTimer] = useState<number>(600);
-  const [gameState, setGameState] = useState<'menu' | 'playing' | 'completed'>('menu');
+  const [gameState, setGameState] = useState<'menu' | 'playing' | 'completed' | 'timeup'>('menu');
   const [currentStage, setCurrentStage] = useState(1);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
 
   const timerOptions = [
     { value: 300, label: "5 minutes", description: "Quick challenge" },
@@ -39,6 +40,7 @@ export default function EscapeRoom() {
     if (selectedTimer) {
       setGameState('playing');
       setCurrentStage(1);
+      setTimeLeft(selectedTimer);
     }
   };
 
@@ -53,6 +55,36 @@ export default function EscapeRoom() {
   const resetGame = () => {
     setGameState('menu');
     setCurrentStage(1);
+    setTimeLeft(0);
+  };
+
+  // Timer countdown effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    
+    if (gameState === 'playing' && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            setGameState('timeup');
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [gameState, timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const renderStage = () => {
@@ -197,7 +229,19 @@ export default function EscapeRoom() {
               }}>
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h4 className="mb-0">Stage {currentStage} of 4</h4>
-                  <div className="d-flex gap-2">
+                  <div className="d-flex gap-3 align-items-center">
+                    {/* Timer Display */}
+                    <div className="d-flex align-items-center gap-2">
+                      <span className="badge" style={{
+                        backgroundColor: timeLeft <= 60 ? '#dc3545' : '#55e676',
+                        color: 'white',
+                        fontSize: '16px',
+                        padding: '8px 12px',
+                        borderRadius: '20px'
+                      }}>
+                        ⏱️ {formatTime(timeLeft)}
+                      </span>
+                    </div>
                     <button 
                       className="btn btn-outline-secondary btn-sm" 
                       onClick={resetGame}
@@ -236,6 +280,35 @@ export default function EscapeRoom() {
                       onClick={resetGame}
                     >
                       Play Again
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {gameState === 'timeup' && (
+          <div className="row justify-content-center">
+            <div className="col-md-8">
+              <div className="text-center" style={{ color: "var(--text-primary)" }}>
+                <h1 className="display-4 mb-4">⏰ Time's Up!</h1>
+                <div className="card" style={{
+                  backgroundColor: "var(--section-bg)",
+                  color: "var(--text-primary)",
+                  borderColor: "var(--border-color)"
+                }}>
+                  <div className="card-body">
+                    <h2 className="card-title mb-3">Challenge Failed</h2>
+                    <p className="card-text">
+                      You ran out of time! You made it to Stage {currentStage} of 4. 
+                      Try again with more time or work faster!
+                    </p>
+                    <button 
+                      className="btn btn-warning"
+                      onClick={resetGame}
+                    >
+                      Try Again
                     </button>
                   </div>
                 </div>
