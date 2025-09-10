@@ -292,7 +292,7 @@ export default function EscapeRoom() {
           <div className="row justify-content-center">
             <div className="col-md-8">
               <div className="text-center" style={{ color: "var(--text-primary)" }}>
-                <h1 className="display-4 mb-4">⏰ Time's Up!</h1>
+                <h1 className="display-4 mb-4">⏰ Time&apos;s Up!</h1>
                 <div className="card" style={{
                   backgroundColor: "var(--section-bg)",
                   color: "var(--text-primary)",
