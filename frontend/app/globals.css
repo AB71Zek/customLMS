@@ -101,10 +101,6 @@ html, body, #__next, [data-nextjs-page] {
 [data-theme="light"] h5,
 [data-theme="light"] small,
 [data-theme="light"] span,
-[data-theme="light"] div {
-  color: var(--text-primary) !important;
-}
-
 [data-theme="light"] .btn {
   color: var(--text-primary) !important;
 }
@@ -125,10 +121,6 @@ html, body, #__next, [data-nextjs-page] {
 
 [data-theme="dark"] ::placeholder {
   color: rgba(206, 199, 199, 0.95) !important;
-}
-
-[data-theme="light"] footer {
-  color: white !important;
 }
 
 /* Ensure page background is pure white in light mode */

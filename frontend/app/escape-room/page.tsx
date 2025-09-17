@@ -1,5 +1,6 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Footer from '../Components/Footer';
 import Header from '../Components/header';
@@ -36,13 +37,7 @@ export default function EscapeRoom() {
     }
   };
 
-  const handleStartChallenge = () => {
-    if (selectedTimer) {
-      setGameState('playing');
-      setCurrentStage(1);
-      setTimeLeft(selectedTimer);
-    }
-  };
+  // No inline map state here; map lives on /escape-room/map
 
   const completeStage = () => {
     if (currentStage < 4) {
@@ -102,48 +97,50 @@ export default function EscapeRoom() {
     }
   };
 
+  // Map page lives at /escape-room/map
+
   return (
-    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", marginBottom: "60px" }} data-theme={theme}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", display: 'flex', flexDirection: 'column' }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
-      <div style={{ marginTop: "133px" }}>
+      <div style={{ marginTop: "133px", flex: 1, overflow: 'hidden' }}>
         {gameState === 'menu' && (
-          <div className="row justify-content-center">
-            <div className="col-md-8">
-              <div className="text-center" style={{ color: "var(--text-primary)" }}>
-                <h1 className="display-4 mb-4">Escape Room</h1>
-                
-                {/* Challenge Overview Card */}
-                <div className="card mb-4" style={{
+          <div className="row justify-content-center" style={{ height: '100%' }}>
+            <div className="col-md-10" style={{ height: '100%' }}>
+              <div className="card" style={{
                   backgroundColor: "var(--section-bg)",
                   color: "var(--text-primary)",
-                  borderColor: "var(--border-color)"
-                }}>
-                  <div className="card-body">
-                    <h2 className="card-title mb-3">Challenge Overview</h2>
-                    <p className="card-text">
-                      This escape room features multiple puzzles, hidden clues, and interactive elements. 
-                      Work through each challenge systematically to find your way out.
-                    </p>
-                    <button 
-                      className={`btn ${selectedTimer ? 'btn-success' : 'btn-secondary'}`}
-                      onClick={handleStartChallenge}
-                      disabled={!selectedTimer}
-                    >
-                      {selectedTimer ? `Start Challenge (${Math.floor(selectedTimer / 60)} min)` : 'Select Timer First'}
-                    </button>
-                  </div>
-                </div>
+                  borderColor: "var(--border-color)",
+                backgroundImage: "url('/escape-room-misc/timer-bg.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                position: "relative",
+                height: '100%'
+              }}>
+                {/* Overlay for better text readability */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0, 0, 0, 0.6)",
+                  borderRadius: "inherit"
+                }}></div>
                 
-                {/* Timer Selection Card */}
-                <div className="card mb-4" style={{
-                  backgroundColor: "var(--section-bg)",
-                  color: "var(--text-primary)",
-                  borderColor: "var(--border-color)"
-                }}>
-                  <div className="card-body">
-                    <h2 className="card-title mb-3">Select Timer Duration</h2>
-                    <p className="card-text mb-4">
+                <div className="card-body text-center" style={{ position: "relative", zIndex: 1 }}>
+                  {/* Header - Welcome to escape room */}
+                  <h1 className="display-4 mb-4" style={{ color: "white", textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}>
+                    Welcome to Escape Room
+                  </h1>
+                  
+                  {/* Before we start, select timer section */}
+                  <div className="mb-4">
+                    <h2 className="card-title mb-3" style={{ color: "white", textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}>
+                      Select Timer:
+                    </h2>
+                    <p className="card-text mb-4" style={{ color: "white", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
                       Choose how much time you want to complete the escape room challenge.
                     </p>
                     
@@ -153,15 +150,16 @@ export default function EscapeRoom() {
                         <div key={option.value} className="col-md-6 mb-3">
                           <div 
                             className={`card ${selectedTimer === option.value ? 'border-primary' : ''}`}
-                            style={{
-                              backgroundColor: selectedTimer === option.value ? "var(--accent-color)" : "var(--textarea-bg)",
-                              color: selectedTimer === option.value ? "white" : "var(--text-primary)",
-                              cursor: "pointer",
-                              border: selectedTimer === option.value ? "2px solid var(--accent-color)" : "1px solid var(--border-color)"
-                            }}
+                              style={{
+                                backgroundColor: selectedTimer === option.value ? "var(--accent-color)" : "var(--textarea-bg)",
+                                color: selectedTimer === option.value ? "white" : "var(--tab-inacvtive-bg)",
+                                cursor: "pointer",
+                                border: selectedTimer === option.value ? "2px solid var(--accent-color)" : "2px solid var(--border-color)",
+                                minHeight: "120px"
+                              }}
                             onClick={() => handleTimerSelect(option.value)}
                           >
-                            <div className="card-body text-center">
+                            <div className="card-body text-center d-flex flex-column justify-content-center" style={{ height: "100%" }}>
                               <h5 className="card-title">{option.label}</h5>
                               <p className="card-text small">{option.description}</p>
                             </div>
@@ -171,9 +169,9 @@ export default function EscapeRoom() {
                     </div>
 
                     {/* Custom Timer Option */}
-                    <div className="row">
+                    <div className="row mb-4">
                       <div className="col-md-8 mx-auto">
-                        <label className="form-label">Or set custom time (60-1800 seconds):</label>
+                        <label className="form-label" style={{ color: "white", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>Or set custom time (60-1800 seconds):</label>
                         <div className="input-group">
                           <input
                             type="number"
@@ -196,16 +194,31 @@ export default function EscapeRoom() {
                             seconds
                           </span>
                         </div>
-                        <small className="text-muted">
+                        <small className="text-muted" style={{ color: "white", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
                           Custom time: {Math.floor(customTimer / 60)} minutes {customTimer % 60} seconds
                         </small>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Status Message */}
-                {selectedTimer && (
+                  {/* Button to confirm timer */}
+                  {selectedTimer ? (
+                    <Link href="/escape-room/map" className="btn btn-lg btn-success" style={{ marginBottom: "20px" }}>
+                      Let's get started!
+                    </Link>
+                  ) : (
+                    <button className="btn btn-lg btn-secondary" disabled style={{ marginBottom: "20px" }}>
+                      Select Timer First
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Timer selected div - outside the main card */}
+            {selectedTimer && (
+              <div className="row justify-content-center mt-3">
+                <div className="col-md-10">
                   <div className="alert alert-success" style={{
                     backgroundColor: "var(--accent-color)",
                     color: "white",
@@ -213,19 +226,24 @@ export default function EscapeRoom() {
                   }}>
                     <strong>Timer Selected:</strong> {Math.floor(selectedTimer / 60)} minutes {selectedTimer % 60} seconds
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
+        
+
         {gameState === 'playing' && (
-          <div className="row justify-content-center">
-            <div className="col-md-10">
+          <div className="row justify-content-center" style={{ height: '100%' }}>
+            <div className="col-md-10" style={{ height: '100%' }}>
               <div className="card" style={{
                 backgroundColor: "var(--section-bg)",
                 color: "var(--text-primary)",
-                borderColor: "var(--border-color)"
+                borderColor: "var(--border-color)",
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
               }}>
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h4 className="mb-0">Stage {currentStage} of 4</h4>
@@ -254,7 +272,9 @@ export default function EscapeRoom() {
                     </button>
                   </div>
                 </div>
-                {renderStage()}
+                <div style={{ flex: 1, overflow: 'auto' }}>
+                  {renderStage()}
+                </div>
               </div>
             </div>
           </div>
@@ -269,10 +289,10 @@ export default function EscapeRoom() {
                   backgroundColor: "var(--section-bg)",
                   color: "var(--text-primary)",
                   borderColor: "var(--border-color)"
-                }}>
-                  <div className="card-body">
+              }}>
+                <div className="card-body">
                     <h2 className="card-title mb-3">Escape Room Completed!</h2>
-                    <p className="card-text">
+                  <p className="card-text">
                       You have successfully completed all 4 stages of the escape room challenge!
                     </p>
                     <button 
@@ -280,7 +300,7 @@ export default function EscapeRoom() {
                       onClick={resetGame}
                     >
                       Play Again
-                    </button>
+                  </button>
                   </div>
                 </div>
               </div>
@@ -295,9 +315,9 @@ export default function EscapeRoom() {
                 <h1 className="display-4 mb-4">⏰ Time&apos;s Up!</h1>
                 <div className="card" style={{
                   backgroundColor: "var(--section-bg)",
-                  color: "var(--text-primary)",
-                  borderColor: "var(--border-color)"
-                }}>
+                color: "var(--text-primary)",
+                borderColor: "var(--border-color)"
+              }}>
                   <div className="card-body">
                     <h2 className="card-title mb-3">Challenge Failed</h2>
                     <p className="card-text">
@@ -317,7 +337,7 @@ export default function EscapeRoom() {
           </div>
         )}
       </div>
-      <Footer />
+      {(gameState === 'menu' || gameState === 'completed' || gameState === 'timeup') && <Footer />}
     </div>
   );
 } 
