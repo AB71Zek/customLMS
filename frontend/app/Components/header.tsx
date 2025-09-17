@@ -18,6 +18,60 @@ const Header = ({ studentNumber }: HeaderProps) => {
     return false;
   };
 
+  // Reusable hover handlers
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    if (!isActivePage(path)) {
+      e.currentTarget.style.backgroundColor = "var(--accent-color)";
+      e.currentTarget.style.color = "white";
+      e.currentTarget.style.borderColor = "var(--accent-color)";
+    }
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    if (!isActivePage(path)) {
+      e.currentTarget.style.backgroundColor = "transparent";
+      e.currentTarget.style.color = "var(--text-primary)";
+      e.currentTarget.style.borderColor = "transparent";
+    }
+  };
+
+  // Navigation Link Component
+  const NavLink = ({ href, children }: { href: string; children: string }) => {
+    const isActive = isActivePage(href);
+    return (
+      <Link 
+        href={href} 
+        style={{
+          color: isActive ? "white" : "var(--text-primary)",
+          textDecoration: "none",
+          fontSize: "16px",
+          fontWeight: "bold",
+          padding: "6px 14px",
+          borderRadius: "18px",
+          transition: "all 0.3s ease",
+          backgroundColor: isActive ? "var(--accent-color)" : "transparent",
+          border: isActive ? "2px solid var(--accent-color)" : "2px solid transparent",
+          minWidth: "120px",
+          textAlign: "center"
+        }}
+        onMouseEnter={(e) => handleMouseEnter(e, href)}
+        onMouseLeave={(e) => handleMouseLeave(e, href)}
+      >
+        {children}
+      </Link>
+    );
+  };
+
+  // Divider Component
+  const NavDivider = () => (
+    <div style={{
+      width: "2px",
+      height: "20px",
+      backgroundColor: "var(--border-color)",
+      borderRadius: "1px"
+    }}></div>
+  );
+
   return (
     <>
       {/* Top Header */}
@@ -26,7 +80,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: "var(--text-tertiary)",
+        backgroundColor: "var(--header-bg)",
         padding: "15px 20px",
         zIndex: 1000,
         display: "flex",
@@ -59,7 +113,7 @@ const Header = ({ studentNumber }: HeaderProps) => {
           zIndex: 1001
         }}>
           <h1 style={{
-            color: "var(--accent-color-tertiary)",
+            color: "var(--accent-color)",
             fontSize: "2.5rem",
             fontWeight: "bold",
             textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
@@ -110,192 +164,15 @@ const Header = ({ studentNumber }: HeaderProps) => {
           margin: "0 auto",
           padding: "0 20px"
         }}>
-          {/* Home */}
-          <Link href="/" style={{
-            color: isActivePage('/') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-          }} 
-          onMouseEnter={(e) => {
-            if (!isActivePage('/')) {
-              e.currentTarget.style.backgroundColor = "none";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/')) {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            HOME
-          </Link>
-
-          {/* Divider */}
-          <div style={{
-            width: "2px",
-            height: "20px",
-            backgroundColor: "var(--border-color)",
-            borderRadius: "1px"
-          }}></div>
-
-          {/* About */}
-          <Link href="/about" style={{
-            color: isActivePage('/about') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/about') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/about') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-          }}
-          onMouseEnter={(e) => {
-            if (!isActivePage('/about')) {
-              e.currentTarget.style.backgroundColor = "none";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/about')) {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            ABOUT
-          </Link>
-
-          {/* Divider */}
-          <div style={{
-            width: "2px",
-            height: "20px",
-            backgroundColor: "var(--border-color)",
-            borderRadius: "1px"
-          }}></div>
-
-          {/* Escape Room */}
-          <Link href="/escape-room" style={{
-            color: isActivePage('/escape-room') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/escape-room') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/escape-room') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-            }}
-          onMouseEnter={(e) => {
-            if (!isActivePage('/escape-room')) {
-              e.currentTarget.style.backgroundColor = "none";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/escape-room')) {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            ESCAPE ROOM
-          </Link>
-
-          {/* Divider */}
-          <div style={{
-            width: "2px",
-            height: "20px",
-            backgroundColor: "var(--border-color)",
-            borderRadius: "1px"
-          }}></div>
-
-          {/* Coding Races */}
-          <Link href="/coding-races" style={{
-            color: isActivePage('/coding-races') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/coding-races') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/coding-races') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-          }}
-          onMouseEnter={(e) => {
-            if (!isActivePage('/coding-races')) {
-              e.currentTarget.style.backgroundColor = "none";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/coding-races')) {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            CODING RACES
-          </Link>
-
-          {/* Divider */}
-          <div style={{
-            width: "2px",
-            height: "20px",
-            backgroundColor: "var(--border-color)",
-            borderRadius: "1px"
-          }}></div>
-
-          {/* Court Room */}
-          <Link href="/court-room" style={{
-            color: isActivePage('/court-room') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/court-room') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/court-room') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-          }}
-          onMouseEnter={(e) => {
-            if (!isActivePage('/court-room')) {
-              e.currentTarget.style.backgroundColor = "none";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/court-room')) {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            COURT ROOM
-          </Link>
+          <NavLink href="/">HOME</NavLink>
+          <NavDivider />
+          <NavLink href="/about">ABOUT</NavLink>
+          <NavDivider />
+          <NavLink href="/escape-room">ESCAPE ROOM</NavLink>
+          <NavDivider />
+          <NavLink href="/coding-races">CODING RACES</NavLink>
+          <NavDivider />
+          <NavLink href="/court-room">COURT ROOM</NavLink>
         </div>
       </nav>
     </>

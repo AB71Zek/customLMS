@@ -18,9 +18,6 @@ function getCookie(name: string): string | null {
 
 export default function Home() {
   const { theme } = useTheme();
-  
-  // Debug: Log current theme
-  console.log('Current theme:', theme);
   const [tabs, setTabs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<number | null>(null);
   const [tabContents, setTabContents] = useState<{ [key: number]: string }>({});
@@ -173,37 +170,6 @@ export default function Home() {
     }
   };
 
-  const saveToBackend = async () => {
-    if (!outputCode) {
-      alert('Please generate code first!');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:3000/api/html-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: 'student_21406232', // Using student number as userId
-          title: `HTML Code - ${tabs[activeTab || 0] || 'Untitled'}`,
-          htmlContent: outputCode,
-        }),
-      });
-
-      if (response.ok) {
-        const savedCode = await response.json();
-        alert(`Code saved successfully! ID: ${savedCode.id}`);
-      } else {
-        const error = await response.json();
-        alert(`Failed to save: ${error.error}`);
-      }
-    } catch (err) {
-      console.error('Failed to save to backend: ', err);
-      alert('Failed to save to backend. Make sure the backend server is running.');
-    }
-  };
 
   return (
     <div style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", marginBottom: "60px", minHeight: "100vh" }} className="theme-transition" data-theme={theme}>
@@ -366,15 +332,6 @@ export default function Home() {
                 📋 Copy Code to Clipboard
               </button>
 
-              {/* Save to Backend Button */}
-              <button 
-                className="btn btn-info w-100 mb-3"
-                onClick={saveToBackend}
-                disabled={!outputCode}
-                style={{ marginBottom: "15px" }}
-              >
-                💾 Save
-              </button>
 
               {/* Output Code Display */}
               <div style={{
