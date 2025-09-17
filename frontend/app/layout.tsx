@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Footer from "./Components/Footer";
 import { ThemeProvider } from "./Components/ThemeContext";
 import "./globals.css";
 
@@ -27,10 +28,15 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ backgroundColor: "var(--background)", margin: 0, padding: 0 }}
+        style={{ backgroundColor: "var(--background)", margin: 0, padding: 0, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
       >
         <ThemeProvider>
-          {children}
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              {children}
+            </div>
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

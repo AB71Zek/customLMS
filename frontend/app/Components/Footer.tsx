@@ -22,13 +22,7 @@ const Footer = () => {
       backgroundColor: "var(--footer-bg)",
       color: "var(--text-primary)",
       padding: "20px 0",
-      borderTop: "2px solid var(--border-color)",
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      width: "100%",
-      zIndex: 999
+      borderTop: "2px solid var(--border-color)"
     }} className="theme-transition">
       <div className="container">
         <div className="row">

@@ -2,7 +2,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import Footer from '../Components/Footer';
 import Header from '../Components/header';
 import { useTheme } from '../Components/ThemeContext';
 import Stage1 from './stages/Stage1';
@@ -100,10 +99,10 @@ export default function EscapeRoom() {
   // Map page lives at /escape-room/map
 
   return (
-    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", display: 'flex', flexDirection: 'column' }} data-theme={theme}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0" }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
-      <div style={{ marginTop: "133px", flex: 1, overflow: 'hidden' }}>
+      <div style={{ marginTop: "133px", marginBottom: "20px"}}>
         {gameState === 'menu' && (
           <div className="row justify-content-center" style={{ height: '100%' }}>
             <div className="col-md-10" style={{ height: '100%' }}>
@@ -286,9 +285,9 @@ export default function EscapeRoom() {
               <div className="text-center" style={{ color: "var(--text-primary)" }}>
                 <h1 className="display-4 mb-4">🎉 Congratulations!</h1>
                 <div className="card" style={{
-                  backgroundColor: "var(--section-bg)",
-                  color: "var(--text-primary)",
-                  borderColor: "var(--border-color)"
+                backgroundColor: "var(--section-bg)",
+                color: "var(--text-primary)",
+                borderColor: "var(--border-color)"
               }}>
                 <div className="card-body">
                     <h2 className="card-title mb-3">Escape Room Completed!</h2>
@@ -337,7 +336,6 @@ export default function EscapeRoom() {
           </div>
         )}
       </div>
-      {(gameState === 'menu' || gameState === 'completed' || gameState === 'timeup') && <Footer />}
     </div>
   );
 } 

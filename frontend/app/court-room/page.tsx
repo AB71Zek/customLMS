@@ -1,6 +1,5 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import Footer from '../Components/Footer';
 import Header from '../Components/header';
 import { useTheme } from '../Components/ThemeContext';
 
@@ -47,7 +46,6 @@ export default function CourtRoom() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 } 
