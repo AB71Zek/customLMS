@@ -8,12 +8,16 @@
   --footer-bg: rgba(0, 0, 0, 0.9);
   --section-bg: rgba(0, 0, 0, 0.8);
   --accent-color: #dc3545;
+  --accent-color-secondary: #ffffff;
+  --accent-color-tertiary: #dc3545;
   --text-primary: #ffffff;
   --text-secondary: #666666;
+  --text-tertiary: #000000;
   --border-color: #dc3545;
   --tab-inactive-bg: rgba(255, 255, 255, 0.1);
   --tab-inactive-text: #dc3545;
   --textarea-bg: rgba(255, 255, 255, 0.1);
+  --code-bg: rgba(0, 0, 0, 0.9);
 }
 
 [data-theme="light"] {
@@ -24,12 +28,16 @@
   --footer-bg: #dc3545;
   --section-bg: #ffffff;
   --accent-color: #dc3545;
+  --accent-color-secondary: #ffffff;
+  --accent-color-tertiary: #ffffff;
   --text-primary: #000000;
   --text-secondary: #333333;
+  --text-tertiary: #dc3545;
   --border-color: #dc3545;
   --tab-inactive-bg: rgba(0, 0, 0, 0.1);
   --tab-inactive-text: #dc3545;
   --textarea-bg: rgba(0, 0, 0, 0.05);
+  --code-bg: rgba(0, 0, 0, 0.1);
 }
 
 body {
@@ -41,14 +49,34 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Override Bootstrap and default backgrounds */
-*, input, textarea, select, button, .container, .row, .col, .col-md-3, .col-md-5, .col-md-4, .form-control, .btn {
+/* Override any Bootstrap or default backgrounds */
+* {
+  background-color: transparent;
+}
+
+/* Ensure form elements also follow theme */
+input, textarea, select, button {
   background-color: transparent !important;
 }
 
-/* Override page backgrounds */
+/* Override any container backgrounds */
+.container, .row, .col, .col-md-3, .col-md-5, .col-md-4 {
+  background-color: transparent !important;
+}
+
+/* Override Bootstrap form-control class */
+.form-control {
+  background-color: transparent !important;
+}
+
+/* Override any remaining backgrounds */
 html, body, #__next, [data-nextjs-page] {
   background-color: var(--background) !important;
+}
+
+/* Ensure buttons don't have white backgrounds */
+.btn {
+  background-color: transparent !important;
 }
 
 /* Theme toggle button should have pill background like student number */
@@ -58,7 +86,7 @@ html, body, #__next, [data-nextjs-page] {
   color: var(--accent-color) !important;
 }
 
-/* Override Tailwind backgrounds */
+/* Override any Tailwind backgrounds */
 .bg-white {
   background-color: var(--background) !important;
 }
@@ -68,18 +96,25 @@ html, body, #__next, [data-nextjs-page] {
   transition: all 0.3s ease;
 }
 
-/* Force text colors for light theme */
+/* Force text colors for theme switching */
 [data-theme="light"] h3,
 [data-theme="light"] h5,
 [data-theme="light"] small,
 [data-theme="light"] span,
-[data-theme="light"] div,
-[data-theme="light"] .btn,
+[data-theme="light"] div {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .btn {
+  color: var(--text-primary) !important;
+}
+
+/* Ensure textarea text is visible in light mode */
 [data-theme="light"] textarea {
   color: var(--text-primary) !important;
 }
 
-/* Tab text colors */
+/* Force tab text colors */
 [data-theme="light"] .tab-item {
   color: var(--tab-inactive-text) !important;
 }

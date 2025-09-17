@@ -18,6 +18,9 @@ function getCookie(name: string): string | null {
 
 export default function Home() {
   const { theme } = useTheme();
+  
+  // Debug: Log current theme
+  console.log('Current theme:', theme);
   const [tabs, setTabs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<number | null>(null);
   const [tabContents, setTabContents] = useState<{ [key: number]: string }>({});
