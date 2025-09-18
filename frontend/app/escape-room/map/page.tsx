@@ -1,6 +1,6 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Header from '../../Components/header';
 import { useTheme } from '../../Components/ThemeContext';
 
@@ -10,6 +10,9 @@ export default function MapRoomPage() {
   const [stageStatus] = useState<Array<'available' | 'locked' | 'completed'>>([
     'available', 'locked', 'locked', 'locked'
   ]);
+
+  // Current stage: index of the first available stage
+  const currentStageIndex = useMemo(() => stageStatus.findIndex(s => s === 'available'), [stageStatus]);
 
   // Initial placeholder positions; you will replace these later
   const positions = [
@@ -52,21 +55,40 @@ export default function MapRoomPage() {
             <div style={{ position: 'absolute', inset: 0 }}>
               {positions.map((pos, idx) => {
                 const status = stageStatus[idx];
-                const imgSrc = status === 'locked'
-                  ? '/escape-room-misc/denied.png'
-                  : status === 'completed'
-                  ? '/escape-room-misc/finished.png'
-                  : stageIcon[idx];
                 return (
                   <div key={idx} style={{ position: 'absolute', left: pos.left, top: pos.top, transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                    {/* Pointer for current available stage */}
+                    {idx === currentStageIndex && (
+                      <img
+                        src="/escape-room-misc/pointer.png"
+                        alt="Pointer"
+                        width={100}
+                        height={100}
+                        style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', zIndex: 3 }}
+                      />
+                    )}
+
+                    {/* Base stage icon always visible */}
                     <img
-                      src={imgSrc}
+                      src={stageIcon[idx]}
                       alt={`Stage ${idx + 1}`}
                       width={72}
                       height={72}
-                      style={{ filter: status === 'locked' ? 'grayscale(50%)' : 'none' }}
+                      style={{ zIndex: 1, position: 'relative' }}
                     />
-                    <div style={{ marginTop: '6px', color: '#fff', textShadow: '1px 1px 2px rgba(0,0,0,0.8)', fontSize: '14px' }}>Stage {idx + 1}</div>
+
+                    {/* Status overlay on top of base icon */}
+                    {status !== 'available' && (
+                      <img
+                        src={status === 'locked' ? '/escape-room-misc/denied.png' : '/escape-room-misc/finished.png'}
+                        alt={status}
+                        width={85}
+                        height={85}
+                        style={{ position: 'absolute', inset: 0, margin: 'auto', filter: 'blur(0.5px)', opacity: 0.70, zIndex: 2, transform: 'translateY(-13.2px)' }}
+                      />
+                    )}
+
+                    <div style={{ marginTop: '6px', color: '#fff', textShadow: '1px 1px 2px rgba(0,0,0,0.8)', fontSize: '14px', position: 'relative', zIndex: 4 }}>Stage {idx + 1}</div>
                   </div>
                 );
               })}
