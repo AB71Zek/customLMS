@@ -29,9 +29,8 @@ export default function MapRoomPage() {
           }}>
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
           </div>
-          <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '12px 16px', zIndex: 1 }}>
-            <h4 className="mb-0" style={{ color: 'white', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>Treasure Map</h4>
-            <span className="badge" style={{ backgroundColor: '#6c757d', color: 'white', fontSize: '14px', padding: '6px 10px', borderRadius: '14px' }}>Timer paused</span>
+          <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1150, right: 0, padding: '12px 16px', zIndex: 1 }}>
+            <span className="badge" style={{ backgroundColor: '#dc3545', color: 'white', fontSize: '16px', padding: '9px 12px', borderRadius: '14px', border: '2px solid black'}}>Timer paused</span>
           </div>
         </div>
       </div>

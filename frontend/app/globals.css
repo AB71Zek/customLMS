@@ -1,3 +1,33 @@
+.escape-room .er-on-image h1,
+.escape-room .er-on-image h2,
+.escape-room .er-on-image h3,
+.escape-room .er-on-image h4,
+.escape-room .er-on-image h5,
+.escape-room .er-on-image h6,
+.escape-room .er-on-image p,
+.escape-room .er-on-image label,
+.escape-room .er-on-image small {
+  color: #ffffff !important;
+}
+
+/* Ensure inputs and input addons render white text in the Escape Room timer panel */
+.escape-room .er-on-image .form-control { color: #ffffff !important; }
+.escape-room .er-on-image .input-group-text { color: #ffffff !important; }
+
+/* Make card content in the timer grid white by default */
+.escape-room .er-on-image .card .card-title,
+.escape-room .er-on-image .card .card-text { color: #ffffff !important; }
+
+[data-theme="light"] .footer-meta { color: #000000 !important; }
+[data-theme="light"] footer { color: #ffffff !important; }
+[data-theme="light"] footer .footer-meta { color: #ffffff !important; }
+
+/* Restore placeholder visibility on purpose */
+::placeholder { color: rgba(128,128,128,0.9) !important; }
+
+
+/* Escape room timer selection text scope */
+.er-timer-text { color: #ffffff !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
 @import "tailwindcss";
 
 :root {
@@ -5,7 +35,7 @@
   --background: #2a2a2a;
   --foreground: #ffffff;
   --header-bg: rgba(0, 0, 0, 0.95);
-  --footer-bg: rgba(0, 0, 0, 0.9);
+  --footer-bg: var(--accent-color);
   --section-bg: rgba(0, 0, 0, 0.8);
   --accent-color: #dc3545;
   --accent-color-secondary: #ffffff;
@@ -14,6 +44,7 @@
   --text-secondary: #666666;
   --text-tertiary: #000000;
   --border-color: #dc3545;
+  --footer-border-color: #dc3545;
   --tab-inactive-bg: rgba(255, 255, 255, 0.1);
   --tab-inactive-text: #dc3545;
   --textarea-bg: rgba(255, 255, 255, 0.1);
@@ -25,7 +56,7 @@
   --background: #ffffff;
   --foreground: #000000;
   --header-bg: rgba(128, 128, 128, 0.95);
-  --footer-bg: #dc3545;
+  --footer-bg: var(--accent-color);
   --section-bg: #ffffff;
   --accent-color: #dc3545;
   --accent-color-secondary: #ffffff;
@@ -34,6 +65,7 @@
   --text-secondary: #333333;
   --text-tertiary: #dc3545;
   --border-color: #dc3545;
+  --footer-border-color: #000000;
   --tab-inactive-bg: rgba(0, 0, 0, 0.1);
   --tab-inactive-text: #dc3545;
   --textarea-bg: rgba(0, 0, 0, 0.05);
@@ -41,43 +73,15 @@
 }
 
 body {
-  background: var(--background) !important;
-  color: var(--foreground) !important;
+  background: var(--background);
+  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Override any Bootstrap or default backgrounds */
-* {
-  background-color: transparent;
-}
-
-/* Ensure form elements also follow theme */
-input, textarea, select, button {
-  background-color: transparent !important;
-}
-
-/* Override any container backgrounds */
-.container, .row, .col, .col-md-3, .col-md-5, .col-md-4 {
-  background-color: transparent !important;
-}
-
-/* Override Bootstrap form-control class */
-.form-control {
-  background-color: transparent !important;
-}
-
-/* Override any remaining backgrounds */
-html, body, #__next, [data-nextjs-page] {
-  background-color: var(--background) !important;
-}
-
-/* Ensure buttons don't have white backgrounds */
-.btn {
-  background-color: transparent !important;
-}
+/* Remove over-broad resets that caused unintended overrides */
 
 /* Theme toggle button should have pill background like student number */
 .theme-toggle-btn {
@@ -86,49 +90,42 @@ html, body, #__next, [data-nextjs-page] {
   color: var(--accent-color) !important;
 }
 
-/* Override any Tailwind backgrounds */
-.bg-white {
-  background-color: var(--background) !important;
-}
+/* In light mode, theme toggle text and student number text should be black */
+[data-theme="light"] .theme-toggle-btn { color: #000000 !important; }
+[data-theme="light"] .student-number-pill { color: #000000 !important; }
+
+/* Scoped utilities (opt-in) to style specific areas without affecting global elements */
+.er-surface { background-color: var(--section-bg) !important; }
+.er-border { border: 2px solid var(--border-color) !important; }
+.er-text { color: var(--text-primary) !important; }
+.er-btn-primary { background-color: var(--accent-color) !important; color: #fff !important; border-color: var(--accent-color) !important; }
 
 /* Theme transition utilities */
 .theme-transition {
   transition: all 0.3s ease;
 }
 
-/* Force text colors for theme switching */
+/* Keep headings readable in light mode; avoid forcing spans/buttons globally */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
 [data-theme="light"] h3,
+[data-theme="light"] h4,
 [data-theme="light"] h5,
-[data-theme="light"] small,
-[data-theme="light"] span,
-[data-theme="light"] .btn {
-  color: var(--text-primary) !important;
-}
-
-/* Ensure textarea text is visible in light mode */
-[data-theme="light"] textarea {
-  color: var(--text-primary) !important;
+[data-theme="light"] h6 {
+  color: var(--text-primary);
 }
 
 /* Force tab text colors */
-[data-theme="light"] .tab-item {
-  color: var(--tab-inactive-text) !important;
-}
+[data-theme="light"] .tab-item { color: var(--tab-inactive-text); }
 
-[data-theme="light"] .tab-item.active {
-  color: white !important;
-}
+[data-theme="light"] .tab-item.active { color: white; }
 
-[data-theme="dark"] ::placeholder {
-  color: rgba(206, 199, 199, 0.95) !important;
-}
+[data-theme="dark"] ::placeholder { color: rgba(206, 199, 199, 0.95); }
 
 /* Ensure page background is pure white in light mode */
 html[data-theme="light"],
 html[data-theme="light"] body,
-html[data-theme="light"] #__next {
-  background-color: #ffffff !important;
-}
+html[data-theme="light"] #__next { background-color: #ffffff; }
 
 /* Visually hidden utility for screen readers */
 .visually-hidden {

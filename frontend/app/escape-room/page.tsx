@@ -99,7 +99,7 @@ export default function EscapeRoom() {
   // Map page lives at /escape-room/map
 
   return (
-    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0" }} data-theme={theme}>
+    <div className="container theme-transition escape-room" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0" }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
       <div style={{ marginTop: "133px", marginBottom: "20px"}}>
@@ -128,18 +128,18 @@ export default function EscapeRoom() {
                   borderRadius: "inherit"
                 }}></div>
                 
-                <div className="card-body text-center" style={{ position: "relative", zIndex: 1 }}>
+                <div className="card-body text-center er-on-image" style={{ position: "relative", zIndex: 1 }}>
                   {/* Header - Welcome to escape room */}
-                  <h1 className="display-4 mb-4" style={{ color: "white", textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}>
+                  <h1 className="display-4 mb-4 er-timer-text" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}>
                     Welcome to Escape Room
                   </h1>
                   
                   {/* Before we start, select timer section */}
                   <div className="mb-4">
-                    <h2 className="card-title mb-3" style={{ color: "white", textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}>
+                    <h2 className="card-title mb-3 er-timer-text" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}>
                       Select Timer:
                     </h2>
-                    <p className="card-text mb-4" style={{ color: "white", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
+                    <p className="card-text mb-4 er-timer-text" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
                       Choose how much time you want to complete the escape room challenge.
                     </p>
                     
@@ -170,7 +170,7 @@ export default function EscapeRoom() {
                     {/* Custom Timer Option */}
                     <div className="row mb-4">
                       <div className="col-md-8 mx-auto">
-                        <label className="form-label" style={{ color: "white", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>Or set custom time (60-1800 seconds):</label>
+                        <label className="form-label er-timer-text" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>Or set custom time (60-1800 seconds):</label>
                         <div className="input-group">
                           <input
                             type="number"
@@ -193,7 +193,7 @@ export default function EscapeRoom() {
                             seconds
                           </span>
                         </div>
-                        <small className="text-muted" style={{ color: "white", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
+                        <small className="text-muted er-timer-text" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
                           Custom time: {Math.floor(customTimer / 60)} minutes {customTimer % 60} seconds
                         </small>
                       </div>
@@ -280,9 +280,9 @@ export default function EscapeRoom() {
         )}
 
         {gameState === 'completed' && (
-          <div className="row justify-content-center">
-            <div className="col-md-8">
-              <div className="text-center" style={{ color: "var(--text-primary)" }}>
+        <div className="row justify-content-center">
+          <div className="col-md-8">
+            <div className="text-center" style={{ color: "var(--text-primary)" }}>
                 <h1 className="display-4 mb-4">🎉 Congratulations!</h1>
                 <div className="card" style={{
                 backgroundColor: "var(--section-bg)",

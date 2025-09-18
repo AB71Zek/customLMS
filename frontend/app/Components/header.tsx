@@ -35,14 +35,15 @@ const Header = ({ studentNumber }: HeaderProps) => {
         borderBottom: "2px solid var(--border-color)"
       }} className="theme-transition">
         {/* Student Number on the left */}
-        <div style={{
+        <div className="student-number-pill"
+          style={{
           backgroundColor: "var(--section-bg)",
           padding: "8px 15px",
           borderRadius: "20px",
           border: "2px solid var(--border-color)"
-        }} className="theme-transition">
+        }}>
           <span style={{
-            color: "var(--accent-color)",
+            color: "var(--footer-border-color)",
             fontWeight: "bold",
             fontSize: "16px"
           }}>
