@@ -1,11 +1,31 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { } from 'react';
+import { useState } from 'react';
 import Header from '../../Components/header';
 import { useTheme } from '../../Components/ThemeContext';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
+  // stage status: 'available' | 'locked' | 'completed'
+  const [stageStatus] = useState<Array<'available' | 'locked' | 'completed'>>([
+    'available', 'locked', 'locked', 'locked'
+  ]);
+
+  // Initial placeholder positions; you will replace these later
+  const positions = [
+    { left: '25%', top: '80%' },
+    { left: '30%', top: '48%' },
+    { left: '56%', top: '48%' },
+    { left: '76%', top: '61%' }
+  ];
+
+  // Map stage to its icon when available
+  const stageIcon: string[] = [
+    '/escape-room-misc/anchor.png',
+    '/escape-room-misc/compass.png',
+    '/escape-room-misc/map.png',
+    '/escape-room-misc/trophy.png'
+  ];
 
   return (
     <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", display: 'flex', flexDirection: 'column' }} data-theme={theme}>
@@ -28,6 +48,29 @@ export default function MapRoomPage() {
             borderRadius: '8px'
           }}>
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
+            {/* Stage icons layer */}
+            <div style={{ position: 'absolute', inset: 0 }}>
+              {positions.map((pos, idx) => {
+                const status = stageStatus[idx];
+                const imgSrc = status === 'locked'
+                  ? '/escape-room-misc/denied.png'
+                  : status === 'completed'
+                  ? '/escape-room-misc/finished.png'
+                  : stageIcon[idx];
+                return (
+                  <div key={idx} style={{ position: 'absolute', left: pos.left, top: pos.top, transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                    <img
+                      src={imgSrc}
+                      alt={`Stage ${idx + 1}`}
+                      width={72}
+                      height={72}
+                      style={{ filter: status === 'locked' ? 'grayscale(50%)' : 'none' }}
+                    />
+                    <div style={{ marginTop: '6px', color: '#fff', textShadow: '1px 1px 2px rgba(0,0,0,0.8)', fontSize: '14px' }}>Stage {idx + 1}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
           <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1150, right: 0, padding: '12px 16px', zIndex: 1 }}>
             <span className="badge" style={{ backgroundColor: '#dc3545', color: 'white', fontSize: '16px', padding: '9px 12px', borderRadius: '14px', border: '2px solid black'}}>Timer paused</span>
