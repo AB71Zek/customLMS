@@ -8,6 +8,7 @@ import Stage1 from '../stages/Stage1';
 import Stage2 from '../stages/Stage2';
 import Stage3 from '../stages/Stage3';
 import Stage4 from '../stages/Stage4';
+import StageEnd from '../stages/StageEnd';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
@@ -17,7 +18,7 @@ export default function MapRoomPage() {
   ]);
 
   // Local view state for Stage overlays
-  const [stageView, setStageView] = useState<'none' | 'stage1' | 'stage2' | 'stage3' | 'stage4' | 'questions'>('none');
+  const [stageView, setStageView] = useState<'none' | 'stage1' | 'stage2' | 'stage3' | 'stage4' | 'end' | 'questions'>('none');
   const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
 
   // Current stage: index of the first available stage
@@ -62,7 +63,7 @@ export default function MapRoomPage() {
                     ? "url('/escape-room-misc/stage3-bg.png')"
                     : stageView === 'stage4'
                       ? "url('/escape-room-misc/stage4-bg.png')"
-                  : "url('/escape-room-misc/treasure-map.png')",
+                      : "url('/escape-room-misc/treasure-map.png')",
             backgroundSize: '89.8vw 89.6vh',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
@@ -175,13 +176,20 @@ export default function MapRoomPage() {
           {stageView === 'stage4' && (
             <Stage4
               onSuccess={() => {
-                // End screen: change background to stage-end-bg and show final overlay from Stage4
-                // Map page will set bg via stageView; we set a transient flag by using 'stage4' end mode inside Stage4 and then call onSuccess -> back to timer select
-                // For now, just route back to timer select page
-                window.location.href = '/escape-room';
+                setStageStatus(prev => {
+                  const next = [...prev];
+                  next[3] = 'completed';
+                  return next;
+                });
+                setStageView('end');
               }}
               onCancel={() => setStageView('none')}
             />
+          )}
+          {stageView === 'end' && (
+            <div style={{ position: 'absolute', inset: 0, padding: 0, margin: 0, zIndex: 5 }}>
+              <StageEnd onExit={() => { window.location.href = '/escape-room'; }} />
+            </div>
           )}
           {stageView === 'questions' && (
             <QuestionEditor stageIndex={editorStageIndex} onClose={() => setStageView('none')} />

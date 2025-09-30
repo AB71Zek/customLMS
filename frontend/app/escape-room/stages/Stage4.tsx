@@ -7,47 +7,9 @@ interface Stage4Props {
 }
 
 const Stage4 = ({ onSuccess, onCancel }: Stage4Props) => {
-  const [mode, setMode] = useState<'intro' | 'quiz' | 'end'>('intro');
+  const [mode, setMode] = useState<'intro' | 'quiz'>('intro');
   const [quizSelection, setQuizSelection] = useState<string>('');
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
-
-  if (mode === 'end') {
-    return (
-      <div style={{ position: 'absolute', inset: 0, zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)' }} />
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            color: '#ffd400',
-            fontWeight: 900,
-            fontSize: 'clamp(26px, 3.2vw, 48px)',
-            textShadow: '2px 2px 6px rgba(0,0,0,0.7)'
-          }}>
-            Congratulations! You found the treasure!
-          </div>
-          <div style={{ marginTop: '24px' }}>
-            <button
-              onClick={() => onSuccess?.()}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#ffd400'; e.currentTarget.style.color = '#000'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--accent-color)'; e.currentTarget.style.color = '#fff'; }}
-              style={{
-                width: '100px',
-                height: '100px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--accent-color)',
-                color: '#fff',
-                border: '3px solid var(--border-color)',
-                fontWeight: 800,
-                letterSpacing: '0.3px',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.35)'
-              }}
-            >
-              Exit Room
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: mode === 'intro' ? 'flex-start' : 'center', padding: '24px', zIndex: 20 }}>
@@ -140,7 +102,7 @@ const Stage4 = ({ onSuccess, onCancel }: Stage4Props) => {
                     </div>
                     <button
                       className="btn er-btn-primary"
-                      onClick={() => setMode('end')}
+                      onClick={() => onSuccess?.()}
                     >
                       Continue
                     </button>
