@@ -25,7 +25,7 @@ const Stage2 = ({ onSuccess, onCancel }: Stage2Props) => {
             textShadow: '2px 2px 4px rgba(0,0,0,0.6)',
             whiteSpace: 'nowrap'
           }}>
-            Oh a lake! You decide to rest near the lake and plan your future moves...
+            A lake! You decide to rest near the lake and plan your future moves...
           </div>
           <div style={{ marginTop: '24px' }}>
             <button

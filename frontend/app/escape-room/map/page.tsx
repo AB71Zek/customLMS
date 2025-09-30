@@ -7,6 +7,7 @@ import QuestionEditor from '../questions/QuestionEditor';
 import Stage1 from '../stages/Stage1';
 import Stage2 from '../stages/Stage2';
 import Stage3 from '../stages/Stage3';
+import Stage4 from '../stages/Stage4';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
@@ -16,7 +17,7 @@ export default function MapRoomPage() {
   ]);
 
   // Local view state for Stage overlays
-  const [stageView, setStageView] = useState<'none' | 'stage1' | 'stage2' | 'stage3' | 'questions'>('none');
+  const [stageView, setStageView] = useState<'none' | 'stage1' | 'stage2' | 'stage3' | 'stage4' | 'questions'>('none');
   const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
 
   // Current stage: index of the first available stage
@@ -59,6 +60,8 @@ export default function MapRoomPage() {
                   ? "url('/escape-room-misc/stage2-bg.png')"
                   : stageView === 'stage3'
                     ? "url('/escape-room-misc/stage3-bg.png')"
+                    : stageView === 'stage4'
+                      ? "url('/escape-room-misc/stage4-bg.png')"
                   : "url('/escape-room-misc/treasure-map.png')",
             backgroundSize: '89.8vw 89.6vh',
             backgroundPosition: 'center',
@@ -83,6 +86,8 @@ export default function MapRoomPage() {
                         setStageView('stage2');
                       } else if (idx === 2 && status === 'available') {
                         setStageView('stage3');
+                      } else if (idx === 3 && status === 'available') {
+                        setStageView('stage4');
                       }
                     }}
                   >
@@ -163,6 +168,17 @@ export default function MapRoomPage() {
                   return next;
                 });
                 setStageView('none');
+              }}
+              onCancel={() => setStageView('none')}
+            />
+          )}
+          {stageView === 'stage4' && (
+            <Stage4
+              onSuccess={() => {
+                // End screen: change background to stage-end-bg and show final overlay from Stage4
+                // Map page will set bg via stageView; we set a transient flag by using 'stage4' end mode inside Stage4 and then call onSuccess -> back to timer select
+                // For now, just route back to timer select page
+                window.location.href = '/escape-room';
               }}
               onCancel={() => setStageView('none')}
             />

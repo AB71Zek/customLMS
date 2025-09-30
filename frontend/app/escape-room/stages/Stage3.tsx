@@ -25,7 +25,7 @@ const Stage3 = ({ onSuccess, onCancel }: Stage3Props) => {
             textShadow: '2px 2px 4px rgba(0,0,0,0.6)',
             whiteSpace: 'nowrap'
           }}>
-            There is no treasure here! All you could find was another map leading to the actual treasure...
+            There is no treasure here! All you could find was another map and a key...
           </div>
           <div style={{ marginTop: '24px' }}>
             <button
