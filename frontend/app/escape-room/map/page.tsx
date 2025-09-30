@@ -3,7 +3,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useMemo, useState } from 'react';
 import Header from '../../Components/header';
 import { useTheme } from '../../Components/ThemeContext';
+import QuestionEditor from '../questions/QuestionEditor';
 import Stage1 from '../stages/Stage1';
+import Stage2 from '../stages/Stage2';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
@@ -13,7 +15,8 @@ export default function MapRoomPage() {
   ]);
 
   // Local view state for Stage overlays
-  const [stageView, setStageView] = useState<'none' | 'stage1'>('none');
+  const [stageView, setStageView] = useState<'none' | 'stage1' | 'stage2' | 'questions'>('none');
+  const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
 
   // Current stage: index of the first available stage
   const currentStageIndex = useMemo(() => stageStatus.findIndex(s => s === 'available'), [stageStatus]);
@@ -47,7 +50,13 @@ export default function MapRoomPage() {
             maxWidth: '1600px',
             maxHeight: '675px',
             aspectRatio: '16 / 9',
-            backgroundImage: stageView === 'none' ? "url('/escape-room-misc/treasure-map.png')" : "url('/escape-room-misc/stage1-bg.png')",
+            backgroundImage: stageView === 'none'
+              ? "url('/escape-room-misc/treasure-map.png')"
+              : stageView === 'stage1'
+                ? "url('/escape-room-misc/stage1-bg.png')"
+                : stageView === 'stage2'
+                  ? "url('/escape-room-misc/stage2-bg.png')"
+                  : "url('/escape-room-misc/treasure-map.png')",
             backgroundSize: '89.8vw 89.6vh',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
@@ -67,6 +76,8 @@ export default function MapRoomPage() {
                     onClick={() => {
                       if (idx === 0 && status === 'available') {
                         setStageView('stage1');
+                      } else if (idx === 1 && status === 'available') {
+                        setStageView('stage2');
                       }
                     }}
                   >
@@ -122,6 +133,23 @@ export default function MapRoomPage() {
               }}
               onCancel={() => setStageView('none')}
             />
+          )}
+          {stageView === 'stage2' && (
+            <Stage2
+              onSuccess={() => {
+                setStageStatus(prev => {
+                  const next = [...prev];
+                  next[1] = 'completed';
+                  if (next[2] === 'locked') next[2] = 'available';
+                  return next;
+                });
+                setStageView('none');
+              }}
+              onCancel={() => setStageView('none')}
+            />
+          )}
+          {stageView === 'questions' && (
+            <QuestionEditor stageIndex={editorStageIndex} onClose={() => setStageView('none')} />
           )}
           <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1150, right: 0, padding: '12px 16px', zIndex: 1 }}>
             <span className="badge" style={{ backgroundColor: '#dc3545', color: 'white', fontSize: '16px', padding: '9px 12px', borderRadius: '14px', border: '2px solid black'}}>Timer paused</span>

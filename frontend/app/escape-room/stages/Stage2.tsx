@@ -2,229 +2,119 @@
 import { useState } from 'react';
 
 interface Stage2Props {
-  onComplete: () => void;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-const Stage2 = ({ onComplete }: Stage2Props) => {
-  const [userCode, setUserCode] = useState('');
-  const [output, setOutput] = useState('');
-  const [showHint, setShowHint] = useState(false);
-  const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
-
-  const runCode = () => {
-    if (!userCode.trim()) {
-      setOutput('Please enter some code first.');
-      return;
-    }
-    
-    try {
-      // Create a safe execution environment
-      const func = new Function(userCode);
-      const result = func();
-      
-      if (result === undefined) {
-        setOutput('Your code did not return anything. Make sure to use "return" statement.');
-        return;
-      }
-      
-      setOutput(JSON.stringify(result, null, 2));
-    } catch (error) {
-      setOutput(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  const checkNumbers = () => {
-    if (!userCode.trim()) {
-      setIsAnswerCorrect(false);
-      alert('Please enter some code first.');
-      return;
-    }
-    
-    try {
-      const func = new Function(userCode);
-      const result = func();
-      
-      if (result === undefined) {
-        setIsAnswerCorrect(false);
-        alert('Your code did not return anything. Make sure to use "return" statement.');
-        return;
-      }
-      
-      if (Array.isArray(result) && result.length === 101) {
-        const expected = Array.from({ length: 101 }, (_, i) => i);
-        const isCorrect = expected.every((num, index) => result[index] === num);
-        
-        if (isCorrect) {
-          setIsAnswerCorrect(true);
-          alert('Perfect! You generated all numbers from 0 to 100. Moving to next stage...');
-        } else {
-          setIsAnswerCorrect(false);
-          alert('Numbers are not in the correct sequence or range.');
-        }
-      } else {
-        setIsAnswerCorrect(false);
-        alert('Your code should return an array with 101 numbers (0 to 100).');
-      }
-    } catch (error) {
-      setIsAnswerCorrect(false);
-      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  const handleHint = () => {
-    setShowHint(true);
-  };
-
-  const handleRetry = () => {
-    setIsAnswerCorrect(null);
-    setShowHint(false);
-    setUserCode('');
-    setOutput('');
-  };
-
-  const handleNextStage = () => {
-    if (isAnswerCorrect) {
-      onComplete();
-    }
-  };
+const Stage2 = ({ onSuccess, onCancel }: Stage2Props) => {
+  const [mode, setMode] = useState<'intro' | 'quiz'>('intro');
+  const [quizSelection, setQuizSelection] = useState<string>('');
+  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
 
   return (
-    <div className="card-body">
-      <h5 className="card-title mb-3">Stage 2: Generate Numbers 0-100</h5>
-      <p className="card-text mb-4">
-        Write JavaScript code that generates all numbers from 0 to 100 and returns them as an array.
-      </p>
-      
-      <div className="mb-4">
-        <label className="form-label">Your Code:</label>
-        <textarea
-          value={userCode}
-          onChange={(e) => setUserCode(e.target.value)}
-          placeholder="// Write your code here
-// Example: return Array.from({length: 101}, (_, i) => i);"
-          style={{
-            width: '100%',
-            height: '150px',
-            backgroundColor: 'var(--textarea-bg)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '5px',
-            padding: '15px',
-            fontFamily: 'monospace',
-            fontSize: '14px'
-          }}
-        />
-      </div>
-
-      {showHint && (
-        <div className="alert alert-info mb-4" style={{
-          backgroundColor: "var(--textarea-bg)",
-          color: "var(--text-primary)",
-          borderColor: "var(--border-color)"
-        }}>
-          <strong>Hint:</strong> Here are some approaches you can use:
-          <ul className="mb-0 mt-2">
-            <li><code>Array.from({'{'}length: 101{'}'}, (_, i) =&gt; i)</code></li>
-            <li><code>[...Array(101).keys()]</code></li>
-            <li>Use a for loop to build the array</li>
-            <li>Make sure to return the array, not just log it</li>
-          </ul>
-        </div>
-      )}
-
-      <div className="d-flex gap-2 flex-wrap mb-3">
-        {isAnswerCorrect === null ? (
-          <>
-            <button 
-              className="btn btn-outline-primary"
-              onClick={runCode}
-              style={{
-                color: "var(--text-primary)",
-                borderColor: "#007bff"
-              }}
-            >
-              Run Code
-            </button>
-            <button 
-              className="btn btn-primary"
-              onClick={checkNumbers}
-              style={{
-                color: "white",
-                backgroundColor: "#007bff",
-                borderColor: "#007bff"
-              }}
-            >
-              Check Solution
-            </button>
-            <button 
-              className="btn btn-outline-info"
-              onClick={handleHint}
-              style={{
-                color: "var(--text-primary)",
-                borderColor: "#17a2b8"
-              }}
-            >
-              Hint
-            </button>
-          </>
-        ) : (
-          <>
-            <button 
-              className="btn btn-warning"
-              onClick={handleRetry}
-              style={{
-                color: "var(--text-primary)",
-                backgroundColor: "#ffc107",
-                borderColor: "#ffc107"
-              }}
-            >
-              Retry
-            </button>
-            <button 
-              className={`btn ${isAnswerCorrect ? 'btn-success' : 'btn-secondary'}`}
-              onClick={handleNextStage}
-              disabled={!isAnswerCorrect}
-              style={{
-                color: isAnswerCorrect ? "white" : "var(--text-primary)",
-                backgroundColor: isAnswerCorrect ? "#28a745" : "#6c757d",
-                borderColor: isAnswerCorrect ? "#28a745" : "#6c757d"
-              }}
-            >
-              Next Stage
-            </button>
-          </>
-        )}
-      </div>
-
-      {output && (
-        <div className="mb-4">
-          <label className="form-label">Output:</label>
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: mode === 'intro' ? 'flex-start' : 'center', padding: '24px', zIndex: 20 }}>
+      {mode === 'intro' && (
+        <>
           <div style={{
-            backgroundColor: 'var(--code-bg)',
-            color: 'var(--text-primary)',
-            padding: '15px',
-            borderRadius: '5px',
-            fontFamily: 'monospace',
-            fontSize: '12px',
-            maxHeight: '150px',
-            overflowY: 'auto',
-            border: '1px solid var(--border-color)'
+            width: '100%',
+            textAlign: 'center',
+            color: '#ffffff',
+            fontWeight: 800,
+            fontSize: 'clamp(18px, 2.2vw, 28px)',
+            marginTop: '36px',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.6)',
+            whiteSpace: 'nowrap'
           }}>
-            {output.length > 500 ? `${output.substring(0, 500)}...` : output}
+            Oh a lake! You decide to rest near the lake and plan your future moves...
           </div>
-        </div>
+          <div style={{ marginTop: '24px' }}>
+            <button
+              onClick={() => setMode('quiz')}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#ffd400'; e.currentTarget.style.color = '#000'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--accent-color)'; e.currentTarget.style.color = '#fff'; }}
+              style={{
+                width: '84px',
+                height: '84px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-color)',
+                color: '#fff',
+                border: '3px solid var(--border-color)',
+                fontWeight: 700,
+                letterSpacing: '0.3px',
+                boxShadow: '0 6px 16px rgba(0,0,0,0.35)'
+              }}
+            >
+              Proceed
+            </button>
+          </div>
+        </>
       )}
 
-      {isAnswerCorrect !== null && (
-        <div className={`alert ${isAnswerCorrect ? 'alert-success' : 'alert-danger'}`} style={{
-          backgroundColor: isAnswerCorrect ? "var(--accent-color)" : "#dc3545",
-          color: "white",
-          borderColor: isAnswerCorrect ? "var(--accent-color)" : "#dc3545"
-        }}>
-          {isAnswerCorrect ? 
-            "✅ Correct! You generated all numbers from 0 to 100." : 
-            "❌ Incorrect. Check your code and try again."
-          }
+      {mode === 'quiz' && (
+        <div className="card er-border er-surface" style={{ maxWidth: '780px', width: '100%' }}>
+          <div className="card-header d-flex justify-content-between align-items-center">
+            <h5 className="mb-0" style={{ color: 'var(--text-primary)' }}>Stage 2 Quiz</h5>
+            <span className="badge" style={{ backgroundColor: '#dc3545', color: 'white', border: '1px solid black' }}>Lake-side Check</span>
+          </div>
+          <div className="card-body">
+            <p className="mb-3" style={{ color: 'var(--text-primary)' }}>Why might explorers choose to rest near a lake?</p>
+            <div className="list-group mb-3">
+              {[
+                { id: 'a', text: 'To avoid drinking water' },
+                { id: 'b', text: 'To access fresh water and plan safely' },
+                { id: 'c', text: 'Because maps forbid camping elsewhere' }
+              ].map(opt => (
+                <label key={opt.id} className={`list-group-item d-flex align-items-center ${quizSelection === opt.id ? 'active' : ''}`} style={{ backgroundColor: quizSelection === opt.id ? 'var(--accent-color)' : 'var(--section-bg)', color: 'var(--text-primary)', cursor: 'pointer', borderColor: 'var(--border-color)' }}>
+                  <input
+                    type="radio"
+                    name="stage2-q1"
+                    className="form-check-input me-2"
+                    checked={quizSelection === opt.id}
+                    onChange={() => { setQuizSelection(opt.id); setQuizSubmitted(false); }}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  {opt.text}
+                </label>
+              ))}
+            </div>
+            <div className="d-flex gap-2">
+              <button
+                className="btn er-btn-primary"
+                onClick={() => setQuizSubmitted(true)}
+                disabled={!quizSelection}
+              >
+                Submit
+              </button>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => { onCancel && onCancel(); setMode('intro'); setQuizSelection(''); setQuizSubmitted(false); }}
+                style={{ color: 'var(--text-primary)', borderColor: 'var(--border-color)' }}
+              >
+                Cancel
+              </button>
+            </div>
+            {quizSubmitted && (
+              <div className="mt-3">
+                {quizSelection === 'b' ? (
+                  <>
+                    <div className="alert alert-success" role="alert" style={{ backgroundColor: 'var(--accent-color)', color: '#fff', borderColor: 'var(--accent-color)' }}>
+                      Correct! Lakes provide rest, resources, and a safe place to plan.
+                    </div>
+                    <button
+                      className="btn er-btn-primary"
+                      onClick={() => { onSuccess?.(); setMode('intro'); setQuizSelection(''); setQuizSubmitted(false); }}
+                    >
+                      Exit Stage
+                    </button>
+                  </>
+                ) : (
+                  <div className="alert alert-danger" role="alert" style={{ backgroundColor: '#8b0000', color: '#fff', borderColor: '#8b0000' }}>
+                    Not quite. Try selecting another option.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
