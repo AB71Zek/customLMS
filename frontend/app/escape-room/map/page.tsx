@@ -11,6 +11,11 @@ export default function MapRoomPage() {
     'available', 'locked', 'locked', 'locked'
   ]);
 
+  // Local view state for Stage 1 flow
+  const [stageView, setStageView] = useState<'none' | 'stage1-intro' | 'stage1-quiz'>('none');
+  const [quizSelection, setQuizSelection] = useState<string>('');
+  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
+
   // Current stage: index of the first available stage
   const currentStageIndex = useMemo(() => stageStatus.findIndex(s => s === 'available'), [stageStatus]);
 
@@ -43,20 +48,30 @@ export default function MapRoomPage() {
             maxWidth: '1600px',
             maxHeight: '675px',
             aspectRatio: '16 / 9',
-            backgroundImage: "url('/escape-room-misc/treasure-map.png')",
+            backgroundImage: stageView === 'none' ? "url('/escape-room-misc/treasure-map.png')" : "url('/escape-room-misc/stage1-bg.png')",
             backgroundSize: '89.8vw 89.6vh',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             border: '3px solid var(--border-color)',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            filter: stageView === 'stage1-quiz' ? 'blur(4px)' : 'none'
           }}>
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
             {/* Stage icons layer */}
+            {stageView === 'none' && (
             <div style={{ position: 'absolute', inset: 0 }}>
               {positions.map((pos, idx) => {
                 const status = stageStatus[idx];
                 return (
-                  <div key={idx} style={{ position: 'absolute', left: pos.left, top: pos.top, transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                  <div
+                    key={idx}
+                    style={{ position: 'absolute', left: pos.left, top: pos.top, transform: 'translate(-50%, -50%)', textAlign: 'center', cursor: status === 'available' ? 'pointer' : 'default' }}
+                    onClick={() => {
+                      if (idx === 0 && status === 'available') {
+                        setStageView('stage1-intro');
+                      }
+                    }}
+                  >
                     {/* Pointer for current available stage */}
                     {idx === currentStageIndex && (
                       <img
@@ -93,7 +108,108 @@ export default function MapRoomPage() {
                 );
               })}
             </div>
+            )}
           </div>
+          {/* Overlays */}
+          {stageView === 'stage1-intro' && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '24px', zIndex: 10 }}>
+              <div style={{
+                width: '100%',
+                textAlign: 'center',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: 'clamp(18px, 2.2vw, 28px)',
+                marginTop: '36px',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.6)',
+                whiteSpace: 'nowrap'
+              }}>
+                You finally see the shores in the distance. It is time for you to drop the anchor!
+              </div>
+              <div style={{ marginTop: '24px' }}>
+                <button
+                  onClick={() => setStageView('stage1-quiz')}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#ffd400'; e.currentTarget.style.color = '#000'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--accent-color)'; e.currentTarget.style.color = '#fff'; }}
+                  style={{
+                    width: '84px',
+                    height: '84px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--accent-color)',
+                    color: '#fff',
+                    border: '3px solid var(--border-color)',
+                    fontWeight: 700,
+                    letterSpacing: '0.3px',
+                    boxShadow: '0 6px 16px rgba(0,0,0,0.35)'
+                  }}
+                >
+                  Proceed
+                </button>
+              </div>
+            </div>
+          )}
+
+          {stageView === 'stage1-quiz' && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 20 }}>
+              <div className="card er-border er-surface" style={{ maxWidth: '780px', width: '100%' }}>
+                <div className="card-header d-flex justify-content-between align-items-center">
+                  <h5 className="mb-0" style={{ color: 'var(--text-primary)' }}>Stage 1 Quiz</h5>
+                  <span className="badge" style={{ backgroundColor: '#dc3545', color: 'white', border: '1px solid black' }}>Anchor Knowledge Check</span>
+                </div>
+                <div className="card-body">
+                  <p className="mb-3" style={{ color: 'var(--text-primary)' }}>What is the primary purpose of a ship's anchor?</p>
+                  <div className="list-group mb-3">
+                    {[
+                      { id: 'a', text: 'To increase the ship’s speed' },
+                      { id: 'b', text: 'To keep the ship stationary' },
+                      { id: 'c', text: 'To steer the ship in rough waters' },
+                      { id: 'd', text: 'To signal other ships at night' }
+                    ].map(opt => (
+                      <label key={opt.id} className={`list-group-item d-flex align-items-center ${quizSelection === opt.id ? 'active' : ''}`} style={{ backgroundColor: quizSelection === opt.id ? 'var(--accent-color)' : 'var(--section-bg)', color: 'var(--text-primary)', cursor: 'pointer', borderColor: 'var(--border-color)' }}>
+                        <input
+                          type="radio"
+                          name="stage1-q1"
+                          className="form-check-input me-2"
+                          checked={quizSelection === opt.id}
+                          onChange={() => { setQuizSelection(opt.id); setQuizSubmitted(false); }}
+                          style={{ cursor: 'pointer' }}
+                        />
+                        {opt.text}
+                      </label>
+                    ))}
+                  </div>
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn er-btn-primary"
+                      onClick={() => setQuizSubmitted(true)}
+                      disabled={!quizSelection}
+                    >
+                      Submit
+                    </button>
+                    <button
+                      className="btn btn-outline-secondary"
+                      onClick={() => { setStageView('none'); setQuizSelection(''); setQuizSubmitted(false); }}
+                      style={{ color: 'var(--text-primary)', borderColor: 'var(--border-color)' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {quizSubmitted && (
+                    <div className="mt-3">
+                      {quizSelection === 'b' ? (
+                        <div className="alert alert-success" role="alert" style={{ backgroundColor: 'var(--accent-color)', color: '#fff', borderColor: 'var(--accent-color)' }}>
+                          Correct! The anchor keeps the ship stationary.
+                        </div>
+                      ) : (
+                        <div className="alert alert-danger" role="alert" style={{ backgroundColor: '#8b0000', color: '#fff', borderColor: '#8b0000' }}>
+                          Not quite. Try selecting another option.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1150, right: 0, padding: '12px 16px', zIndex: 1 }}>
             <span className="badge" style={{ backgroundColor: '#dc3545', color: 'white', fontSize: '16px', padding: '9px 12px', borderRadius: '14px', border: '2px solid black'}}>Timer paused</span>
           </div>

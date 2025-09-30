@@ -31,15 +31,15 @@ const Footer = () => {
               <span className="footer-meta" style={{ color: "var(--text-primary)", fontWeight: "bold" }}>
                 © 2025 Learning Management System. All rights reserved.
               </span>
-              <span className="footer-meta" style={{ color: "var(--text-primary)", margin: "0 10px" }}>,</span>
+              <span className="footer-meta" style={{ color: "var(--text-primary)", margin: "0 10px" }}>|</span>
               <span className="footer-meta" style={{ color: "var(--text-primary)" }}>
                 Student: <strong>Arunjot Babra</strong>
               </span>
-              <span className="footer-meta" style={{ color: "var(--text-primary)", margin: "0 10px" }}>,</span>
+              <span className="footer-meta" style={{ color: "var(--text-primary)", margin: "0 10px" }}>|</span>
               <span className="footer-meta" style={{ color: "var(--text-primary)" }}>
                 Student Number: <strong>21406232</strong>
               </span>
-              <span className="footer-meta" style={{ color: "var(--text-primary)", margin: "0 10px" }}>,</span>
+              <span className="footer-meta" style={{ color: "var(--text-primary)", margin: "0 10px" }}>|</span>
               <span className="footer-meta" style={{ color: "var(--text-primary)" }}>
                 Date: <strong>{currentDate}</strong>
               </span>
