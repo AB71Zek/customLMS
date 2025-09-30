@@ -6,6 +6,7 @@ import { useTheme } from '../../Components/ThemeContext';
 import QuestionEditor from '../questions/QuestionEditor';
 import Stage1 from '../stages/Stage1';
 import Stage2 from '../stages/Stage2';
+import Stage3 from '../stages/Stage3';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
@@ -15,7 +16,7 @@ export default function MapRoomPage() {
   ]);
 
   // Local view state for Stage overlays
-  const [stageView, setStageView] = useState<'none' | 'stage1' | 'stage2' | 'questions'>('none');
+  const [stageView, setStageView] = useState<'none' | 'stage1' | 'stage2' | 'stage3' | 'questions'>('none');
   const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
 
   // Current stage: index of the first available stage
@@ -54,8 +55,10 @@ export default function MapRoomPage() {
               ? "url('/escape-room-misc/treasure-map.png')"
               : stageView === 'stage1'
                 ? "url('/escape-room-misc/stage1-bg.png')"
-                : stageView === 'stage2'
+              : stageView === 'stage2'
                   ? "url('/escape-room-misc/stage2-bg.png')"
+                  : stageView === 'stage3'
+                    ? "url('/escape-room-misc/stage3-bg.png')"
                   : "url('/escape-room-misc/treasure-map.png')",
             backgroundSize: '89.8vw 89.6vh',
             backgroundPosition: 'center',
@@ -78,6 +81,8 @@ export default function MapRoomPage() {
                         setStageView('stage1');
                       } else if (idx === 1 && status === 'available') {
                         setStageView('stage2');
+                      } else if (idx === 2 && status === 'available') {
+                        setStageView('stage3');
                       }
                     }}
                   >
@@ -141,6 +146,20 @@ export default function MapRoomPage() {
                   const next = [...prev];
                   next[1] = 'completed';
                   if (next[2] === 'locked') next[2] = 'available';
+                  return next;
+                });
+                setStageView('none');
+              }}
+              onCancel={() => setStageView('none')}
+            />
+          )}
+          {stageView === 'stage3' && (
+            <Stage3
+              onSuccess={() => {
+                setStageStatus(prev => {
+                  const next = [...prev];
+                  next[2] = 'completed';
+                  if (next[3] === 'locked') next[3] = 'available';
                   return next;
                 });
                 setStageView('none');
