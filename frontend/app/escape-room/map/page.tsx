@@ -1,6 +1,7 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import Header from '../../Components/header';
 import { useTheme } from '../../Components/ThemeContext';
 import QuestionEditor from '../questions/QuestionEditor';
@@ -12,6 +13,11 @@ import StageEnd from '../stages/StageEnd';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
+  const searchParams = useSearchParams();
+  
+  // Get timer value from URL parameters
+  const timerValue = parseInt(searchParams.get('timer') || '600');
+  
   // stage status: 'available' | 'locked' | 'completed'
   const [stageStatus, setStageStatus] = useState<Array<'available' | 'locked' | 'completed'>>([
     'available', 'locked', 'locked', 'locked'
@@ -20,6 +26,40 @@ export default function MapRoomPage() {
   // Local view state for Stage overlays
   const [stageView, setStageView] = useState<'none' | 'stage1' | 'stage2' | 'stage3' | 'stage4' | 'end' | 'questions'>('none');
   const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
+
+  // Timer state
+  const [timeLeft, setTimeLeft] = useState<number>(timerValue);
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(true);
+  const [isTimerPaused, setIsTimerPaused] = useState<boolean>(true);
+
+  // Timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    
+    if (isTimerRunning && !isTimerPaused && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            setIsTimerRunning(false);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isTimerRunning, isTimerPaused, timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Current stage: index of the first available stage
   const currentStageIndex = useMemo(() => stageStatus.findIndex(s => s === 'available'), [stageStatus]);
@@ -83,12 +123,20 @@ export default function MapRoomPage() {
                     onClick={() => {
                       if (idx === 0 && status === 'available') {
                         setStageView('stage1');
+                        setIsTimerPaused(false);
+                        setIsTimerRunning(true);
                       } else if (idx === 1 && status === 'available') {
                         setStageView('stage2');
+                        setIsTimerPaused(false);
+                        setIsTimerRunning(true);
                       } else if (idx === 2 && status === 'available') {
                         setStageView('stage3');
+                        setIsTimerPaused(false);
+                        setIsTimerRunning(true);
                       } else if (idx === 3 && status === 'available') {
                         setStageView('stage4');
+                        setIsTimerPaused(false);
+                        setIsTimerRunning(true);
                       }
                     }}
                   >
@@ -141,8 +189,9 @@ export default function MapRoomPage() {
                   return next;
                 });
                 setStageView('none');
+                setIsTimerPaused(true);
               }}
-              onCancel={() => setStageView('none')}
+              onCancel={() => { setStageView('none'); setIsTimerPaused(true); }}
             />
           )}
           {stageView === 'stage2' && (
@@ -155,8 +204,9 @@ export default function MapRoomPage() {
                   return next;
                 });
                 setStageView('none');
+                setIsTimerPaused(true);
               }}
-              onCancel={() => setStageView('none')}
+              onCancel={() => { setStageView('none'); setIsTimerPaused(true); }}
             />
           )}
           {stageView === 'stage3' && (
@@ -169,8 +219,9 @@ export default function MapRoomPage() {
                   return next;
                 });
                 setStageView('none');
+                setIsTimerPaused(true);
               }}
-              onCancel={() => setStageView('none')}
+              onCancel={() => { setStageView('none'); setIsTimerPaused(true); }}
             />
           )}
           {stageView === 'stage4' && (
@@ -182,8 +233,9 @@ export default function MapRoomPage() {
                   return next;
                 });
                 setStageView('end');
+                setIsTimerPaused(true);
               }}
-              onCancel={() => setStageView('none')}
+              onCancel={() => { setStageView('none'); setIsTimerPaused(true); }}
             />
           )}
           {stageView === 'end' && (
@@ -194,8 +246,17 @@ export default function MapRoomPage() {
           {stageView === 'questions' && (
             <QuestionEditor stageIndex={editorStageIndex} onClose={() => setStageView('none')} />
           )}
-          <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1150, right: 0, padding: '12px 16px', zIndex: 1 }}>
-            <span className="badge" style={{ backgroundColor: '#dc3545', color: 'white', fontSize: '16px', padding: '9px 12px', borderRadius: '14px', border: '2px solid black'}}>Timer paused</span>
+          <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1125, right: 0, padding: '12px 16px', zIndex: 1 }}>
+            <span className="badge" style={{ 
+              backgroundColor: isTimerPaused ? '#dc3545' : '#55e676', 
+              color: 'white', 
+              fontSize: '16px', 
+              padding: '9px 12px', 
+              borderRadius: '14px', 
+              border: '2px solid black'
+            }}>
+              ⏱️ {formatTime(timeLeft)} {isTimerPaused ? '(paused)' : ''}
+            </span>
           </div>
         </div>
       </div>

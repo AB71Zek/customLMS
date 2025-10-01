@@ -97,8 +97,8 @@ const Stage3 = ({ onSuccess, onCancel }: Stage3Props) => {
               <div className="mt-3">
                 {quizSelection === 'b' ? (
                   <>
-                    <div className="alert alert-success" role="alert" style={{ backgroundColor: 'var(--accent-color)', color: '#fff', borderColor: 'var(--accent-color)' }}>
-                      Correct! Another map typically points to the next clue.
+                    <div className="alert alert-success" role="alert" style={{ backgroundColor: 'var(--accent-color)', color: '#fff', borderColor: 'var(--accent-color)', fontWeight: 'bold' }}>
+                      ✅ <strong>Correct!</strong> Another map typically points to the next clue.
                     </div>
                     <button
                       className="btn er-btn-primary"
@@ -108,8 +108,8 @@ const Stage3 = ({ onSuccess, onCancel }: Stage3Props) => {
                     </button>
                   </>
                 ) : (
-                  <div className="alert alert-danger" role="alert" style={{ backgroundColor: '#8b0000', color: '#fff', borderColor: '#8b0000' }}>
-                    Not quite. Try selecting another option.
+                  <div className="alert alert-danger" role="alert" style={{ backgroundColor: '#8b0000', color: '#fff', borderColor: '#8b0000', fontWeight: 'bold' }}>
+                    ❌ <strong>Incorrect!</strong> Try selecting another option.
                   </div>
                 )}
               </div>

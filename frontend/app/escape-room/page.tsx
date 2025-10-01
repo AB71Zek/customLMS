@@ -202,7 +202,7 @@ export default function EscapeRoom() {
 
                   {/* Button to confirm timer */}
                   {selectedTimer ? (
-                    <Link href="/escape-room/map" className="btn btn-lg btn-success" style={{ marginBottom: "20px" }}>
+                    <Link href={`/escape-room/map?timer=${selectedTimer}`} className="btn btn-lg btn-success" style={{ marginBottom: "20px" }}>
                       START GAME
                     </Link>
                   ) : (
