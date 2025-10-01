@@ -258,6 +258,39 @@ export default function MapRoomPage() {
               ⏱️ {formatTime(timeLeft)} {isTimerPaused ? '(paused)' : ''}
             </span>
           </div>
+          
+          {/* Edit Questions Button - only visible on map screen */}
+          {stageView === 'none' && (
+            <div style={{ position: 'absolute', top: '50%', right: '20px', transform: 'translateY(-50%)', zIndex: 1 }}>
+              <button
+                onClick={() => setStageView('questions')}
+                className="btn btn-outline-primary"
+                style={{
+                  backgroundColor: '#00bcd4',
+                  color: '#fff',
+                  borderColor: '#000',
+                  borderWidth: '3px',
+                  borderStyle: 'solid',
+                  fontWeight: 600,
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  fontSize: '16px',
+                  letterSpacing: '0.5px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#00acc1';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#00bcd4';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                Edit Questions
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
