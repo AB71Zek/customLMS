@@ -5,8 +5,7 @@ import { useEffect, useState } from 'react';
 import Header from '../../Components/header';
 import { useTheme } from '../../Components/ThemeContext';
 import QuestionEditor from '../questions/QuestionEditor';
-import Stage4 from '../stages/Stage4';
-import StageEnd from '../stages/StageEnd';
+import StageEditor from '../stages/stage';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
@@ -15,14 +14,22 @@ export default function MapRoomPage() {
   // Get timer value from URL parameters
   const timerValue = parseInt(searchParams.get('timer') || '600');
   
-  // View state (map, stage4, question editor, or end screen)
-  const [stageView, setStageView] = useState<'none' | 'stage4' | 'questions' | 'end'>('none');
+  // View state (map, notice, question editor, editor canvas)
+  const [stageView, setStageView] = useState<'none' | 'notice' | 'questions' | 'editor'>('notice');
   const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
+  const [roomExists, setRoomExists] = useState<boolean>(false);
 
   // Timer state
   const [timeLeft, setTimeLeft] = useState<number>(timerValue);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(true);
   const [isTimerPaused, setIsTimerPaused] = useState<boolean>(true);
+
+  // Load room existence on mount
+  useEffect(() => {
+    try {
+      setRoomExists(localStorage.getItem('escape-room:room:exists') === 'true');
+    } catch {}
+  }, []);
 
   // Timer effect
   useEffect(() => {
@@ -53,7 +60,7 @@ export default function MapRoomPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Stage 4 position and icon
+  // Treasure Room position and icon
   const stage4Position = { left: '76%', top: '61%' };
   const stage4Icon = '/escape-room-misc/trophy.png';
 
@@ -70,11 +77,7 @@ export default function MapRoomPage() {
             maxWidth: '1600px',
             maxHeight: '675px',
             aspectRatio: '16 / 9',
-            backgroundImage: stageView === 'none'
-              ? "url('/escape-room-misc/treasure-map.png')"
-              : stageView === 'stage4'
-                ? "url('/escape-room-misc/stage4-bg.png')"
-                : "url('/escape-room-misc/treasure-map.png')",
+            backgroundImage: "url('/escape-room-misc/treasure-map.png')",
             backgroundSize: '89.8vw 89.6vh',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
@@ -82,42 +85,62 @@ export default function MapRoomPage() {
             borderRadius: '8px'
           }}>
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
-            {/* Stage 4 icon */}
-            {stageView === 'none' && (
-              <div style={{ position: 'absolute', left: stage4Position.left, top: stage4Position.top, transform: 'translate(-50%, -50%)', textAlign: 'center', cursor: 'pointer' }}
-                   onClick={() => {
-                     setStageView('stage4');
-                     setIsTimerPaused(false);
-                     setIsTimerRunning(true);
-                   }}>
-                <img
-                  src={stage4Icon}
-                  alt="Stage 4"
-                  width={72}
-                  height={72}
-                  style={{ zIndex: 1, position: 'relative' }}
-                />
-                <div style={{ marginTop: '6px', color: '#fff', textShadow: '1px 1px 2px rgba(0,0,0,0.8)', fontSize: '14px', position: 'relative', zIndex: 4 }}>Stage 4</div>
-              </div>
-            )}
+            {/* Treasure Room icon removed for editor-first flow */}
           </div>
-          {/* Overlays */}
-          {stageView === 'stage4' && (
-            <Stage4
-              onSuccess={() => {
-                setStageView('end');
-                setIsTimerPaused(true);
-              }}
-              onCancel={() => { setStageView('none'); setIsTimerPaused(true); }}
-            />
-          )}
-          {stageView === 'end' && (
-            <div style={{ position: 'absolute', inset: 0, padding: 0, margin: 0, zIndex: 5 }}>
-              <StageEnd onExit={() => { window.location.href = '/escape-room'; }} />
+          {/* Notice overlay */}
+          {stageView === 'notice' && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                <div className="alert" role="alert" style={{
+                  backgroundColor: '#fff8d1',
+                  color: '#dc3545',
+                  borderColor: '#ffe58f',
+                  fontWeight: 800,
+                  fontSize: '16px',
+                  letterSpacing: '0.3px',
+                  borderRadius: '10px',
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.15)'
+                }}>
+                  ℹ️ Please create a room in editor to start!
+                </div>
+                <button
+                  onClick={() => setStageView('editor')}
+                  className="btn btn-outline-primary"
+                  style={{
+                    backgroundColor: '#00bcd4',
+                    color: '#fff',
+                    borderColor: '#000',
+                    borderWidth: '3px',
+                    borderStyle: 'solid',
+                    fontWeight: 600,
+                    padding: '10px 18px',
+                    borderRadius: '10px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                    fontSize: '15px',
+                    letterSpacing: '0.4px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#00acc1';
+                    e.currentTarget.style.transform = 'scale(1.03)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#00bcd4';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
+                  Open Editor
+                </button>
+              </div>
             </div>
           )}
           {stageView === 'questions' && (
             <QuestionEditor stageIndex={editorStageIndex} onClose={() => setStageView('none')} />
+          )}
+          {stageView === 'editor' && (
+            <StageEditor
+              onSave={() => { setStageView('notice'); setRoomExists(true); }}
+              onCancel={() => setStageView('notice')}
+            />
           )}
           <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1125, right: 0, padding: '12px 16px', zIndex: 1 }}>
             <span className="badge" style={{ 

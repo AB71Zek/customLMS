@@ -1,21 +1,16 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Header from '../Components/header';
 import { useTheme } from '../Components/ThemeContext';
-import Stage1 from './stages/Stage1';
-import Stage2 from './stages/Stage2';
-import Stage3 from './stages/Stage3';
-import Stage4 from './stages/Stage4';
+// Stage components removed; map flow starts on /escape-room/map
 
 export default function EscapeRoom() {
   const { theme } = useTheme();
   const [selectedTimer, setSelectedTimer] = useState<number | null>(null);
   const [customTimer, setCustomTimer] = useState<number>(600);
-  const [gameState, setGameState] = useState<'menu' | 'playing' | 'completed' | 'timeup'>('menu');
-  const [currentStage, setCurrentStage] = useState(1);
-  const [timeLeft, setTimeLeft] = useState<number>(0);
+  // Game state removed; this page only selects timer and links to map
 
   const timerOptions = [
     { value: 300, label: "5 minutes", description: "Quick challenge" },
@@ -38,72 +33,16 @@ export default function EscapeRoom() {
 
   // No inline map state here; map lives on /escape-room/map
 
-  const completeStage = () => {
-    if (currentStage < 4) {
-      setCurrentStage(currentStage + 1);
-    } else {
-      setGameState('completed');
-    }
-  };
+  // Removed stage flow helpers
 
-  const resetGame = () => {
-    setGameState('menu');
-    setCurrentStage(1);
-    setTimeLeft(0);
-  };
-
-  // Timer countdown effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    
-    if (gameState === 'playing' && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 1) {
-            setGameState('timeup');
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    }
-    
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [gameState, timeLeft]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const renderStage = () => {
-    switch (currentStage) {
-      case 1:
-        return <Stage1 onComplete={completeStage} />;
-      case 2:
-        return <Stage2 onComplete={completeStage} />;
-      case 3:
-        return <Stage3 onComplete={completeStage} />;
-      case 4:
-        return <Stage4 onComplete={completeStage} />;
-      default:
-        return null;
-    }
-  };
-
-  // Map page lives at /escape-room/map
+  // Removed in favor of editor-driven map experience
 
   return (
     <div className="container theme-transition escape-room" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0" }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
       <div style={{ marginTop: "133px", marginBottom: "20px"}}>
-        {gameState === 'menu' && (
+        {
           <div className="row justify-content-center" style={{ height: '100%' }}>
             <div className="col-md-10" style={{ height: '100%' }}>
               <div className="card" style={{
@@ -229,112 +168,8 @@ export default function EscapeRoom() {
               </div>
             )}
           </div>
-        )}
-
-        
-
-        {gameState === 'playing' && (
-          <div className="row justify-content-center" style={{ height: '100%' }}>
-            <div className="col-md-10" style={{ height: '100%' }}>
-              <div className="card" style={{
-                backgroundColor: "var(--section-bg)",
-                color: "var(--text-primary)",
-                borderColor: "var(--border-color)",
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column'
-              }}>
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h4 className="mb-0">Stage {currentStage} of 4</h4>
-                  <div className="d-flex gap-3 align-items-center">
-                    {/* Timer Display */}
-                    <div className="d-flex align-items-center gap-2">
-                      <span className="badge" style={{
-                        backgroundColor: timeLeft <= 60 ? '#dc3545' : '#55e676',
-                        color: 'white',
-                        fontSize: '16px',
-                        padding: '8px 12px',
-                        borderRadius: '20px'
-                      }}>
-                        ⏱️ {formatTime(timeLeft)}
-                      </span>
-                    </div>
-                    <button 
-                      className="btn btn-outline-secondary btn-sm" 
-                      onClick={resetGame}
-                      style={{
-                        color: "var(--text-primary)",
-                        borderColor: "var(--border-color)"
-                      }}
-                    >
-                      Back to Menu
-                    </button>
-                  </div>
-                </div>
-                <div style={{ flex: 1, overflow: 'auto' }}>
-                  {renderStage()}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {gameState === 'completed' && (
-        <div className="row justify-content-center">
-          <div className="col-md-8">
-            <div className="text-center" style={{ color: "var(--text-primary)" }}>
-                <h1 className="display-4 mb-4">🎉 Congratulations!</h1>
-                <div className="card" style={{
-                backgroundColor: "var(--section-bg)",
-                color: "var(--text-primary)",
-                borderColor: "var(--border-color)"
-              }}>
-                <div className="card-body">
-                    <h2 className="card-title mb-3">Escape Room Completed!</h2>
-                  <p className="card-text">
-                      You have successfully completed all 4 stages of the escape room challenge!
-                    </p>
-                    <button 
-                      className="btn btn-success"
-                      onClick={resetGame}
-                    >
-                      Play Again
-                  </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {gameState === 'timeup' && (
-          <div className="row justify-content-center">
-            <div className="col-md-8">
-              <div className="text-center" style={{ color: "var(--text-primary)" }}>
-                <h1 className="display-4 mb-4">⏰ Time&apos;s Up!</h1>
-                <div className="card" style={{
-                  backgroundColor: "var(--section-bg)",
-                color: "var(--text-primary)",
-                borderColor: "var(--border-color)"
-              }}>
-                  <div className="card-body">
-                    <h2 className="card-title mb-3">Challenge Failed</h2>
-                    <p className="card-text">
-                      You ran out of time! You made it to Stage {currentStage} of 4. 
-                      Try again with more time or work faster!
-                    </p>
-                    <button 
-                      className="btn btn-warning"
-                      onClick={resetGame}
-                    >
-                      Try Again
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        }
+        {/* Stage playing/completion/timeup views removed */}
       </div>
     </div>
   );
