@@ -67,10 +67,10 @@ export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
 
   // Add new item at center when clicking toolbox
   const handleAddItem = (type: PlacedItem['type']) => {
-    setItems((prev) => [
-      ...prev,
-      { id: `${type}-${Date.now()}`, type, x: 50, y: 50 },
-    ]);
+    setItems((prev) => {
+      if (prev.length >= 5) return prev;
+      return [...prev, { id: `${type}-${Date.now()}`, type, x: 50, y: 50 }];
+    });
   };
 
   const handleMouseDown = (e: React.MouseEvent, id: string) => {
@@ -131,6 +131,22 @@ export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
       >
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', pointerEvents: 'none' }} />
 
+        {/* Top-middle counter */}
+        <div style={{ position: 'absolute', top: '16px', left: '50%', transform: 'translateX(-50%)', zIndex: 12 }}>
+          <span style={{
+            background: 'rgba(255,255,255,0.92)',
+            color: '#dc3545',
+            border: '2px solid var(--border-color)',
+            borderRadius: '12px',
+            padding: '6px 12px',
+            fontWeight: 800,
+            fontSize: '13px',
+            whiteSpace: 'nowrap'
+          }}>
+            Icons placed ({Math.min(items.length, 5)}/5)
+          </span>
+        </div>
+
         {/* Floating toolbox */}
         <div style={{
           position: 'absolute',
@@ -145,23 +161,28 @@ export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
           gap: '8px',
           zIndex: 11
         }}>
-          <div style={{ fontWeight: 800, fontSize: '14px' }}>Step 1 - Drag and drop icons to your escape room</div>
+          <div style={{ fontWeight: 800, fontSize: '14px' }}>Step 1 - Click and drag icons to place in your escape room!</div>
           <div style={{ display: 'flex', gap: '10px' }}>
-            {TOOLBOX_ITEMS.map((t) => (
-              <button
-                key={t}
-                onClick={() => handleAddItem(t)}
-                title={t}
-                style={{
-                  width: '44px', height: '44px', borderRadius: '10px',
-                  background: '#fff', border: '2px solid var(--border-color)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer'
-                }}
-              >
-                <img src={ICON_SOURCES[t]} alt={t} width={28} height={28} draggable={false} onDragStart={(e) => e.preventDefault()} />
-              </button>
-            ))}
+            {TOOLBOX_ITEMS.map((t) => {
+              const atLimit = items.length >= 5;
+              return (
+                <button
+                  key={t}
+                  onClick={() => handleAddItem(t)}
+                  title={t}
+                  disabled={atLimit}
+                  style={{
+                    width: '44px', height: '44px',
+                    background: 'transparent', border: 'none', padding: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: atLimit ? 'not-allowed' : 'pointer',
+                    opacity: atLimit ? 0.5 : 1
+                  }}
+                >
+                  <img src={ICON_SOURCES[t]} alt={t} width={44} height={44} draggable={false} onDragStart={(e) => e.preventDefault()} />
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -222,13 +243,8 @@ export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
 
         {/* Placed items */}
         {items.map((it) => (
-          <img
+          <div
             key={it.id}
-            src={ICON_SOURCES[it.type]}
-            alt={it.type}
-            onMouseDown={(e) => handleMouseDown(e, it.id)}
-            draggable={false}
-            onDragStart={(e) => e.preventDefault()}
             style={{
               position: 'absolute',
               left: `${it.x}%`,
@@ -236,11 +252,50 @@ export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
               transform: 'translate(-50%, -50%)',
               width: '56px',
               height: '56px',
-              cursor: draggingId === it.id ? 'grabbing' : 'grab',
-              userSelect: 'none',
               zIndex: 10
             }}
-          />
+          >
+            <img
+              src={ICON_SOURCES[it.type]}
+              alt={it.type}
+              onMouseDown={(e) => handleMouseDown(e, it.id)}
+              draggable={false}
+              onDragStart={(e) => e.preventDefault()}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                margin: 'auto',
+                width: '56px',
+                height: '56px',
+                cursor: draggingId === it.id ? 'grabbing' : 'grab',
+                userSelect: 'none'
+              }}
+            />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setItems((prev) => prev.filter((x) => x.id !== it.id));
+              }}
+              title="Delete"
+              style={{
+                position: 'absolute',
+                top: '-8px',
+                right: '-8px',
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.5)',
+                border: '1px solid var(--border-color)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+                cursor: 'pointer'
+              }}
+            >
+              <img src="/escape-room-misc/delete.png" alt="delete" width={20} height={20} draggable={false} />
+            </button>
+          </div>
         ))}
       </div>
     </div>

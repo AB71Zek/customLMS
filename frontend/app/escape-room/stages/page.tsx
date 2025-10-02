@@ -96,12 +96,12 @@ export default function MapRoomPage() {
                   color: '#dc3545',
                   borderColor: '#ffe58f',
                   fontWeight: 800,
-                  fontSize: '16px',
+                  fontSize: '24px',
                   letterSpacing: '0.3px',
                   borderRadius: '10px',
-                  boxShadow: '0 6px 16px rgba(0,0,0,0.15)'
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.25)'
                 }}>
-                  ℹ️ Step 1: Open the Icon Editor and place your icons. Step 2: Edit questions for each icon. You can start the game only after all questions are completed.
+                  Use the editor to create your escape room and start the game!
                 </div>
                 <button
                   onClick={() => setStageView('editor')}
