@@ -4,13 +4,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 import Header from '../Components/header';
 import { useTheme } from '../Components/ThemeContext';
-// Stage components removed; map flow starts on /escape-room/map
 
 export default function EscapeRoom() {
   const { theme } = useTheme();
   const [selectedTimer, setSelectedTimer] = useState<number | null>(null);
   const [customTimer, setCustomTimer] = useState<number>(600);
-  // Game state removed; this page only selects timer and links to map
 
   const timerOptions = [
     { value: 300, label: "5 minutes", description: "Quick challenge" },
@@ -30,12 +28,6 @@ export default function EscapeRoom() {
       setSelectedTimer(numValue);
     }
   };
-
-  // No inline map state here; map lives on /escape-room/map
-
-  // Removed stage flow helpers
-
-  // Removed in favor of editor-driven map experience
 
   return (
     <div className="container theme-transition escape-room" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0" }} data-theme={theme}>
@@ -169,7 +161,6 @@ export default function EscapeRoom() {
             )}
           </div>
         }
-        {/* Stage playing/completion/timeup views removed */}
       </div>
     </div>
   );
