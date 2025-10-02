@@ -4,8 +4,8 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Header from '../../Components/header';
 import { useTheme } from '../../Components/ThemeContext';
-import QuestionEditor from '../questions/QuestionEditor';
-import StageEditor from '../stages/stage';
+import IconEditor from '../editor/IconEditor';
+import QuestionEditor from '../editor/QuestionEditor';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
@@ -101,7 +101,7 @@ export default function MapRoomPage() {
                   borderRadius: '10px',
                   boxShadow: '0 6px 16px rgba(0,0,0,0.15)'
                 }}>
-                  ℹ️ Please create a room in editor to start!
+                  ℹ️ Step 1: Open the Icon Editor and place your icons. Step 2: Edit questions for each icon. You can start the game only after all questions are completed.
                 </div>
                 <button
                   onClick={() => setStageView('editor')}
@@ -128,7 +128,7 @@ export default function MapRoomPage() {
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                  Open Editor
+                  Open Icon Editor
                 </button>
               </div>
             </div>
@@ -137,7 +137,7 @@ export default function MapRoomPage() {
             <QuestionEditor stageIndex={editorStageIndex} onClose={() => setStageView('none')} />
           )}
           {stageView === 'editor' && (
-            <StageEditor
+            <IconEditor
               onSave={() => { setStageView('notice'); setRoomExists(true); }}
               onCancel={() => setStageView('notice')}
             />

@@ -170,20 +170,51 @@ export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
           <button
             onClick={handleReset}
             className="btn btn-outline-secondary"
-            style={{ color: 'var(--text-primary)', borderColor: 'var(--border-color)' }}
+            style={{
+              backgroundColor: '#ffffff',
+              color: '#000',
+              borderColor: 'var(--border-color)',
+              borderWidth: '2px'
+            }}
           >
             Reset
           </button>
           <button
             onClick={handleSave}
             className="btn er-btn-primary"
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLButtonElement;
+              if (!el.dataset.originalAccent) {
+                el.dataset.originalAccent = getComputedStyle(el).getPropertyValue('--accent-color') || '#dc3545';
+              }
+              el.style.setProperty('--accent-color', '#66d29a');
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLButtonElement;
+              const original = el.dataset.originalAccent || '#dc3545';
+              el.style.setProperty('--accent-color', original);
+            }}
+            onMouseDown={(e) => {
+              const el = e.currentTarget as HTMLButtonElement;
+              el.style.setProperty('--accent-color', '#1e7e34');
+            }}
+            onMouseUp={(e) => {
+              const el = e.currentTarget as HTMLButtonElement;
+              el.style.setProperty('--accent-color', '#66d29a');
+            }}
+            style={{ color: '#fff' }}
           >
             Save
           </button>
           <button
             onClick={onCancel}
             className="btn btn-outline-secondary"
-            style={{ color: 'var(--text-primary)', borderColor: 'var(--border-color)' }}
+            style={{
+              backgroundColor: '#ffffff',
+              color: '#000',
+              borderColor: 'var(--border-color)',
+              borderWidth: '2px'
+            }}
           >
             Cancel
           </button>
