@@ -159,6 +159,21 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
         const idx = updated.findIndex(q => q.id === chestId);
         if (idx >= 0) updated[idx] = { ...updated[idx], expectedAnswers: [newExpected] };
       }
+      // Validate all non-chest items before completing
+      const nonChestItems = placedItems.filter(it => it.type !== 'chest');
+      const isItemValid = (itemId: string) => {
+        const q = updated.find(x => x.id === `question-${itemId}`);
+        if (!q) return false;
+        const questionOk = isValidWordCount(q.question);
+        const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
+        const keyOk = isValidWordCount(q.keyCode);
+        return questionOk && answersOk && keyOk;
+      };
+      const allValid = nonChestItems.every(it => isItemValid(it.id));
+      if (!allValid) {
+        alert('Please complete all questions (1-500 words each) and key codes for all non-chest icons before completing.');
+        return;
+      }
       localStorage.setItem(QUESTIONS_STORAGE_KEY, JSON.stringify(updated));
       localStorage.setItem('escape-room:questions:complete', 'true');
     } catch {}
@@ -188,6 +203,19 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
         }}
       >
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', pointerEvents: 'none' }} />
+        {/* Blur overlay when a question is open */}
+        {selectedQuestion && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(0,0,0,0.25)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+              zIndex: 12
+            }}
+          />
+        )}
 
         {/* Step 2 Header */}
         <div style={{
@@ -204,9 +232,23 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
           <div style={{ fontWeight: 800, fontSize: '16px', textAlign: 'center' }}>
             Step 2 - Create your questions!
           </div>
-          <div style={{ fontSize: '14px', textAlign: 'center', marginTop: '4px', color: '#666' }}>
-            Click on any icon below to create its question
-          </div>
+          {(() => {
+            const nonChest = placedItems.filter(it => it.type !== 'chest');
+            const editedCount = nonChest.filter(it => {
+              const q = questions.find(x => x.id === `question-${it.id}`);
+              if (!q) return false;
+              const questionOk = isValidWordCount(q.question);
+              const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
+              const keyOk = isValidWordCount(q.keyCode);
+              return questionOk && answersOk && keyOk;
+            }).length;
+            const total = nonChest.length;
+            return (
+              <div style={{ fontSize: '14px', textAlign: 'center', marginTop: '4px', color: '#666' }}>
+                Click on any icon below to create its question · Edited {editedCount}/{total}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Placed Icons - Non-editable */}
@@ -247,16 +289,19 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
         {selectedQuestion && selectedItem && (
           <div style={{
             position: 'absolute',
-            top: '200px',
+            top: '50%',
             left: '50%',
-            transform: 'translateX(-50%)',
-            width: '80%',
-            maxWidth: '600px',
-            background: 'rgba(255,255,255,0.95)',
+            transform: 'translate(-50%, -50%)',
+            width: '88%',
+            maxWidth: '900px',
+            maxHeight: '85%',
+            overflowY: 'auto',
+            background: 'rgba(255,255,255,0.98)',
             border: '2px solid var(--border-color)',
             borderRadius: '12px',
             padding: '20px',
-            zIndex: 11
+            zIndex: 13,
+            boxShadow: '0 12px 28px rgba(0,0,0,0.35)'
           }}>
             <div style={{ marginBottom: '16px', textAlign: 'center' }}>
               <div style={{ fontWeight: 600, fontSize: '16px', marginBottom: '8px' }}>
@@ -284,7 +329,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                 </span>
               </label>
               <textarea
-                value={selectedQuestion.question}
+                value={selectedItem.type === 'chest' ? 'The only way to open this chest is to look find the code' : selectedQuestion.question}
                 onChange={(e) => handleQuestionChange(selectedQuestion.id, 'question', e.target.value)}
                 style={{
                   width: '100%',
@@ -298,102 +343,157 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                 placeholder="Enter your question here..."
                 disabled={selectedItem.type === 'chest'}
               />
-              {!isValidWordCount(selectedQuestion.question) && (
+              {!isValidWordCount(selectedQuestion.question) && selectedItem.type !== 'chest' && (
                 <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
                   Must be between 1-500 words
                 </div>
               )}
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                Expected Answers
-                {selectedItem.type !== 'chest' && selectedQuestion.expectedAnswers.length < 2 && (
-                  <button
-                    type="button"
-                    onClick={() => addExpectedAnswer(selectedQuestion.id)}
-                    style={{
-                      marginLeft: '8px',
-                      background: '#28a745',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      padding: '2px 6px',
-                      fontSize: '12px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    + Add
-                  </button>
-                )}
-              </label>
-              {selectedQuestion.expectedAnswers.map((answer, index) => (
-                <div key={index} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={answer}
-                    onChange={(e) => handleExpectedAnswerChange(selectedQuestion.id, index, e.target.value)}
-                    style={{
-                      flex: 1,
-                      padding: '8px',
-                      border: `1px solid ${isValidWordCount(answer) ? 'var(--border-color)' : '#dc3545'}`,
-                      borderRadius: '6px',
-                      fontSize: '14px'
-                    }}
-                    placeholder={`Expected answer ${index + 1}`}
-                    disabled={selectedItem.type === 'chest'}
-                  />
-                  {selectedItem.type !== 'chest' && selectedQuestion.expectedAnswers.length > 1 && (
+            {selectedItem.type !== 'chest' && (
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+                  Expected Answers
+                  {selectedQuestion.expectedAnswers.length < 2 && (
                     <button
                       type="button"
-                      onClick={() => removeExpectedAnswer(selectedQuestion.id, index)}
+                      onClick={() => addExpectedAnswer(selectedQuestion.id)}
                       style={{
-                        background: '#dc3545',
+                        marginLeft: '8px',
+                        background: '#28a745',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
-                        padding: '4px 8px',
+                        padding: '2px 6px',
                         fontSize: '12px',
                         cursor: 'pointer'
                       }}
                     >
-                      Remove
+                      + Add
                     </button>
                   )}
-                </div>
-              ))}
-              {selectedQuestion.expectedAnswers.some(answer => !isValidWordCount(answer)) && (
-                <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
-                  Each answer must be between 1-500 words
-                </div>
-              )}
-            </div>
+                </label>
+                {selectedQuestion.expectedAnswers.map((answer, index) => (
+                  <div key={index} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="text"
+                      value={answer}
+                      onChange={(e) => handleExpectedAnswerChange(selectedQuestion.id, index, e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        border: `1px solid ${isValidWordCount(answer) ? 'var(--border-color)' : '#dc3545'}`,
+                        borderRadius: '6px',
+                        fontSize: '14px'
+                      }}
+                      placeholder={`Expected answer ${index + 1}`}
+                    />
+                    {selectedQuestion.expectedAnswers.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeExpectedAnswer(selectedQuestion.id, index)}
+                        style={{
+                          background: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {selectedQuestion.expectedAnswers.some(answer => !isValidWordCount(answer)) && (
+                  <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
+                    Each answer must be between 1-500 words
+                  </div>
+                )}
+              </div>
+            )}
 
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                Key Code Unlocked
-                <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
-                  ({countWords(selectedQuestion.keyCode)}/500 words)
-                </span>
-              </label>
-              <input
-                type="text"
-                value={selectedQuestion.keyCode}
-                onChange={(e) => handleQuestionChange(selectedQuestion.id, 'keyCode', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: `1px solid ${isValidWordCount(selectedQuestion.keyCode) ? 'var(--border-color)' : '#dc3545'}`,
-                  borderRadius: '6px',
-                  fontSize: '14px'
+            {selectedItem.type !== 'chest' && (
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+                  Key Code Unlocked
+                  <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
+                    ({countWords(selectedQuestion.keyCode)}/500 words)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={selectedQuestion.keyCode}
+                  onChange={(e) => handleQuestionChange(selectedQuestion.id, 'keyCode', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    border: `1px solid ${isValidWordCount(selectedQuestion.keyCode) ? 'var(--border-color)' : '#dc3545'}`,
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                  placeholder="Enter Key Code. Eg - xAO219"
+                />
+                {!isValidWordCount(selectedQuestion.keyCode) && (
+                  <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
+                    Must be between 1-500 words
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Modal action buttons */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  // Save progress and keep on step 2 (close modal)
+                  // Validate current icon before saving
+                  const q = questions.find(x => x.id === selectedQuestion.id);
+                  if (!q) return;
+                  if (selectedItem.type !== 'chest') {
+                    const questionOk = isValidWordCount(q.question);
+                    const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
+                    const keyOk = isValidWordCount(q.keyCode);
+                    if (!questionOk) { alert('Question must be between 1 and 500 words.'); return; }
+                    if (!answersOk) { alert('Each expected answer must be between 1 and 500 words (up to 2).'); return; }
+                    if (!keyOk) { alert('Key code must be between 1 and 500 words.'); return; }
+                  }
+                  try {
+                    const updated = [...questions];
+                    const chestItem = placedItems.find(it => it.type === 'chest');
+                    if (chestItem) {
+                      const chestId = `question-${chestItem.id}`;
+                      const newExpected = computeChestExpectedAnswer(updated, placedItems);
+                      const idx = updated.findIndex(q2 => q2.id === chestId);
+                      if (idx >= 0) updated[idx] = { ...updated[idx], expectedAnswers: [newExpected] };
+                    }
+                    localStorage.setItem(QUESTIONS_STORAGE_KEY, JSON.stringify(updated));
+                  } catch {}
+                  setSelectedIconId(null);
                 }}
-                placeholder="Enter Key Code. Eg - xAO219"
-                disabled={selectedItem.type === 'chest'}
-              />
-              {!isValidWordCount(selectedQuestion.keyCode) && (
-                <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
-                  Must be between 1-500 words
-                </div>
+                className="btn btn-primary"
+              >
+                Save
+              </button>
+              {selectedItem.type !== 'chest' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Reset current question fields
+                    setQuestions(prev => prev.map(q => {
+                      if (q.id === selectedQuestion.id) {
+                        return { ...q, question: '', expectedAnswers: [''], keyCode: '' };
+                      }
+                      return q;
+                    }));
+                  }}
+                  className="btn btn-outline-secondary"
+                >
+                  Refresh
+                </button>
               )}
             </div>
           </div>
