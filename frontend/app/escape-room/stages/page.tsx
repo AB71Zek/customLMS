@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Header from '../../Components/header';
 import { useTheme } from '../../Components/ThemeContext';
 import IconEditor from '../editor/IconEditor';
+import QuestionCreator from '../editor/QuestionCreator';
 import QuestionEditor from '../editor/QuestionEditor';
 
 export default function MapRoomPage() {
@@ -14,8 +15,8 @@ export default function MapRoomPage() {
   // Get timer value from URL parameters
   const timerValue = parseInt(searchParams.get('timer') || '600');
   
-  // View state (map, notice, question editor, editor canvas)
-  const [stageView, setStageView] = useState<'none' | 'notice' | 'questions' | 'editor'>('notice');
+  // View state (map, notice, question editor, editor canvas, question creator)
+  const [stageView, setStageView] = useState<'none' | 'notice' | 'questions' | 'editor' | 'question-creator'>('notice');
   const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
   const [roomExists, setRoomExists] = useState<boolean>(false);
 
@@ -140,6 +141,13 @@ export default function MapRoomPage() {
             <IconEditor
               onSave={() => { setStageView('notice'); setRoomExists(true); }}
               onCancel={() => setStageView('notice')}
+              onStep2={() => setStageView('question-creator')}
+            />
+          )}
+          {stageView === 'question-creator' && (
+            <QuestionCreator
+              onComplete={() => { setStageView('notice'); setRoomExists(true); }}
+              onBack={() => setStageView('editor')}
             />
           )}
           <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1125, right: 0, padding: '12px 16px', zIndex: 1 }}>
