@@ -123,7 +123,7 @@ export default function MapRoomPage() {
           )}
           {stageView === 'question-creator' && (
             <QuestionCreator
-              onComplete={() => { setStageView('notice'); setRoomExists(true); }}
+              onComplete={() => { setStageView('notice'); setRoomExists(true); setRoomSaved(true); }}
               onBack={() => setStageView('editor')}
             />
           )}
