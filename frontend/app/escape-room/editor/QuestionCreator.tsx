@@ -12,8 +12,8 @@ interface Question {
   id: string;
   iconType: PlacedItem['type'];
   question: string;
-  options: string[];
-  correctAnswer: number; // index of correct option (0-2)
+  expectedAnswers: string[]; // up to 2 expected answers
+  keyCode: string; // code unlocked upon answering this question
 }
 
 interface QuestionCreatorProps {
@@ -46,12 +46,12 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
         setPlacedItems(parsed);
         
         // Initialize questions for each icon
-        const initialQuestions: Question[] = parsed.map((item, index) => ({
+        const initialQuestions: Question[] = parsed.map((item) => ({
           id: `question-${item.id}`,
           iconType: item.type,
-          question: `What is this ${item.type}?`,
-          options: ['Option A', 'Option B', 'Option C'],
-          correctAnswer: 0
+          question: '',
+          expectedAnswers: [''],
+          keyCode: ''
         }));
         setQuestions(initialQuestions);
       }
@@ -69,35 +69,97 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
         const newQuestion: Question = {
           id: `question-${iconId}`,
           iconType: icon.type,
-          question: `What is this ${icon.type}?`,
-          options: ['Option A', 'Option B', 'Option C'],
-          correctAnswer: 0
+          question: '',
+          expectedAnswers: [''],
+          keyCode: ''
         };
         setQuestions(prev => [...prev, newQuestion]);
       }
     }
   };
 
-  const handleQuestionChange = (questionId: string, field: keyof Question, value: string | number) => {
+  // Helper function to count words
+  const countWords = (text: string) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  // Helper function to validate word count
+  const isValidWordCount = (text: string) => {
+    const wordCount = countWords(text);
+    return wordCount >= 1 && wordCount <= 500;
+  };
+
+  const handleQuestionChange = (questionId: string, field: keyof Question, value: string) => {
     setQuestions(prev => prev.map(q => 
       q.id === questionId ? { ...q, [field]: value } : q
     ));
   };
 
-  const handleOptionChange = (questionId: string, optionIndex: number, value: string) => {
+  const handleExpectedAnswerChange = (questionId: string, answerIndex: number, value: string) => {
     setQuestions(prev => prev.map(q => {
       if (q.id === questionId) {
-        const newOptions = [...q.options];
-        newOptions[optionIndex] = value;
-        return { ...q, options: newOptions };
+        const newAnswers = [...q.expectedAnswers];
+        newAnswers[answerIndex] = value;
+        return { ...q, expectedAnswers: newAnswers };
       }
       return q;
     }));
   };
 
+  const addExpectedAnswer = (questionId: string) => {
+    setQuestions(prev => prev.map(q => {
+      if (q.id === questionId && q.expectedAnswers.length < 2) {
+        return { ...q, expectedAnswers: [...q.expectedAnswers, ''] };
+      }
+      return q;
+    }));
+  };
+
+  const removeExpectedAnswer = (questionId: string, answerIndex: number) => {
+    setQuestions(prev => prev.map(q => {
+      if (q.id === questionId && q.expectedAnswers.length > 1) {
+        const newAnswers = q.expectedAnswers.filter((_, index) => index !== answerIndex);
+        return { ...q, expectedAnswers: newAnswers };
+      }
+      return q;
+    }));
+  };
+
+  // Compute chest expected answer from other icons' key codes (ordered by placement order)
+  const computeChestExpectedAnswer = (qs: Question[], items: PlacedItem[]) => {
+    const codesInOrder = items
+      .filter(it => it.type !== 'chest')
+      .map(it => {
+        const q = qs.find(x => x.id === `question-${it.id}`);
+        return (q?.keyCode || '').trim();
+      })
+      .filter(Boolean);
+    // Join with hyphen; adjust later if a different format is desired
+    return codesInOrder.join('-');
+  };
+
+  // Keep chest question's expectedAnswers in sync with other icons' key codes
+  useEffect(() => {
+    if (!placedItems.length || !questions.length) return;
+    const chestItem = placedItems.find(it => it.type === 'chest');
+    if (!chestItem) return;
+    const chestId = `question-${chestItem.id}`;
+    const newExpected = computeChestExpectedAnswer(questions, placedItems);
+    setQuestions(prev => prev.map(q => q.id === chestId ? { ...q, expectedAnswers: [newExpected] } : q));
+  }, [questions.map(q => q.keyCode).join('|'), placedItems.map(i => i.id).join('|')]);
+
   const handleSaveQuestions = () => {
+    // Ensure chest expected answer is up to date before save
     try {
-      localStorage.setItem(QUESTIONS_STORAGE_KEY, JSON.stringify(questions));
+      const updated = [...questions];
+      const chestItem = placedItems.find(it => it.type === 'chest');
+      if (chestItem) {
+        const chestId = `question-${chestItem.id}`;
+        const newExpected = computeChestExpectedAnswer(updated, placedItems);
+        const idx = updated.findIndex(q => q.id === chestId);
+        if (idx >= 0) updated[idx] = { ...updated[idx], expectedAnswers: [newExpected] };
+      }
+      localStorage.setItem(QUESTIONS_STORAGE_KEY, JSON.stringify(updated));
       localStorage.setItem('escape-room:questions:complete', 'true');
     } catch {}
     onComplete();
@@ -216,7 +278,10 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                Question:
+                Edit Question
+                <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
+                  ({countWords(selectedQuestion.question)}/500 words)
+                </span>
               </label>
               <textarea
                 value={selectedQuestion.question}
@@ -224,44 +289,112 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                 style={{
                   width: '100%',
                   padding: '8px',
-                  border: '1px solid var(--border-color)',
+                  border: `1px solid ${isValidWordCount(selectedQuestion.question) ? 'var(--border-color)' : '#dc3545'}`,
                   borderRadius: '6px',
                   fontSize: '14px',
                   minHeight: '60px',
                   resize: 'vertical'
                 }}
                 placeholder="Enter your question here..."
+                disabled={selectedItem.type === 'chest'}
               />
+              {!isValidWordCount(selectedQuestion.question) && (
+                <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
+                  Must be between 1-500 words
+                </div>
+              )}
             </div>
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                Answer Options:
+                Expected Answers
+                {selectedItem.type !== 'chest' && selectedQuestion.expectedAnswers.length < 2 && (
+                  <button
+                    type="button"
+                    onClick={() => addExpectedAnswer(selectedQuestion.id)}
+                    style={{
+                      marginLeft: '8px',
+                      background: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      padding: '2px 6px',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    + Add
+                  </button>
+                )}
               </label>
-              {selectedQuestion.options.map((option, index) => (
+              {selectedQuestion.expectedAnswers.map((answer, index) => (
                 <div key={index} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input
-                    type="radio"
-                    name={`correct-${selectedQuestion.id}`}
-                    checked={selectedQuestion.correctAnswer === index}
-                    onChange={() => handleQuestionChange(selectedQuestion.id, 'correctAnswer', index)}
-                    style={{ margin: 0 }}
-                  />
-                  <input
                     type="text"
-                    value={option}
-                    onChange={(e) => handleOptionChange(selectedQuestion.id, index, e.target.value)}
+                    value={answer}
+                    onChange={(e) => handleExpectedAnswerChange(selectedQuestion.id, index, e.target.value)}
                     style={{
                       flex: 1,
-                      padding: '6px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '4px',
+                      padding: '8px',
+                      border: `1px solid ${isValidWordCount(answer) ? 'var(--border-color)' : '#dc3545'}`,
+                      borderRadius: '6px',
                       fontSize: '14px'
                     }}
-                    placeholder={`Option ${String.fromCharCode(65 + index)}`}
+                    placeholder={`Expected answer ${index + 1}`}
+                    disabled={selectedItem.type === 'chest'}
                   />
+                  {selectedItem.type !== 'chest' && selectedQuestion.expectedAnswers.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeExpectedAnswer(selectedQuestion.id, index)}
+                      style={{
+                        background: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
               ))}
+              {selectedQuestion.expectedAnswers.some(answer => !isValidWordCount(answer)) && (
+                <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
+                  Each answer must be between 1-500 words
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+                Key Code Unlocked
+                <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
+                  ({countWords(selectedQuestion.keyCode)}/500 words)
+                </span>
+              </label>
+              <input
+                type="text"
+                value={selectedQuestion.keyCode}
+                onChange={(e) => handleQuestionChange(selectedQuestion.id, 'keyCode', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: `1px solid ${isValidWordCount(selectedQuestion.keyCode) ? 'var(--border-color)' : '#dc3545'}`,
+                  borderRadius: '6px',
+                  fontSize: '14px'
+                }}
+                placeholder="Enter Key Code. Eg - xAO219"
+                disabled={selectedItem.type === 'chest'}
+              />
+              {!isValidWordCount(selectedQuestion.keyCode) && (
+                <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
+                  Must be between 1-500 words
+                </div>
+              )}
             </div>
           </div>
         )}
