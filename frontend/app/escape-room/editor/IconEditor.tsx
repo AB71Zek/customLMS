@@ -155,7 +155,7 @@ export default function StageEditor({ onSave, onCancel, onStep2 }: StageEditorPr
           maxHeight: '675px',
           aspectRatio: '16 / 9',
           backgroundImage: "url('/escape-room-misc/stage4-bg.png')",
-          backgroundSize: '89.8vw 89.6vh',
+          backgroundSize: '100% 100%',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           border: '3px solid var(--border-color)',
