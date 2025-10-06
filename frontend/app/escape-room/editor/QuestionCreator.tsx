@@ -36,6 +36,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
   const [placedItems, setPlacedItems] = useState<PlacedItem[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedIconId, setSelectedIconId] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
   // Load placed items on mount
   useEffect(() => {
@@ -89,6 +90,12 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
     return wordCount >= 1 && wordCount <= 500;
   };
 
+  // Key code length validation: 1-10 characters
+  const isValidKeyCodeLength = (text: string) => {
+    const len = text.trim().length;
+    return len >= 1 && len <= 10;
+  };
+
   const handleQuestionChange = (questionId: string, field: keyof Question, value: string) => {
     setQuestions(prev => prev.map(q => 
       q.id === questionId ? { ...q, [field]: value } : q
@@ -123,6 +130,20 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
       }
       return q;
     }));
+  };
+
+  // Reset all question data (except chest auto-computed answer which will resync)
+  const resetAllQuestions = () => {
+    setQuestions(prev => prev.map(q => ({
+      ...q,
+      question: '',
+      expectedAnswers: q.iconType === 'chest' ? q.expectedAnswers : [''],
+      keyCode: ''
+    })));
+    try {
+      localStorage.removeItem(QUESTIONS_STORAGE_KEY);
+      localStorage.removeItem('escape-room:questions:complete');
+    } catch {}
   };
 
   // Compute chest expected answer from other icons' key codes (ordered by placement order)
@@ -166,7 +187,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
         if (!q) return false;
         const questionOk = isValidWordCount(q.question);
         const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
-        const keyOk = isValidWordCount(q.keyCode);
+        const keyOk = isValidKeyCodeLength(q.keyCode);
         return questionOk && answersOk && keyOk;
       };
       const allValid = nonChestItems.every(it => isItemValid(it.id));
@@ -177,7 +198,8 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
       localStorage.setItem(QUESTIONS_STORAGE_KEY, JSON.stringify(updated));
       localStorage.setItem('escape-room:questions:complete', 'true');
     } catch {}
-    onComplete();
+    // Open confirmation modal instead of navigating
+    setShowConfirm(true);
   };
 
   const selectedQuestion = selectedIconId ? questions.find(q => q.id === `question-${selectedIconId}`) : null;
@@ -239,7 +261,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
               if (!q) return false;
               const questionOk = isValidWordCount(q.question);
               const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
-              const keyOk = isValidWordCount(q.keyCode);
+              const keyOk = isValidKeyCodeLength(q.keyCode);
               return questionOk && answersOk && keyOk;
             }).length;
             const total = nonChest.length;
@@ -417,10 +439,10 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
 
             {selectedItem.type !== 'chest' && (
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+              <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
                   Key Code Unlocked
                   <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
-                    ({countWords(selectedQuestion.keyCode)}/500 words)
+                    ({selectedQuestion.keyCode.trim().length}/10 chars)
                   </span>
                 </label>
                 <input
@@ -430,15 +452,15 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                   style={{
                     width: '100%',
                     padding: '8px',
-                    border: `1px solid ${isValidWordCount(selectedQuestion.keyCode) ? 'var(--border-color)' : '#dc3545'}`,
+                    border: `1px solid ${isValidKeyCodeLength(selectedQuestion.keyCode) ? 'var(--border-color)' : '#dc3545'}`,
                     borderRadius: '6px',
                     fontSize: '14px'
                   }}
                   placeholder="Enter Key Code. Eg - xAO219"
                 />
-                {!isValidWordCount(selectedQuestion.keyCode) && (
+                {!isValidKeyCodeLength(selectedQuestion.keyCode) && (
                   <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
-                    Must be between 1-500 words
+                    Must be between 1 and 10 characters
                   </div>
                 )}
               </div>
@@ -456,10 +478,10 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                   if (selectedItem.type !== 'chest') {
                     const questionOk = isValidWordCount(q.question);
                     const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
-                    const keyOk = isValidWordCount(q.keyCode);
+                    const keyOk = isValidKeyCodeLength(q.keyCode);
                     if (!questionOk) { alert('Question must be between 1 and 500 words.'); return; }
                     if (!answersOk) { alert('Each expected answer must be between 1 and 500 words (up to 2).'); return; }
-                    if (!keyOk) { alert('Key code must be between 1 and 500 words.'); return; }
+                    if (!keyOk) { alert('Key code must be between 1 and 10 characters.'); return; }
                   }
                   try {
                     const updated = [...questions];
@@ -499,30 +521,111 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
           </div>
         )}
 
-        {/* Navigation Controls */}
-        <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '12px', zIndex: 11 }}>
+        {/* Top-right controls (Reset, Save, Stage 1) */}
+        <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 11 }}>
           <button
-            onClick={onBack}
+            onClick={resetAllQuestions}
             className="btn btn-outline-secondary"
             style={{
               backgroundColor: '#ffffff',
               color: '#000',
               borderColor: 'var(--border-color)',
               borderWidth: '2px',
-              padding: '8px 16px'
+              padding: '10px 18px',
+              fontSize: '15px'
             }}
           >
-            Back to Step 1
+            Reset
           </button>
-          
           <button
             onClick={handleSaveQuestions}
             className="btn btn-success"
-            style={{ padding: '8px 16px' }}
+            style={{ padding: '10px 18px', fontSize: '15px' }}
           >
-            Complete Questions
+            Save
+          </button>
+          <button
+            onClick={onBack}
+            className="btn btn-outline-primary"
+            style={{
+              backgroundColor: '#00bcd4',
+              color: '#fff',
+              borderColor: '#000',
+              borderWidth: '2px',
+              padding: '10px 18px',
+              fontSize: '15px'
+            }}
+          >
+            Stage 1
           </button>
         </div>
+
+        {/* Confirmation Modal */}
+        {showConfirm && (
+          <>
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'rgba(0,0,0,0.35)',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                zIndex: 14
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '90%',
+                maxWidth: '540px',
+                background: '#ffffff',
+                border: '2px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '20px',
+                zIndex: 15,
+                boxShadow: '0 12px 28px rgba(0,0,0,0.35)'
+              }}
+            >
+              <div style={{ fontWeight: 800, fontSize: '18px', marginBottom: '8px', textAlign: 'center' }}>
+                You are ready to launch the room!
+              </div>
+              <div style={{ fontSize: '14px', color: '#444', textAlign: 'center', marginBottom: '16px' }}>
+                Would you like to save and proceed?
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowConfirm(false)}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    color: '#000',
+                    borderColor: 'var(--border-color)',
+                    borderWidth: '2px',
+                    padding: '8px 16px'
+                  }}
+                >
+                  Go Back
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() => {
+                    try { localStorage.setItem('escape-room:room:saved', 'true'); } catch {}
+                    setShowConfirm(false);
+                    onComplete();
+                  }}
+                  style={{ padding: '8px 16px' }}
+                >
+                  Proceed
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

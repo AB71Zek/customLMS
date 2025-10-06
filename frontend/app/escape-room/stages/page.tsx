@@ -7,6 +7,7 @@ import { useTheme } from '../../Components/ThemeContext';
 import IconEditor from '../editor/IconEditor';
 import QuestionCreator from '../editor/QuestionCreator';
 import QuestionEditor from '../editor/QuestionEditor';
+import StartGame from './StartGame';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
@@ -19,6 +20,7 @@ export default function MapRoomPage() {
   const [stageView, setStageView] = useState<'none' | 'notice' | 'questions' | 'editor' | 'question-creator'>('notice');
   const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
   const [roomExists, setRoomExists] = useState<boolean>(false);
+  const [roomSaved, setRoomSaved] = useState<boolean>(false);
 
   // Timer state
   const [timeLeft, setTimeLeft] = useState<number>(timerValue);
@@ -29,6 +31,7 @@ export default function MapRoomPage() {
   useEffect(() => {
     try {
       setRoomExists(localStorage.getItem('escape-room:room:exists') === 'true');
+      setRoomSaved(localStorage.getItem('escape-room:room:saved') === 'true');
     } catch {}
   }, []);
 
@@ -88,51 +91,25 @@ export default function MapRoomPage() {
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
             {/* Treasure Room icon removed for editor-first flow */}
           </div>
-          {/* Notice overlay */}
+          {/* Notice overlay via StartGame component */}
           {stageView === 'notice' && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                <div className="alert" role="alert" style={{
-                  backgroundColor: '#fff8d1',
-                  color: '#dc3545',
-                  borderColor: '#ffe58f',
-                  fontWeight: 800,
-                  fontSize: '24px',
-                  letterSpacing: '0.3px',
-                  borderRadius: '10px',
-                  boxShadow: '0 6px 16px rgba(0,0,0,0.25)'
-                }}>
-                  Use the editor to create your escape room and start the game!
-                </div>
-                <button
-                  onClick={() => setStageView('editor')}
-                  className="btn btn-outline-primary"
-                  style={{
-                    backgroundColor: '#00bcd4',
-                    color: '#fff',
-                    borderColor: '#000',
-                    borderWidth: '3px',
-                    borderStyle: 'solid',
-                    fontWeight: 600,
-                    padding: '10px 18px',
-                    borderRadius: '10px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                    fontSize: '15px',
-                    letterSpacing: '0.4px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#00acc1';
-                    e.currentTarget.style.transform = 'scale(1.03)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#00bcd4';
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                >
-                  Open Icon Editor
-                </button>
-              </div>
-            </div>
+            <StartGame
+              timeLeft={timeLeft}
+              isTimerPaused={isTimerPaused}
+              roomSaved={roomSaved}
+              onOpenEditor={() => setStageView('editor')}
+              onRestart={() => {
+                try {
+                  localStorage.removeItem('escape-room:editor:layout');
+                  localStorage.removeItem('escape-room:room:exists');
+                  localStorage.removeItem('escape-room:room:saved');
+                  localStorage.removeItem('escape-room:editor:questions');
+                  localStorage.removeItem('escape-room:questions:complete');
+                } catch {}
+                window.location.replace('/escape-room');
+              }}
+              onClickTrophy={() => {/* start game next step */}}
+            />
           )}
           {stageView === 'questions' && (
             <QuestionEditor stageIndex={editorStageIndex} onClose={() => setStageView('none')} />
@@ -150,18 +127,6 @@ export default function MapRoomPage() {
               onBack={() => setStageView('editor')}
             />
           )}
-          <div className="d-flex justify-content-between align-items-center" style={{ position: 'absolute', top: 0, left: 1125, right: 0, padding: '12px 16px', zIndex: 1 }}>
-            <span className="badge" style={{ 
-              backgroundColor: isTimerPaused ? '#dc3545' : '#55e676', 
-              color: 'white', 
-              fontSize: '16px', 
-              padding: '9px 12px', 
-              borderRadius: '14px', 
-              border: '2px solid black'
-            }}>
-              ⏱️ {formatTime(timeLeft)} {isTimerPaused ? '(paused)' : ''}
-            </span>
-          </div>
           
           {/* Edit Questions Button - only visible on map screen */}
           {stageView === 'none' && (
