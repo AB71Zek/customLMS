@@ -11,6 +11,7 @@ interface PlacedItem {
 interface StageEditorProps {
   onSave: () => void;
   onCancel: () => void;
+  onStep2?: () => void; // New prop for transitioning to Step 2
 }
 
 const ICON_SOURCES: Record<PlacedItem['type'], string> = {
@@ -25,7 +26,7 @@ const TOOLBOX_ITEMS: PlacedItem['type'][] = ['barrel', 'chest', 'key', 'torch', 
 
 const STORAGE_KEY = 'escape-room:editor:layout';
 
-export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
+export default function StageEditor({ onSave, onCancel, onStep2 }: StageEditorProps) {
   const [items, setItems] = useState<PlacedItem[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -97,13 +98,46 @@ export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
   };
 
+  // Validation function
+  const validateIcons = () => {
+    const chestCount = items.filter(item => item.type === 'chest').length;
+    const totalCount = items.length;
+    
+    if (totalCount === 0) {
+      return { isValid: false, message: 'Please place at least 1 icon!' };
+    }
+    if (chestCount !== 1) {
+      return { isValid: false, message: 'You must place exactly 1 chest icon!' };
+    }
+    return { isValid: true, message: '' };
+  };
+
+  // Check individual requirements for dynamic styling
+  const requirements = {
+    hasAtLeastOne: items.length >= 1,
+    hasExactlyOneChest: items.filter(item => item.type === 'chest').length === 1,
+    withinMaxLimit: items.length <= 5
+  };
+
   const handleSave = () => {
+    const validation = validateIcons();
+    if (!validation.isValid) {
+      alert(validation.message);
+      return;
+    }
+    
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
       // Mark that a room exists
       localStorage.setItem('escape-room:room:exists', 'true');
     } catch {}
-    onSave();
+    
+    // Transition to Step 2 if onStep2 callback is provided
+    if (onStep2) {
+      onStep2();
+    } else {
+      onSave();
+    }
   };
 
   return (
@@ -159,9 +193,33 @@ export default function StageEditor({ onSave, onCancel }: StageEditorProps) {
           display: 'flex',
           flexDirection: 'column',
           gap: '8px',
-          zIndex: 11
+          zIndex: 11,
+          maxWidth: '300px'
         }}>
           <div style={{ fontWeight: 800, fontSize: '14px' }}>Step 1 - Click and drag icons to place in your escape room!</div>
+          
+          {/* Constraints */}
+          <div style={{ 
+            fontSize: '12px', 
+            fontWeight: 600,
+            backgroundColor: '#fff8d1',
+            border: '1px solid #ffe58f',
+            borderRadius: '6px',
+            padding: '6px 8px',
+            marginTop: '4px'
+          }}>
+            <div style={{ color: '#dc3545' }}>📋 Requirements:</div>
+            <div style={{ color: requirements.hasAtLeastOne ? '#28a745' : '#dc3545' }}>
+              • Place at least 1 icon
+            </div>
+            <div style={{ color: requirements.hasExactlyOneChest ? '#28a745' : '#dc3545' }}>
+              • Place exactly 1 chest icon
+            </div>
+            <div style={{ color: requirements.withinMaxLimit ? '#28a745' : '#dc3545' }}>
+              • Maximum 5 icons total
+            </div>
+          </div>
+          
           <div style={{ display: 'flex', gap: '10px' }}>
             {TOOLBOX_ITEMS.map((t) => {
               const atLimit = items.length >= 5;
