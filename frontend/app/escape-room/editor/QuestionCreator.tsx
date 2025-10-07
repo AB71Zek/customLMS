@@ -4,7 +4,7 @@ import { generateRoomCode, saveRoom, type PlacedItem, type Question, type RoomDa
 
 
 interface QuestionCreatorProps {
-  onComplete: () => void;
+  onComplete: (roomCode: string) => void;
   onBack: () => void;
 }
 
@@ -580,7 +580,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                     // Set room as saved
                     try { localStorage.setItem('escape-room:room:saved', 'true'); } catch {}
                     setShowConfirm(false);
-                    onComplete();
+                    onComplete(roomCode);
                   }}
                   style={{ padding: '8px 16px' }}
                 >
