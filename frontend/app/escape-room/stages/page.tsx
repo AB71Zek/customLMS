@@ -7,6 +7,7 @@ import { useTheme } from '../../Components/ThemeContext';
 import IconEditor from '../editor/IconEditor';
 import QuestionCreator from '../editor/QuestionCreator';
 import QuestionEditor from '../editor/QuestionEditor';
+import { resetAllRooms } from '../utils/keyCodeGenerator';
 import StartGame from './StartGame';
 
 export default function MapRoomPage() {
@@ -99,13 +100,7 @@ export default function MapRoomPage() {
               roomSaved={roomSaved}
               onOpenEditor={() => setStageView('editor')}
               onRestart={() => {
-                try {
-                  localStorage.removeItem('escape-room:editor:layout');
-                  localStorage.removeItem('escape-room:room:exists');
-                  localStorage.removeItem('escape-room:room:saved');
-                  localStorage.removeItem('escape-room:editor:questions');
-                  localStorage.removeItem('escape-room:questions:complete');
-                } catch {}
+                resetAllRooms();
                 window.location.replace('/escape-room');
               }}
               onClickTrophy={() => {/* start game next step */}}

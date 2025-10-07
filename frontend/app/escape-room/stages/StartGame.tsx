@@ -1,4 +1,5 @@
 'use client';
+import { getCurrentRoom } from '../utils/keyCodeGenerator';
 
 interface StartGameProps {
   timeLeft: number;
@@ -16,6 +17,8 @@ const formatTime = (seconds: number) => {
 };
 
 export default function StartGame({ timeLeft, isTimerPaused, roomSaved, onOpenEditor, onRestart, onClickTrophy }: StartGameProps) {
+  const currentRoom = getCurrentRoom();
+  
   return (
     <>
       {/* Overlay content: either instruction to open editor or trophy to start */}
@@ -38,6 +41,7 @@ export default function StartGame({ timeLeft, isTimerPaused, roomSaved, onOpenEd
               onClick={onOpenEditor}
               className="btn btn-outline-primary"
               style={{
+                pointerEvents: 'auto',
                 backgroundColor: '#00bcd4',
                 color: '#fff',
                 borderColor: '#000',
@@ -58,7 +62,6 @@ export default function StartGame({ timeLeft, isTimerPaused, roomSaved, onOpenEd
                 e.currentTarget.style.backgroundColor = '#00bcd4';
                 e.currentTarget.style.transform = 'scale(1)';
               }}
-              style={{ pointerEvents: 'auto', backgroundColor: '#00bcd4', color: '#fff', borderColor: '#000', borderWidth: '3px', borderStyle: 'solid', fontWeight: 600, padding: '10px 18px', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', fontSize: '15px', letterSpacing: '0.4px' }}
             >
               Open Icon Editor
             </button>
@@ -94,6 +97,19 @@ export default function StartGame({ timeLeft, isTimerPaused, roomSaved, onOpenEd
               onClick={onClickTrophy}
             />
             <div style={{ fontWeight: 800, color: '#dc3545' }}>Click to Start!</div>
+            {currentRoom && (
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#666', 
+                fontWeight: 600,
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                border: '1px solid #ddd'
+              }}>
+                Room Code: {currentRoom.roomCode}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -1,20 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { generateRoomCode, saveRoom, type PlacedItem, type Question, type RoomData } from '../utils/keyCodeGenerator';
 
-interface PlacedItem {
-  id: string;
-  type: 'barrel' | 'chest' | 'key' | 'torch' | 'treasure';
-  x: number;
-  y: number;
-}
-
-interface Question {
-  id: string;
-  iconType: PlacedItem['type'];
-  question: string;
-  expectedAnswers: string[]; // up to 2 expected answers
-  keyCode: string; // code unlocked upon answering this question
-}
 
 interface QuestionCreatorProps {
   onComplete: () => void;
@@ -51,8 +38,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
           id: `question-${item.id}`,
           iconType: item.type,
           question: '',
-          expectedAnswers: [''],
-          keyCode: ''
+          expectedAnswers: ['']
         }));
         setQuestions(initialQuestions);
       }
@@ -71,8 +57,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
           id: `question-${iconId}`,
           iconType: icon.type,
           question: '',
-          expectedAnswers: [''],
-          keyCode: ''
+          expectedAnswers: ['']
         };
         setQuestions(prev => [...prev, newQuestion]);
       }
@@ -90,10 +75,15 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
     return wordCount >= 1 && wordCount <= 500;
   };
 
-  // Key code length validation: 1-10 characters
-  const isValidKeyCodeLength = (text: string) => {
-    const len = text.trim().length;
-    return len >= 1 && len <= 10;
+  // Generate random key code part (3-5 characters)
+  const generateKeyCodePart = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const length = Math.floor(Math.random() * 3) + 3; // 3-5 characters
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
   };
 
   const handleQuestionChange = (questionId: string, field: keyof Question, value: string) => {
@@ -132,13 +122,12 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
     }));
   };
 
-  // Reset all question data (except chest auto-computed answer which will resync)
+  // Reset all question data
   const resetAllQuestions = () => {
     setQuestions(prev => prev.map(q => ({
       ...q,
       question: '',
-      expectedAnswers: q.iconType === 'chest' ? q.expectedAnswers : [''],
-      keyCode: ''
+      expectedAnswers: q.iconType === 'chest' ? q.expectedAnswers : ['']
     })));
     try {
       localStorage.removeItem(QUESTIONS_STORAGE_KEY);
@@ -146,28 +135,21 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
     } catch {}
   };
 
-  // Compute chest expected answer from other icons' key codes (ordered by placement order)
-  const computeChestExpectedAnswer = (qs: Question[], items: PlacedItem[]) => {
-    const codesInOrder = items
-      .filter(it => it.type !== 'chest')
-      .map(it => {
-        const q = qs.find(x => x.id === `question-${it.id}`);
-        return (q?.keyCode || '').trim();
-      })
-      .filter(Boolean);
-    // Join with hyphen; adjust later if a different format is desired
-    return codesInOrder.join('-');
+  // Compute chest expected answer - will be generated during gameplay
+  const computeChestExpectedAnswer = () => {
+    // For now, return a placeholder. The actual answer will be generated during gameplay
+    return 'Collect all key codes from other items';
   };
 
-  // Keep chest question's expectedAnswers in sync with other icons' key codes
+  // Keep chest question's expectedAnswers updated
   useEffect(() => {
     if (!placedItems.length || !questions.length) return;
     const chestItem = placedItems.find(it => it.type === 'chest');
     if (!chestItem) return;
     const chestId = `question-${chestItem.id}`;
-    const newExpected = computeChestExpectedAnswer(questions, placedItems);
+    const newExpected = computeChestExpectedAnswer();
     setQuestions(prev => prev.map(q => q.id === chestId ? { ...q, expectedAnswers: [newExpected] } : q));
-  }, [questions.map(q => q.keyCode).join('|'), placedItems.map(i => i.id).join('|')]);
+  }, [placedItems.map(i => i.id).join('|')]);
 
   const handleSaveQuestions = () => {
     // Ensure chest expected answer is up to date before save
@@ -176,7 +158,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
       const chestItem = placedItems.find(it => it.type === 'chest');
       if (chestItem) {
         const chestId = `question-${chestItem.id}`;
-        const newExpected = computeChestExpectedAnswer(updated, placedItems);
+        const newExpected = computeChestExpectedAnswer();
         const idx = updated.findIndex(q => q.id === chestId);
         if (idx >= 0) updated[idx] = { ...updated[idx], expectedAnswers: [newExpected] };
       }
@@ -187,12 +169,11 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
         if (!q) return false;
         const questionOk = isValidWordCount(q.question);
         const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
-        const keyOk = isValidKeyCodeLength(q.keyCode);
-        return questionOk && answersOk && keyOk;
+        return questionOk && answersOk;
       };
       const allValid = nonChestItems.every(it => isItemValid(it.id));
       if (!allValid) {
-        alert('Please complete all questions (1-500 words each) and key codes for all non-chest icons before completing.');
+        alert('Please complete all questions (1-500 words each) for all non-chest icons before completing.');
         return;
       }
       localStorage.setItem(QUESTIONS_STORAGE_KEY, JSON.stringify(updated));
@@ -261,8 +242,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
               if (!q) return false;
               const questionOk = isValidWordCount(q.question);
               const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
-              const keyOk = isValidKeyCodeLength(q.keyCode);
-              return questionOk && answersOk && keyOk;
+              return questionOk && answersOk;
             }).length;
             const total = nonChest.length;
             return (
@@ -437,34 +417,6 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
               </div>
             )}
 
-            {selectedItem.type !== 'chest' && (
-              <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                  Key Code Unlocked
-                  <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
-                    ({selectedQuestion.keyCode.trim().length}/10 chars)
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  value={selectedQuestion.keyCode}
-                  onChange={(e) => handleQuestionChange(selectedQuestion.id, 'keyCode', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    border: `1px solid ${isValidKeyCodeLength(selectedQuestion.keyCode) ? 'var(--border-color)' : '#dc3545'}`,
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
-                  placeholder="Enter Key Code. Eg - xAO219"
-                />
-                {!isValidKeyCodeLength(selectedQuestion.keyCode) && (
-                  <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
-                    Must be between 1 and 10 characters
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Modal action buttons */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
@@ -478,20 +430,18 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                   if (selectedItem.type !== 'chest') {
                     const questionOk = isValidWordCount(q.question);
                     const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
-                    const keyOk = isValidKeyCodeLength(q.keyCode);
                     if (!questionOk) { alert('Question must be between 1 and 500 words.'); return; }
                     if (!answersOk) { alert('Each expected answer must be between 1 and 500 words (up to 2).'); return; }
-                    if (!keyOk) { alert('Key code must be between 1 and 10 characters.'); return; }
                   }
                   try {
                     const updated = [...questions];
-                    const chestItem = placedItems.find(it => it.type === 'chest');
-                    if (chestItem) {
-                      const chestId = `question-${chestItem.id}`;
-                      const newExpected = computeChestExpectedAnswer(updated, placedItems);
-                      const idx = updated.findIndex(q2 => q2.id === chestId);
-                      if (idx >= 0) updated[idx] = { ...updated[idx], expectedAnswers: [newExpected] };
-                    }
+      const chestItem = placedItems.find(it => it.type === 'chest');
+      if (chestItem) {
+        const chestId = `question-${chestItem.id}`;
+        const newExpected = computeChestExpectedAnswer();
+        const idx = updated.findIndex(q2 => q2.id === chestId);
+        if (idx >= 0) updated[idx] = { ...updated[idx], expectedAnswers: [newExpected] };
+      }
                     localStorage.setItem(QUESTIONS_STORAGE_KEY, JSON.stringify(updated));
                   } catch {}
                   setSelectedIconId(null);
@@ -507,7 +457,7 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                     // Reset current question fields
                     setQuestions(prev => prev.map(q => {
                       if (q.id === selectedQuestion.id) {
-                        return { ...q, question: '', expectedAnswers: [''], keyCode: '' };
+                        return { ...q, question: '', expectedAnswers: [''] };
                       }
                       return q;
                     }));
@@ -614,6 +564,20 @@ export default function QuestionCreator({ onComplete, onBack }: QuestionCreatorP
                   type="button"
                   className="btn btn-success"
                   onClick={() => {
+                    // Generate room code and save room data
+                    const roomCode = generateRoomCode();
+                    const roomData: RoomData = {
+                      roomCode,
+                      iconLayout: placedItems,
+                      questions: questions,
+                      createdAt: new Date().toISOString(),
+                      createdBy: 'teacher' // Will be replaced with actual user ID in backend
+                    };
+                    
+                    // Save room to localStorage
+                    saveRoom(roomData);
+                    
+                    // Set room as saved
                     try { localStorage.setItem('escape-room:room:saved', 'true'); } catch {}
                     setShowConfirm(false);
                     onComplete();
