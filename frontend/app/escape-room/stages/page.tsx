@@ -7,6 +7,7 @@ import { useTheme } from '../../Components/ThemeContext';
 import IconEditor from '../editor/IconEditor';
 import QuestionCreator from '../editor/QuestionCreator';
 import QuestionEditor from '../editor/QuestionEditor';
+import Stage from './Stage';
 
 export default function MapRoomPage() {
   const { theme } = useTheme();
@@ -15,8 +16,8 @@ export default function MapRoomPage() {
   // Get timer value from URL parameters
   const timerValue = parseInt(searchParams.get('timer') || '600');
   
-  // View state (map, question editor, editor canvas, question creator, join room, room saved)
-  const [stageView, setStageView] = useState<'none' | 'questions' | 'editor' | 'question-creator' | 'join-room' | 'room-saved'>('none');
+  // View state (map, question editor, editor canvas, question creator, join room, room saved, game room)
+  const [stageView, setStageView] = useState<'none' | 'questions' | 'editor' | 'question-creator' | 'join-room' | 'room-saved' | 'game-room'>('none');
   const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
   const [roomExists, setRoomExists] = useState<boolean>(false);
   const [roomSaved, setRoomSaved] = useState<boolean>(false);
@@ -246,11 +247,11 @@ export default function MapRoomPage() {
                   <button
                     onClick={() => {
                       if (roomCode.trim().length === 6) {
-                        // TODO: Implement room joining logic
+                        // TODO: Implement room joining logic - load room data
                         console.log('Joining room:', roomCode);
-                        // For now, just close the popup
+                        // For now, start the game room story
                         setRoomCode('');
-                        setStageView('none');
+                        setStageView('game-room');
                       } else {
                         alert('Please enter a valid 6-character room code');
                       }
@@ -451,6 +452,15 @@ export default function MapRoomPage() {
                 </div>
               </div>
             </>
+          )}
+          
+          {/* Game Room Story */}
+          {stageView === 'game-room' && (
+            <Stage onEnterRoom={() => {
+              // TODO: Start the actual game with placed items
+              console.log('Entering room - starting game');
+              setStageView('none');
+            }} />
           )}
           
           {/* Map buttons - only visible on map screen */}
