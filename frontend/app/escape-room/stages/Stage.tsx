@@ -10,7 +10,7 @@ export default function Stage({ onEnterRoom }: StageProps) {
       style={{
         position: 'absolute',
         inset: 0,
-        backgroundImage: "url('/escape-room-misc/treasure-cave.png')",
+        backgroundImage: "url('/escape-room-misc/stage4-bg.png')",
         backgroundSize: '100% 100%',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
