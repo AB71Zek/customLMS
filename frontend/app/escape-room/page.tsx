@@ -31,36 +31,17 @@ function EscapeRoomEditorContent() {
 
 
   return (
-    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", display: 'flex', flexDirection: 'column' }} data-theme={theme}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh" }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
-      {/* Page Title */}
-      <div style={{ 
-        textAlign: 'center', 
-        marginTop: '10px', 
-        marginBottom: '10px',
-        padding: '0 20px'
-      }}>
-        <h1 style={{ 
-          fontSize: '2.5rem', 
-          fontWeight: 'bold', 
-          color: theme === 'light' ? '#333' : '#fff',
-          margin: 0
-        }}>
-          Escape Room Editor
-        </h1>
-      </div>
-      
-      <div style={{ marginTop: "10px", marginBottom: "20px", flex: 1, overflow: 'hidden' }}>
-        <div style={{ position: 'relative', height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ padding: "150px 20px 20px 20px", minHeight: "calc(100vh - 80px)" }}>
+        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* Aspect-ratio container to avoid cropping */}
           <div style={{
             position: 'relative',
             width: '100%',
-            height: '100%',
             maxWidth: '1600px',
-            maxHeight: '675px',
-            aspectRatio: '16 / 9',
+            height: '600px',
             backgroundImage: "url('/escape-room-misc/treasure-map.png')",
             backgroundSize: '100% 100%',
             backgroundPosition: 'center',
@@ -75,8 +56,6 @@ function EscapeRoomEditorContent() {
               onComplete={(roomCode) => { 
                 setSavedRoomCode(roomCode);
                 setStageView('room-saved');
-                setRoomExists(true);
-                setRoomSaved(true);
               }}
               onCancel={() => setStageView('none')}
             />
@@ -431,6 +410,18 @@ function EscapeRoomEditorContent() {
           {/* Map buttons - only visible on map screen */}
           {stageView === 'none' && (
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              {/* Escape Room Editor Text */}
+              <div style={{ 
+                fontSize: '2.5rem', 
+                fontWeight: 'bold', 
+                color: theme === 'light' ? '#333' : '#fff',
+                margin: '0 0 20px 0',
+                textAlign: 'center',
+                textShadow: theme === 'light' ? '2px 2px 4px rgba(0,0,0,0.3)' : '2px 2px 4px rgba(0,0,0,0.8)'
+              }}>
+                Escape Room Editor
+              </div>
+              
               <button
                 onClick={() => setStageView('combined-editor')}
                 className="btn btn-outline-primary"
