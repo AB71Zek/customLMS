@@ -4,6 +4,9 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const app = express();
 
+//json
+app.use(express.json());
+
 //cors
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,7 +15,7 @@ app.use((req, res, next) => {
     next();
 });
 
-//test api
+//get all users
 app.get('/users', async (req, res) => {
     try {
         const users = await prisma.user.findMany();
@@ -25,10 +28,22 @@ app.get('/users', async (req, res) => {
 //get user by id
 app.get('/users/:id', async (req, res) => {
     try {
-        const user = await prisma.user.create({
-            data: {
-                name: req.body.name
+        const user = await prisma.user.findUnique({
+            where: {
+                id: parseInt(req.params.id),
             },
+        });
+        res.status(202).json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+//create user
+app.post('/users', async (req, res) => {
+    try {
+        const user = await prisma.user.create({
+            data: { name: req.body.name },
         });
         res.status(201).json(user);
     } catch (error) {
