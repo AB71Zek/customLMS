@@ -21,8 +21,8 @@ function EscapeRoomEditorContent() {
   
   // View state (map, combined editor, timer selection, join room, room saved, game room, gameplay)
   const [stageView, setStageView] = useState<'none' | 'combined-editor' | 'join-room' | 'room-saved' | 'game-room' | 'gameplay'>('none');
-  const [roomCode, setRoomCode] = useState<string>('');
-  const [savedRoomCode, setSavedRoomCode] = useState<string>('');
+  const [roomId, setRoomId] = useState<string>('');
+  const [savedRoomId, setSavedRoomId] = useState<string>('');
   const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
 
 
@@ -53,8 +53,8 @@ function EscapeRoomEditorContent() {
           </div>
           {stageView === 'combined-editor' && (
             <CombinedEditor
-              onComplete={(roomCode) => { 
-                setSavedRoomCode(roomCode);
+              onComplete={(roomId) => { 
+                setSavedRoomId(roomId);
                 setStageView('room-saved');
               }}
               onCancel={() => setStageView('none')}
@@ -127,8 +127,8 @@ function EscapeRoomEditorContent() {
                   </label>
                   <input
                     type="text"
-                    value={roomCode}
-                    onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                    value={roomId}
+                    onChange={(e) => setRoomId(e.target.value.toUpperCase())}
                     placeholder="Enter room code (e.g., ABC123)"
                     style={{
                       width: '100%',
@@ -148,7 +148,7 @@ function EscapeRoomEditorContent() {
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
                   <button
                     onClick={() => {
-                      setRoomCode('');
+                      setRoomId('');
                       setStageView('none');
                     }}
                     className="btn btn-outline-secondary"
@@ -179,12 +179,12 @@ function EscapeRoomEditorContent() {
                   </button>
                   <button
                     onClick={() => {
-                      if (roomCode.trim().length === 6) {
-                        setCurrentGameRoomCode(roomCode);
-                        setRoomCode('');
+                      if (roomId.trim().length === 8) {
+                        setCurrentGameRoomCode(roomId);
+                        setRoomId('');
                         setStageView('game-room');
                       } else {
-                        alert('Please enter a valid 6-character room code');
+                        alert('Please enter a valid 8-character room code');
                       }
                     }}
                     className="btn btn-primary"
@@ -308,7 +308,7 @@ function EscapeRoomEditorContent() {
                     padding: '8px 16px',
                     display: 'inline-block'
                   }}>
-                    {savedRoomCode}
+                    {savedRoomId}
                   </div>
                 </div>
                 
@@ -345,12 +345,12 @@ function EscapeRoomEditorContent() {
                   </button>
                 <button
                     onClick={() => {
-                      navigator.clipboard.writeText(savedRoomCode).then(() => {
+                      navigator.clipboard.writeText(savedRoomId).then(() => {
                         alert('Room code copied to clipboard!');
                       }).catch(() => {
                         // Fallback for older browsers
                         const textArea = document.createElement('textarea');
-                        textArea.value = savedRoomCode;
+                        textArea.value = savedRoomId;
                         document.body.appendChild(textArea);
                         textArea.select();
                         document.execCommand('copy');
@@ -399,7 +399,7 @@ function EscapeRoomEditorContent() {
           {/* Gameplay */}
           {stageView === 'gameplay' && (
             <GameRoom 
-              roomCode={currentGameRoomCode || roomCode} 
+              roomCode={currentGameRoomCode || roomId} 
               onComplete={() => {
                 setStageView('none');
                 setCurrentGameRoomCode('');
@@ -414,37 +414,43 @@ function EscapeRoomEditorContent() {
               <div style={{ 
                 fontSize: '2.5rem', 
                 fontWeight: 'bold', 
-                color: theme === 'light' ? '#333' : '#fff',
+                borderStyle: 'groove',
+                borderWidth: '4px',
+                borderColor: theme === 'light' ? '#EBB800' : '#EBB800',
+                color: theme === 'light' ? '#EBB800' : '#EBB800',
+                padding: '6px 20px',
+                borderRadius: '18px',
+                backgroundColor: theme === 'light' ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.25)',
                 margin: '0 0 20px 0',
                 textAlign: 'center',
-                textShadow: theme === 'light' ? '2px 2px 4px rgba(0,0,0,0.3)' : '2px 2px 4px rgba(0,0,0,0.8)'
+                textShadow: theme === 'light' ? '2px 2px 4px rgba(0,0,0,0.8)' : '2px 2px 4px rgba(0,0,0,0.8)'
               }}>
-                Escape Room Editor
+                ESCAPE ROOM EDITOR
               </div>
               
               <button
                 onClick={() => setStageView('combined-editor')}
                 className="btn btn-outline-primary"
                 style={{
-                  backgroundColor: '#00bcd4',
+                  backgroundColor: '#EBB800',
                   color: '#fff',
                   borderColor: '#000',
                   borderWidth: '3px',
                   borderStyle: 'solid',
-                  fontWeight: 700,
-                  padding: '16px 28px',
+                  fontWeight: 800,
+                  padding: '14px 24px',
                   borderRadius: '14px',
                   boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
-                  fontSize: '18px',
+                  fontSize: '20px',
                   letterSpacing: '0.8px',
                   minWidth: '200px'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#00acc1';
+                  e.currentTarget.style.backgroundColor = '#B8910F';
                   e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#00bcd4';
+                  e.currentTarget.style.backgroundColor = '#EBB800';
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
               >

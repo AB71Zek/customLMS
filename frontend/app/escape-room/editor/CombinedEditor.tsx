@@ -1,9 +1,73 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { generateRoomCode, saveRoom, type PlacedItem, type Question, type RoomData } from '../utils/keyCodeGenerator';
+
+// Link generator functions (moved from keyCodeGenerator)
+export interface PlacedItem {
+  id: string;
+  type: 'barrel' | 'chest' | 'key' | 'torch' | 'treasure';
+  x: number;
+  y: number;
+}
+
+export interface Question {
+  id: string;
+  iconType: PlacedItem['type'];
+  question: string;
+  expectedAnswers: string[];
+}
+
+export interface RoomData {
+  roomId: string;
+  iconLayout: PlacedItem[];
+  questions: Question[];
+  createdAt: string;
+  createdBy: string;
+}
+
+// Generate unique room ID (8 characters for better uniqueness)
+export const generateRoomId = (): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
+// Generate embeddable link for external websites
+export const generateEmbedLink = (roomId: string): string => {
+  // This will be the URL where the game runs on your EC2 server
+  const baseUrl = process.env.NEXT_PUBLIC_GAME_SERVER_URL || 'https://your-ec2-server.com';
+  return `${baseUrl}/play/${roomId}`;
+};
+
+// Generate iframe embed code for websites
+export const generateEmbedCode = (roomId: string): string => {
+  const embedUrl = generateEmbedLink(roomId);
+  return `<iframe src="${embedUrl}" width="100%" height="600" frameborder="0" allowfullscreen></iframe>`;
+};
+
+// Save room data to backend (framework for future implementation)
+export const saveRoomToBackend = async (roomData: RoomData): Promise<{ success: boolean; roomId?: string; error?: string }> => {
+  try {
+    // TODO: Replace with actual backend API call
+    // const response = await fetch('/api/rooms', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(roomData)
+    // });
+    // return await response.json();
+    
+    // For now, simulate success
+    console.log('Saving room to backend:', roomData);
+    return { success: true, roomId: roomData.roomId };
+  } catch (error) {
+    return { success: false, error: 'Failed to save room' };
+  }
+};
 
 interface CombinedEditorProps {
-  onComplete: (roomCode: string) => void;
+  onComplete: (roomId: string) => void;
   onCancel: () => void;
 }
 
@@ -169,7 +233,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
     setQuestions(prev => prev.filter(q => q.id !== `question-${itemId}`));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validate all questions
     const nonChestItems = items.filter(it => it.type !== 'chest');
     const isItemValid = (itemId: string) => {
@@ -192,18 +256,19 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
       localStorage.setItem(QUESTIONS_STORAGE_KEY, JSON.stringify(questions));
     } catch {}
 
-    // Generate room code and save room data
-    const roomCode = generateRoomCode();
+    // Generate room ID and save room data
+    const roomId = generateRoomId();
     const roomData: RoomData = {
-      roomCode,
+      roomId,
       iconLayout: items,
       questions: questions,
       createdAt: new Date().toISOString(),
       createdBy: 'teacher'
     };
     
-    saveRoom(roomData);
-    onComplete(roomCode);
+    // Save room to backend (will be implemented when server is ready)
+    await saveRoomToBackend(roomData);
+    onComplete(roomId);
   };
 
   const selectedQuestion = selectedItemId ? questions.find(q => q.id === `question-${selectedItemId}`) : null;
