@@ -74,7 +74,7 @@ export default function Stage({ onEnterRoom }: StageProps) {
             margin: '0 0 40px 0',
             lineHeight: '1.4'
           }}>
-            "The hurdles lie outside the vessel, the treasure inside is earned. Open me if you are meant to be the righteous one....."
+            &quot;The hurdles lie outside the vessel, the treasure inside is earned. Open me if you are meant to be the righteous one.....&quot;
           </p>
         </div>
 

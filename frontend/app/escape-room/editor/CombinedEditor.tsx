@@ -561,7 +561,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
                   fontSize: '14px',
                   color: '#856404'
                 }}>
-                  <strong>Note:</strong> The chest will automatically unlock when all other icons' key codes are collected during gameplay.
+                  <strong>Note:</strong> The chest will automatically unlock when all other icons&apos; key codes are collected during gameplay.
                 </div>
               )}
 

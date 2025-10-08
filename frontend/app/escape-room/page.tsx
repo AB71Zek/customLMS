@@ -1,167 +1,470 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import Link from 'next/link';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Header from '../Components/header';
 import { useTheme } from '../Components/ThemeContext';
+import CombinedEditor from './editor/CombinedEditor';
+import GameRoom from './stages/GameRoom';
+import Stage from './stages/Stage';
 
-export default function EscapeRoom() {
+export default function EscapeRoomEditor() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EscapeRoomEditorContent />
+    </Suspense>
+  );
+}
+
+function EscapeRoomEditorContent() {
   const { theme } = useTheme();
-  const [selectedTimer, setSelectedTimer] = useState<number | null>(null);
-  const [customTimer, setCustomTimer] = useState<number>(600);
+  
+  
+  // View state (map, combined editor, timer selection, join room, room saved, game room, gameplay)
+  const [stageView, setStageView] = useState<'none' | 'combined-editor' | 'join-room' | 'room-saved' | 'game-room' | 'gameplay'>('none');
+  const [roomCode, setRoomCode] = useState<string>('');
+  const [savedRoomCode, setSavedRoomCode] = useState<string>('');
+  const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
 
-  const timerOptions = [
-    { value: 300, label: "5 minutes", description: "Quick challenge" },
-    { value: 600, label: "10 minutes", description: "Recommended" },
-    { value: 900, label: "15 minutes", description: "Extended time" },
-    { value: 1200, label: "20 minutes", description: "Maximum time" }
-  ];
 
-  const handleTimerSelect = (timerValue: number) => {
-    setSelectedTimer(timerValue);
-  };
-  //Custom timer
-  const handleCustomTimerChange = (value: string) => {
-    const numValue = parseInt(value);
-    if (!isNaN(numValue) && numValue >= 60 && numValue <= 1800) {
-      setCustomTimer(numValue);
-      setSelectedTimer(numValue);
-    }
-  };
+
+
+
 
   return (
-    <div className="container theme-transition escape-room" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0" }} data-theme={theme}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", display: 'flex', flexDirection: 'column' }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
-      <div style={{ marginTop: "133px", marginBottom: "20px"}}>
-        {
-          <div className="row justify-content-center" style={{ height: '100%' }}>
-            <div className="col-md-10" style={{ height: '100%' }}>
-              <div className="card" style={{
-                  backgroundColor: "var(--section-bg)",
-                  color: "var(--text-primary)",
-                  borderColor: "var(--border-color)",
-                backgroundImage: "url('/escape-room-misc/timer-bg.png')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                position: "relative",
-                height: '100%'
-              }}>
-                {/* Overlay for better text readability */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0, 0, 0, 0.6)",
-                  borderRadius: "inherit"
-                }}></div>
-                
-                <div className="card-body text-center er-on-image" style={{ position: "relative", zIndex: 1 }}>
-                  {/* Header - Welcome to escape room */}
-                  <h1 className="display-4 mb-4 er-timer-text" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}>
-                    Welcome to Escape Room
-                  </h1>
-                  
-                  {/* Before we start, select timer section */}
-                  <div className="mb-4">
-                    <h2 className="card-title mb-3 er-timer-text" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}>
-                      Select Timer:
-                    </h2>
-                    <p className="card-text mb-4 er-timer-text" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
-                      Choose how much time you want to complete the escape room challenge.
-                    </p>
-                    
-                    {/* Predefined Timer Options */}
-                    <div className="row mb-4">
-                      {timerOptions.map((option) => (
-                        <div key={option.value} className="col-md-6 mb-3">
-                          <div 
-                            className={`card ${selectedTimer === option.value ? 'border-primary' : ''}`}
-                              style={{
-                                backgroundColor: selectedTimer === option.value ? "var(--accent-color)" : "var(--textarea-bg)",
-                                color: selectedTimer === option.value ? "white" : "var(--tab-inacvtive-bg)",
-                                cursor: "pointer",
-                                border: selectedTimer === option.value ? "2px solid var(--accent-color)" : "2px solid var(--border-color)",
-                                minHeight: "120px"
-                              }}
-                            onClick={() => handleTimerSelect(option.value)}
-                          >
-                            <div className="card-body text-center d-flex flex-column justify-content-center" style={{ height: "100%" }}>
-                              <h5 className="card-title">{option.label}</h5>
-                              <p className="card-text small">{option.description}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Custom Timer Option */}
-                    <div className="row mb-4">
-                      <div className="col-md-8 mx-auto">
-                        <label className="form-label er-timer-text" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>Or set custom time (60-1800 seconds):</label>
-                        <div className="input-group">
-                          <input
-                            type="number"
-                            className="form-control"
-                            value={customTimer}
-                            onChange={(e) => handleCustomTimerChange(e.target.value)}
-                            min="60"
-                            max="1800"
-                            style={{
-                              backgroundColor: "var(--textarea-bg)",
-                              color: "var(--text-primary)",
-                              borderColor: "var(--border-color)"
-                            }}
-                          />
-                          <span className="input-group-text" style={{
-                            backgroundColor: "var(--textarea-bg)",
-                            color: "var(--text-primary)",
-                            borderColor: "var(--border-color)"
-                          }}>
-                            seconds
-                          </span>
-                        </div>
-                        <small className="text-muted er-timer-text" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
-                          Custom time: {Math.floor(customTimer / 60)} minutes {customTimer % 60} seconds
-                        </small>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Button to confirm timer */}
-                  {selectedTimer ? (
-                    <Link href={`/escape-room/stages?timer=${selectedTimer}`} className="btn btn-lg btn-success" style={{ marginBottom: "20px" }}>
-                      START GAME
-                    </Link>
-                  ) : (
-                    <button className="btn btn-lg btn-secondary" disabled style={{ marginBottom: "20px" }}>
-                      Select Timer First
-                    </button>
-                  )}
+      {/* Page Title */}
+      <div style={{ 
+        textAlign: 'center', 
+        marginTop: '10px', 
+        marginBottom: '10px',
+        padding: '0 20px'
+      }}>
+        <h1 style={{ 
+          fontSize: '2.5rem', 
+          fontWeight: 'bold', 
+          color: theme === 'light' ? '#333' : '#fff',
+          margin: 0
+        }}>
+          Escape Room Editor
+        </h1>
+      </div>
+      
+      <div style={{ marginTop: "10px", marginBottom: "20px", flex: 1, overflow: 'hidden' }}>
+        <div style={{ position: 'relative', height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Aspect-ratio container to avoid cropping */}
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            maxWidth: '1600px',
+            maxHeight: '675px',
+            aspectRatio: '16 / 9',
+            backgroundImage: "url('/escape-room-misc/treasure-map.png')",
+            backgroundSize: '100% 100%',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            border: '3px solid var(--border-color)',
+            borderRadius: '8px'
+          }}>
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
+          </div>
+          {stageView === 'combined-editor' && (
+            <CombinedEditor
+              onComplete={(roomCode) => { 
+                setSavedRoomCode(roomCode);
+                setStageView('room-saved');
+                setRoomExists(true);
+                setRoomSaved(true);
+              }}
+              onCancel={() => setStageView('none')}
+            />
+          )}
+          
+          {/* Join Room Popup */}
+          {stageView === 'join-room' && (
+            <>
+              {/* Background blur overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '3px',
+                  left: '3px',
+                  right: '3px',
+                  bottom: '3px',
+                  background: 'rgba(0,0,0,0.4)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  zIndex: 15,
+                  borderRadius: '5px'
+                }}
+              />
+              
+              {/* Join Room Modal */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '90%',
+                  maxWidth: '500px',
+                  background: '#ffffff',
+                  border: '3px solid var(--border-color)',
+                  borderRadius: '16px',
+                  padding: '32px',
+                  zIndex: 16,
+                  boxShadow: '0 16px 32px rgba(0,0,0,0.4)'
+                }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                  <h2 style={{ 
+                    fontWeight: 800, 
+                    fontSize: '24px', 
+                    marginBottom: '8px',
+                    color: '#333'
+                  }}>
+                    Join a Room
+                  </h2>
+                  <p style={{ 
+                    fontSize: '16px', 
+                    color: '#666',
+                    margin: 0
+                  }}>
+                    Enter the room code to join an escape room
+                  </p>
                 </div>
+                
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ 
+                    fontWeight: 600, 
+                    fontSize: '16px', 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    color: '#333'
+                  }}>
+                    Room Code
+                  </label>
+                  <input
+                    type="text"
+                    value={roomCode}
+                    onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                    placeholder="Enter room code (e.g., ABC123)"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '2px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      textAlign: 'center',
+                      letterSpacing: '2px',
+                      textTransform: 'uppercase'
+                    }}
+                    maxLength={6}
+                  />
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+                  <button
+                    onClick={() => {
+                      setRoomCode('');
+                      setStageView('none');
+                    }}
+                    className="btn btn-outline-secondary"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#000',
+                      borderColor: 'var(--border-color)',
+                      borderWidth: '2px',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      minWidth: '120px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      e.currentTarget.style.borderColor = '#6c757d';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#ffffff';
+                      e.currentTarget.style.borderColor = 'var(--border-color)';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (roomCode.trim().length === 6) {
+                        setCurrentGameRoomCode(roomCode);
+                        setRoomCode('');
+                        setStageView('game-room');
+                      } else {
+                        alert('Please enter a valid 6-character room code');
+                      }
+                    }}
+                    className="btn btn-primary"
+                    style={{
+                      backgroundColor: '#28a745',
+                      color: '#fff',
+                      borderColor: '#28a745',
+                      borderWidth: '2px',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      minWidth: '120px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#218838';
+                      e.currentTarget.style.borderColor = '#1e7e34';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#28a745';
+                      e.currentTarget.style.borderColor = '#28a745';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+          
+          {/* Room Saved Success Popup */}
+          {stageView === 'room-saved' && (
+            <>
+              {/* Background blur overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '3px',
+                  left: '3px',
+                  right: '3px',
+                  bottom: '3px',
+                  background: 'rgba(0,0,0,0.4)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  zIndex: 15,
+                  borderRadius: '5px'
+                }}
+              />
+              
+              {/* Success Modal */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '90%',
+                  maxWidth: '500px',
+                  background: '#ffffff',
+                  border: '3px solid #28a745',
+                  borderRadius: '16px',
+                  padding: '32px',
+                  zIndex: 16,
+                  boxShadow: '0 16px 32px rgba(0,0,0,0.4)'
+                }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                  <div style={{ 
+                    fontSize: '48px', 
+                    marginBottom: '16px',
+                    color: '#28a745'
+                  }}>
+                    ✅
+                  </div>
+                  <h2 style={{ 
+                  fontWeight: 800,
+                  fontSize: '24px',
+                    marginBottom: '8px',
+                    color: '#333'
+                  }}>
+                    Room Saved Successfully!
+                  </h2>
+                  <p style={{ 
+                    fontSize: '16px', 
+                    color: '#666',
+                    margin: 0
+                  }}>
+                    Your escape room has been created and saved
+                  </p>
+                </div>
+                
+                <div style={{ 
+                  marginBottom: '24px',
+                  textAlign: 'center',
+                  backgroundColor: '#f8f9fa',
+                  border: '2px solid #dee2e6',
+                  borderRadius: '8px',
+                  padding: '16px'
+                }}>
+                  <label style={{ 
+                    fontWeight: 600, 
+                    fontSize: '14px', 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    color: '#666'
+                  }}>
+                    Room Code
+                  </label>
+                  <div style={{
+                    fontSize: '24px',
+                    fontWeight: 800,
+                    color: '#28a745',
+                    letterSpacing: '3px',
+                    fontFamily: 'monospace',
+                    backgroundColor: '#ffffff',
+                    border: '2px solid #28a745',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    display: 'inline-block'
+                  }}>
+                    {savedRoomCode}
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+                  <button
+                    onClick={() => {
+                      setStageView('none');
+                    }}
+                    className="btn btn-outline-secondary"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#000',
+                      borderColor: 'var(--border-color)',
+                      borderWidth: '2px',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      minWidth: '140px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      e.currentTarget.style.borderColor = '#6c757d';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#ffffff';
+                      e.currentTarget.style.borderColor = 'var(--border-color)';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    Back to Map
+                  </button>
+                <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(savedRoomCode).then(() => {
+                        alert('Room code copied to clipboard!');
+                      }).catch(() => {
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = savedRoomCode;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Room code copied to clipboard!');
+                      });
+                    }}
+                    className="btn btn-primary"
+                  style={{
+                      backgroundColor: '#007bff',
+                    color: '#fff',
+                      borderColor: '#007bff',
+                      borderWidth: '2px',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                    fontWeight: 600,
+                      minWidth: '140px',
+                      transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#0056b3';
+                      e.currentTarget.style.borderColor = '#004085';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#007bff';
+                      e.currentTarget.style.borderColor = '#007bff';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
+                    Copy to Clipboard
+                </button>
               </div>
             </div>
-            
-            {/* Timer selected div - outside the main card */}
-            {selectedTimer && (
-              <div className="row justify-content-center mt-3">
-                <div className="col-md-10">
-                  <div className="alert alert-success" style={{
-                    backgroundColor: "var(--accent-color)",
-                    color: "white",
-                    borderColor: "var(--accent-color)"
-                  }}>
-                    <strong>Timer Selected:</strong> {Math.floor(selectedTimer / 60)} minutes {selectedTimer % 60} seconds
-                  </div>
-                </div>
-              </div>
-            )}
+            </>
+          )}
+          
+          {/* Game Room Story */}
+          {stageView === 'game-room' && (
+            <Stage onEnterRoom={() => {
+              setStageView('gameplay');
+            }} />
+          )}
+          
+          {/* Gameplay */}
+          {stageView === 'gameplay' && (
+            <GameRoom 
+              roomCode={currentGameRoomCode || roomCode} 
+              onComplete={() => {
+                setStageView('none');
+                setCurrentGameRoomCode('');
+              }} 
+            />
+          )}
+          
+          {/* Map buttons - only visible on map screen */}
+          {stageView === 'none' && (
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <button
+                onClick={() => setStageView('combined-editor')}
+                className="btn btn-outline-primary"
+                style={{
+                  backgroundColor: '#00bcd4',
+                  color: '#fff',
+                  borderColor: '#000',
+                  borderWidth: '3px',
+                  borderStyle: 'solid',
+                  fontWeight: 700,
+                  padding: '16px 28px',
+                  borderRadius: '14px',
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
+                  fontSize: '18px',
+                  letterSpacing: '0.8px',
+                  minWidth: '200px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#00acc1';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#00bcd4';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                Create Escape Room
+              </button>
           </div>
-        }
+          )}
+        </div>
       </div>
     </div>
   );
 } 
+
+
