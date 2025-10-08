@@ -4,9 +4,8 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Header from '../../Components/header';
 import { useTheme } from '../../Components/ThemeContext';
-import IconEditor from '../editor/IconEditor';
-import QuestionCreator from '../editor/QuestionCreator';
-import QuestionEditor from '../editor/QuestionEditor';
+import CombinedEditor from '../editor/CombinedEditor';
+import GameRoom from './GameRoom';
 import Stage from './Stage';
 
 export default function MapRoomPage() {
@@ -16,13 +15,13 @@ export default function MapRoomPage() {
   // Get timer value from URL parameters
   const timerValue = parseInt(searchParams.get('timer') || '600');
   
-  // View state (map, question editor, editor canvas, question creator, join room, room saved, game room)
-  const [stageView, setStageView] = useState<'none' | 'questions' | 'editor' | 'question-creator' | 'join-room' | 'room-saved' | 'game-room'>('none');
-  const [editorStageIndex, setEditorStageIndex] = useState<number>(0);
+  // View state (map, combined editor, join room, room saved, game room, gameplay)
+  const [stageView, setStageView] = useState<'none' | 'combined-editor' | 'join-room' | 'room-saved' | 'game-room' | 'gameplay'>('none');
   const [roomExists, setRoomExists] = useState<boolean>(false);
   const [roomSaved, setRoomSaved] = useState<boolean>(false);
   const [roomCode, setRoomCode] = useState<string>('');
   const [savedRoomCode, setSavedRoomCode] = useState<string>('');
+  const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
 
   // Timer state
   const [timeLeft, setTimeLeft] = useState<number>(timerValue);
@@ -110,25 +109,15 @@ export default function MapRoomPage() {
               </div>
             )}
           </div>
-          {stageView === 'questions' && (
-            <QuestionEditor stageIndex={editorStageIndex} onClose={() => setStageView('none')} />
-          )}
-          {stageView === 'editor' && (
-            <IconEditor
-              onSave={() => { setStageView('none'); setRoomExists(true); }}
-              onCancel={() => setStageView('none')}
-              onStep2={() => setStageView('question-creator')}
-            />
-          )}
-          {stageView === 'question-creator' && (
-            <QuestionCreator
+          {stageView === 'combined-editor' && (
+            <CombinedEditor
               onComplete={(roomCode) => { 
                 setSavedRoomCode(roomCode);
                 setStageView('room-saved');
                 setRoomExists(true);
                 setRoomSaved(true);
               }}
-              onBack={() => setStageView('editor')}
+              onCancel={() => setStageView('none')}
             />
           )}
           
@@ -139,11 +128,15 @@ export default function MapRoomPage() {
               <div
                 style={{
                   position: 'absolute',
-                  inset: 0,
+                  top: '3px',
+                  left: '3px',
+                  right: '3px',
+                  bottom: '3px',
                   background: 'rgba(0,0,0,0.4)',
                   backdropFilter: 'blur(8px)',
                   WebkitBackdropFilter: 'blur(8px)',
-                  zIndex: 15
+                  zIndex: 15,
+                  borderRadius: '5px'
                 }}
               />
               
@@ -247,9 +240,7 @@ export default function MapRoomPage() {
                   <button
                     onClick={() => {
                       if (roomCode.trim().length === 6) {
-                        // TODO: Implement room joining logic - load room data
-                        console.log('Joining room:', roomCode);
-                        // For now, start the game room story
+                        setCurrentGameRoomCode(roomCode);
                         setRoomCode('');
                         setStageView('game-room');
                       } else {
@@ -294,11 +285,15 @@ export default function MapRoomPage() {
               <div
                 style={{
                   position: 'absolute',
-                  inset: 0,
+                  top: '3px',
+                  left: '3px',
+                  right: '3px',
+                  bottom: '3px',
                   background: 'rgba(0,0,0,0.4)',
                   backdropFilter: 'blur(8px)',
                   WebkitBackdropFilter: 'blur(8px)',
-                  zIndex: 15
+                  zIndex: 15,
+                  borderRadius: '5px'
                 }}
               />
               
@@ -328,8 +323,8 @@ export default function MapRoomPage() {
                     ✅
                   </div>
                   <h2 style={{ 
-                    fontWeight: 800, 
-                    fontSize: '24px', 
+                  fontWeight: 800,
+                  fontSize: '24px',
                     marginBottom: '8px',
                     color: '#333'
                   }}>
@@ -408,7 +403,7 @@ export default function MapRoomPage() {
                   >
                     Back to Map
                   </button>
-                  <button
+                <button
                     onClick={() => {
                       navigator.clipboard.writeText(savedRoomCode).then(() => {
                         alert('Room code copied to clipboard!');
@@ -424,50 +419,62 @@ export default function MapRoomPage() {
                       });
                     }}
                     className="btn btn-primary"
-                    style={{
+                  style={{
                       backgroundColor: '#007bff',
-                      color: '#fff',
+                    color: '#fff',
                       borderColor: '#007bff',
                       borderWidth: '2px',
                       padding: '12px 24px',
                       borderRadius: '8px',
                       fontSize: '16px',
-                      fontWeight: 600,
+                    fontWeight: 600,
                       minWidth: '140px',
                       transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
+                  }}
+                  onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = '#0056b3';
                       e.currentTarget.style.borderColor = '#004085';
                       e.currentTarget.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
+                  }}
+                  onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = '#007bff';
                       e.currentTarget.style.borderColor = '#007bff';
-                      e.currentTarget.style.transform = 'scale(1)';
-                    }}
-                  >
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
                     Copy to Clipboard
-                  </button>
-                </div>
+                </button>
               </div>
+            </div>
             </>
           )}
           
           {/* Game Room Story */}
           {stageView === 'game-room' && (
             <Stage onEnterRoom={() => {
-              // TODO: Start the actual game with placed items
-              console.log('Entering room - starting game');
-              setStageView('none');
+              setStageView('gameplay');
+              setIsTimerPaused(false); // Start the timer when entering gameplay
             }} />
+          )}
+          
+          {/* Gameplay */}
+          {stageView === 'gameplay' && (
+            <GameRoom 
+              roomCode={currentGameRoomCode || roomCode} 
+              onComplete={() => {
+                setStageView('none');
+                setCurrentGameRoomCode('');
+                // Reset timer or show completion message
+                setIsTimerRunning(false);
+              }} 
+            />
           )}
           
           {/* Map buttons - only visible on map screen */}
           {stageView === 'none' && (
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
               <button
-                onClick={() => setStageView('editor')}
+                onClick={() => setStageView('combined-editor')}
                 className="btn btn-outline-primary"
                 style={{
                   backgroundColor: '#00bcd4',
