@@ -23,6 +23,7 @@ function EscapeRoomEditorContent() {
   
   // View state (map, combined editor, timer selection, join room, room saved, game room, gameplay)
   const [stageView, setStageView] = useState<'none' | 'combined-editor' | 'join-room' | 'room-saved' | 'game-room' | 'gameplay'>('none');
+  const [isClient, setIsClient] = useState(false);
   const [roomId, setRoomId] = useState<string>('');
   const [savedRoomId, setSavedRoomId] = useState<string>('');
   const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
@@ -39,6 +40,11 @@ function EscapeRoomEditorContent() {
       setStageView('game-room');
     }
   }, [searchParams]);
+
+  // Set client-side flag to prevent hydration issues
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Network status monitoring
   useEffect(() => {
@@ -86,11 +92,10 @@ function EscapeRoomEditorContent() {
 
 
   return (
-    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh" }} data-theme={theme}>
+    <div className="container theme-transition" style={{ backgroundColor: 'transparent', padding: "150px 20px 20px 20px", minHeight: "100vh" }} data-theme="dark">
       <Header studentNumber="21406232" />
 
-        <div style={{ padding: "150px 20px 20px 20px", minHeight: "calc(100vh - 80px)" }}>
-          {/* Network Status Indicator */}
+      {/* Network Status Indicator */}
           {!isOnline && (
             <div style={{
               position: 'fixed',
@@ -109,22 +114,23 @@ function EscapeRoomEditorContent() {
             </div>
           )}
           
-          <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {/* Aspect-ratio container to avoid cropping */}
-          <div style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: '1600px',
-            height: '600px',
-            backgroundImage: "url('/escape-room-misc/treasure-map.png')",
-            backgroundSize: '100% 100%',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            border: '3px solid var(--border-color)',
-            borderRadius: '8px'
-          }}>
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
-          </div>
+          {isClient && (
+            <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* Aspect-ratio container to avoid cropping */}
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '1600px',
+              height: '600px',
+              backgroundImage: "url('/escape-room-misc/treasure-map.png')",
+              backgroundSize: '100% 100%',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              border: '3px solid #dc3545',
+              borderRadius: '8px'
+            }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
+            </div>
           {stageView === 'combined-editor' && (
             <CombinedEditor
               onComplete={(roomId) => { 
@@ -580,7 +586,7 @@ function EscapeRoomEditorContent() {
           </div>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 } 
