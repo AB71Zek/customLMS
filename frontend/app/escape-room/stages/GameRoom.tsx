@@ -51,15 +51,25 @@ interface TempRoomData {
 // Load room data from backend (framework for future implementation)
 const loadRoomByCode = async (roomCode: string): Promise<TempRoomData | null> => {
   try {
-    // TODO: Replace with actual backend API call
-    // const response = await fetch(`/api/rooms/${roomCode}`);
-    // if (response.ok) {
-    //   return await response.json();
-    // }
+    const response = await fetch(`http://localhost:4000/api/play/${roomCode}`);
     
-    // For now, return null (will be implemented when server is ready)
-    console.log('Loading room from backend:', roomCode);
-    return null;
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Room not found');
+      }
+      throw new Error('Failed to load room');
+    }
+    
+    const roomData = await response.json();
+    
+    // Transform API response to match expected format
+    return {
+      roomId: roomData.roomId,
+      iconLayout: roomData.iconLayout,
+      questions: roomData.questions,
+      createdAt: roomData.createdAt,
+      createdBy: 'teacher' // Default value since API doesn't return this
+    };
   } catch (error) {
     console.error('Error loading room:', error);
     return null;
@@ -105,17 +115,24 @@ export default function GameRoom({ roomCode, onComplete }: GameRoomProps) {
   // Load room data
   useEffect(() => {
     const loadRoom = async () => {
-      const room = await loadRoomByCode(roomCode);
-      if (room) {
-        setRoomData({ iconLayout: room.iconLayout, questions: room.questions });
-        
-        // Initialize gameplay state
-        const nonChestItems = room.iconLayout.filter((item: PlacedItem) => item.type !== 'chest');
-        const chestAnswer = nonChestItems.map(() => 'XXXX').join(''); // Placeholder
-        setGameplayState({ collectedKeyCodes: [], chestAnswer });
-        
-        // Initialize chest key codes array
-        setChestKeyCodes(new Array(nonChestItems.length).fill(''));
+      try {
+        const room = await loadRoomByCode(roomCode);
+        if (room) {
+          setRoomData({ iconLayout: room.iconLayout, questions: room.questions });
+          
+          // Initialize gameplay state
+          const nonChestItems = room.iconLayout.filter((item: PlacedItem) => item.type !== 'chest');
+          const chestAnswer = nonChestItems.map(() => 'XXXX').join(''); // Placeholder
+          setGameplayState({ collectedKeyCodes: [], chestAnswer });
+          
+          // Initialize chest key codes array
+          setChestKeyCodes(new Array(nonChestItems.length).fill(''));
+        } else {
+          setShowFeedback({ type: 'error', message: 'Room not found. Please check the room code.' });
+        }
+      } catch (error) {
+        console.error('Error loading room:', error);
+        setShowFeedback({ type: 'error', message: 'Failed to load room. Please try again.' });
       }
     };
     
