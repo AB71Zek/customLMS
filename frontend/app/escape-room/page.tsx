@@ -1,9 +1,11 @@
 'use client';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Suspense, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import Header from '../Components/header';
 import { useTheme } from '../Components/ThemeContext';
 import CombinedEditor from './editor/CombinedEditor';
+import { generatePlayLink, generateShareText } from './linkGenerator';
 import GameRoom from './stages/GameRoom';
 import Stage from './stages/Stage';
 
@@ -17,13 +19,23 @@ export default function EscapeRoomEditor() {
 
 function EscapeRoomEditorContent() {
   const { theme } = useTheme();
-  
+  const searchParams = useSearchParams();
   
   // View state (map, combined editor, timer selection, join room, room saved, game room, gameplay)
   const [stageView, setStageView] = useState<'none' | 'combined-editor' | 'join-room' | 'room-saved' | 'game-room' | 'gameplay'>('none');
   const [roomId, setRoomId] = useState<string>('');
   const [savedRoomId, setSavedRoomId] = useState<string>('');
   const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
+
+  // Handle URL parameter for direct room access
+  useEffect(() => {
+    const roomParam = searchParams.get('room');
+    if (roomParam && roomParam.length === 8) {
+      setRoomId(roomParam);
+      setCurrentGameRoomCode(roomParam);
+      setStageView('game-room');
+    }
+  }, [searchParams]);
 
 
 
@@ -306,9 +318,34 @@ function EscapeRoomEditorContent() {
                     border: '2px solid #28a745',
                     borderRadius: '6px',
                     padding: '8px 16px',
-                    display: 'inline-block'
+                    display: 'inline-block',
+                    marginBottom: '16px'
                   }}>
                     {savedRoomId}
+                  </div>
+                  
+                  <label style={{ 
+                    fontWeight: 600, 
+                    fontSize: '14px', 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    color: '#666'
+                  }}>
+                    Shareable Link
+                  </label>
+                  <div style={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#007bff',
+                    backgroundColor: '#ffffff',
+                    border: '2px solid #007bff',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    display: 'inline-block',
+                    wordBreak: 'break-all',
+                    maxWidth: '100%'
+                  }}>
+                    {generatePlayLink(savedRoomId)}
                   </div>
                 </div>
                 
@@ -345,17 +382,18 @@ function EscapeRoomEditorContent() {
                   </button>
                 <button
                     onClick={() => {
-                      navigator.clipboard.writeText(savedRoomId).then(() => {
-                        alert('Room code copied to clipboard!');
+                      const shareText = generateShareText(savedRoomId);
+                      navigator.clipboard.writeText(shareText).then(() => {
+                        alert('Shareable content copied to clipboard!');
                       }).catch(() => {
                         // Fallback for older browsers
                         const textArea = document.createElement('textarea');
-                        textArea.value = savedRoomId;
+                        textArea.value = shareText;
                         document.body.appendChild(textArea);
                         textArea.select();
                         document.execCommand('copy');
                         document.body.removeChild(textArea);
-                        alert('Room code copied to clipboard!');
+                        alert('Shareable content copied to clipboard!');
                       });
                     }}
                     className="btn btn-primary"
@@ -382,7 +420,7 @@ function EscapeRoomEditorContent() {
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                    Copy to Clipboard
+                    Copy Share Link
                 </button>
               </div>
             </div>
