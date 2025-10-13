@@ -26,6 +26,8 @@ function EscapeRoomEditorContent() {
   const [roomId, setRoomId] = useState<string>('');
   const [savedRoomId, setSavedRoomId] = useState<string>('');
   const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
+  const [isLoadingRoom, setIsLoadingRoom] = useState<boolean>(false);
+  const [roomError, setRoomError] = useState<string>('');
 
   // Handle URL parameter for direct room access
   useEffect(() => {
@@ -36,6 +38,32 @@ function EscapeRoomEditorContent() {
       setStageView('game-room');
     }
   }, [searchParams]);
+
+  // Function to validate room existence via API
+  const validateRoomExists = async (roomCode: string): Promise<boolean> => {
+    try {
+      setIsLoadingRoom(true);
+      setRoomError('');
+      
+      const response = await fetch(`http://localhost:4000/api/play/${roomCode}`);
+      
+      if (response.ok) {
+        return true;
+      } else if (response.status === 404) {
+        setRoomError('Room not found. Please check the room code.');
+        return false;
+      } else {
+        setRoomError('Failed to load room. Please try again.');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error validating room:', error);
+      setRoomError('Network error: Unable to connect to server.');
+      return false;
+    } finally {
+      setIsLoadingRoom(false);
+    }
+  };
 
 
 
@@ -153,9 +181,25 @@ function EscapeRoomEditorContent() {
                       letterSpacing: '2px',
                       textTransform: 'uppercase'
                     }}
-                    maxLength={6}
+                    maxLength={8}
                   />
                 </div>
+                
+                {/* Error Message */}
+                {roomError && (
+                  <div style={{
+                    marginBottom: '16px',
+                    padding: '12px',
+                    backgroundColor: '#f8d7da',
+                    border: '1px solid #f5c6cb',
+                    borderRadius: '8px',
+                    color: '#721c24',
+                    fontSize: '14px',
+                    textAlign: 'center'
+                  }}>
+                    {roomError}
+                  </div>
+                )}
                 
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
                   <button
@@ -190,15 +234,20 @@ function EscapeRoomEditorContent() {
                     Back
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (roomId.trim().length === 8) {
-                        setCurrentGameRoomCode(roomId);
-                        setRoomId('');
-                        setStageView('game-room');
+                        const isValidRoom = await validateRoomExists(roomId.trim());
+                        if (isValidRoom) {
+                          setCurrentGameRoomCode(roomId);
+                          setRoomId('');
+                          setRoomError('');
+                          setStageView('game-room');
+                        }
                       } else {
-                        alert('Please enter a valid 8-character room code');
+                        setRoomError('Please enter a valid 8-character room code');
                       }
                     }}
+                    disabled={isLoadingRoom}
                     className="btn btn-primary"
                     style={{
                       backgroundColor: '#28a745',
@@ -223,7 +272,7 @@ function EscapeRoomEditorContent() {
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
-                    Continue
+                    {isLoadingRoom ? 'Loading...' : 'Continue'}
                   </button>
                 </div>
               </div>
