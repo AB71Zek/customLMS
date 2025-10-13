@@ -79,6 +79,7 @@ const loadRoomByCode = async (roomCode: string): Promise<TempRoomData | null> =>
 interface GameRoomProps {
   roomCode: string;
   onComplete: () => void;
+  timerSeconds?: number;
 }
 
 const ICON_SOURCES: Record<PlacedItem['type'], string> = {
@@ -98,7 +99,7 @@ const ICON_STORIES: Record<PlacedItem['type'], string> = {
   treasure: "You found a treasure! But it's protected by a riddle... solve it to claim your prize!"
 };
 
-export default function GameRoom({ roomCode, onComplete }: GameRoomProps) {
+export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: GameRoomProps) {
   const [roomData, setRoomData] = useState<{ iconLayout: PlacedItem[], questions: Question[] } | null>(null);
   const [gameplayState, setGameplayState] = useState<GameplayState>({ collectedKeyCodes: [], chestAnswer: '' });
   const [selectedIcon, setSelectedIcon] = useState<PlacedItem | null>(null);
@@ -112,6 +113,17 @@ export default function GameRoom({ roomCode, onComplete }: GameRoomProps) {
   const [unlockedLocks, setUnlockedLocks] = useState<Set<number>>(new Set());
   const [usedKeyCodes, setUsedKeyCodes] = useState<Set<string>>(new Set());
   const [iconKeyCodeMap, setIconKeyCodeMap] = useState<Map<string, string>>(new Map());
+
+  // Timer states
+  const [timeLeft, setTimeLeft] = useState<number>(timerSeconds);
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+
+  // Timer functions
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Load room data
   const loadRoom = async () => {
@@ -156,6 +168,39 @@ export default function GameRoom({ roomCode, onComplete }: GameRoomProps) {
   useEffect(() => {
     loadRoom();
   }, [roomCode, retryCount]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    if (isTimerRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            setIsTimerRunning(false);
+            // Timer completed - trigger game over
+            onComplete();
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isTimerRunning, timeLeft, onComplete]);
+
+  // Start timer when room loads and timerSeconds > 0
+  useEffect(() => {
+    if (timerSeconds > 0 && roomData) {
+      setTimeLeft(timerSeconds);
+      setIsTimerRunning(true);
+    }
+  }, [timerSeconds, roomData]);
 
   const handleIconClick = (icon: PlacedItem) => {
     setSelectedIcon(icon);
@@ -366,6 +411,33 @@ export default function GameRoom({ roomCode, onComplete }: GameRoomProps) {
         <div style={{ marginBottom: '8px' }}>• Look around for clues</div>
         <div>• Find the treasure to win!</div>
       </div>
+
+      {/* Timer display */}
+      {timerSeconds > 0 && (
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          background: timeLeft <= 60 ? 'rgba(220, 53, 69, 0.9)' : 'rgba(0,0,0,0.8)',
+          color: 'white',
+          padding: '16px',
+          borderRadius: '8px',
+          zIndex: 13,
+          fontSize: '18px',
+          fontWeight: 'bold',
+          minWidth: '120px',
+          textAlign: 'center',
+          border: timeLeft <= 60 ? '2px solid #dc3545' : 'none'
+        }}>
+          <div style={{ marginBottom: '8px' }}>⏰ Timer</div>
+          <div style={{ 
+            fontSize: '24px',
+            color: timeLeft <= 60 ? '#ff6b6b' : '#ffffff'
+          }}>
+            {formatTime(timeLeft)}
+          </div>
+        </div>
+      )}
 
       {/* Question Modal */}
       {showQuestionModal && selectedIcon && (

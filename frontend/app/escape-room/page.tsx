@@ -30,6 +30,7 @@ function EscapeRoomEditorContent() {
   const [isLoadingRoom, setIsLoadingRoom] = useState<boolean>(false);
   const [roomError, setRoomError] = useState<string>('');
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+  const [gameTimerSeconds, setGameTimerSeconds] = useState<number>(0);
 
   // Handle URL parameter for direct room access
   useEffect(() => {
@@ -518,7 +519,8 @@ function EscapeRoomEditorContent() {
           
           {/* Game Room Story */}
           {stageView === 'game-room' && (
-            <Stage onEnterRoom={() => {
+            <Stage onEnterRoom={(timerSeconds: number) => {
+              setGameTimerSeconds(timerSeconds);
               setStageView('gameplay');
             }} />
           )}
@@ -527,9 +529,11 @@ function EscapeRoomEditorContent() {
           {stageView === 'gameplay' && (
             <GameRoom 
               roomCode={currentGameRoomCode || roomId} 
+              timerSeconds={gameTimerSeconds}
               onComplete={() => {
                 setStageView('none');
                 setCurrentGameRoomCode('');
+                setGameTimerSeconds(0);
               }} 
             />
           )}
