@@ -107,37 +107,55 @@ export default function GameRoom({ roomCode, onComplete }: GameRoomProps) {
   const [showFeedback, setShowFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [completedIcons, setCompletedIcons] = useState<Set<string>>(new Set());
   const [showChestModal, setShowChestModal] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState<number>(0);
   const [chestKeyCodes, setChestKeyCodes] = useState<string[]>([]);
   const [unlockedLocks, setUnlockedLocks] = useState<Set<number>>(new Set());
   const [usedKeyCodes, setUsedKeyCodes] = useState<Set<string>>(new Set());
   const [iconKeyCodeMap, setIconKeyCodeMap] = useState<Map<string, string>>(new Map());
 
   // Load room data
-  useEffect(() => {
-    const loadRoom = async () => {
-      try {
-        const room = await loadRoomByCode(roomCode);
-        if (room) {
-          setRoomData({ iconLayout: room.iconLayout, questions: room.questions });
-          
-          // Initialize gameplay state
-          const nonChestItems = room.iconLayout.filter((item: PlacedItem) => item.type !== 'chest');
-          const chestAnswer = nonChestItems.map(() => 'XXXX').join(''); // Placeholder
-          setGameplayState({ collectedKeyCodes: [], chestAnswer });
-          
-          // Initialize chest key codes array
-          setChestKeyCodes(new Array(nonChestItems.length).fill(''));
-        } else {
-          setShowFeedback({ type: 'error', message: 'Room not found. Please check the room code.' });
-        }
-      } catch (error) {
-        console.error('Error loading room:', error);
-        setShowFeedback({ type: 'error', message: 'Failed to load room. Please try again.' });
+  const loadRoom = async () => {
+    try {
+      const room = await loadRoomByCode(roomCode);
+      if (room) {
+        setRoomData({ iconLayout: room.iconLayout, questions: room.questions });
+
+        // Initialize gameplay state
+        const nonChestItems = room.iconLayout.filter((item: PlacedItem) => item.type !== 'chest');
+        const chestAnswer = nonChestItems.map(() => 'XXXX').join(''); // Placeholder
+        setGameplayState({ collectedKeyCodes: [], chestAnswer });
+
+        // Initialize chest key codes array
+        setChestKeyCodes(new Array(nonChestItems.length).fill(''));
+        
+        // Reset retry count on success
+        setRetryCount(0);
+      } else {
+        setShowFeedback({ 
+          type: 'error', 
+          message: 'Room not found. Please check the room code.' 
+        });
       }
-    };
-    
+    } catch (error) {
+      console.error('Error loading room:', error);
+      setShowFeedback({ 
+        type: 'error', 
+        message: `Failed to load room. ${retryCount < 2 ? 'Retrying...' : 'Please check your connection and try again.'}` 
+      });
+      
+      // Auto-retry up to 2 times
+      if (retryCount < 2) {
+        setTimeout(() => {
+          setRetryCount(prev => prev + 1);
+          loadRoom();
+        }, 2000);
+      }
+    }
+  };
+
+  useEffect(() => {
     loadRoom();
-  }, [roomCode]);
+  }, [roomCode, retryCount]);
 
   const handleIconClick = (icon: PlacedItem) => {
     setSelectedIcon(icon);
@@ -623,7 +641,30 @@ export default function GameRoom({ roomCode, onComplete }: GameRoomProps) {
           zIndex: 15,
           maxWidth: '80%'
         }}>
-          {showFeedback.message}
+          <div style={{ marginBottom: showFeedback.type === 'error' ? '16px' : '0' }}>
+            {showFeedback.message}
+          </div>
+          {showFeedback.type === 'error' && (
+            <button
+              onClick={() => {
+                setRetryCount(0);
+                setShowFeedback(null);
+                loadRoom();
+              }}
+              style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              Retry
+            </button>
+          )}
         </div>
       )}
     </div>

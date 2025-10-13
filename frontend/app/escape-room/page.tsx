@@ -28,6 +28,7 @@ function EscapeRoomEditorContent() {
   const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
   const [isLoadingRoom, setIsLoadingRoom] = useState<boolean>(false);
   const [roomError, setRoomError] = useState<string>('');
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
   // Handle URL parameter for direct room access
   useEffect(() => {
@@ -38,6 +39,20 @@ function EscapeRoomEditorContent() {
       setStageView('game-room');
     }
   }, [searchParams]);
+
+  // Network status monitoring
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Function to validate room existence via API
   const validateRoomExists = async (roomCode: string): Promise<boolean> => {
@@ -74,8 +89,27 @@ function EscapeRoomEditorContent() {
     <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh" }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
-      <div style={{ padding: "150px 20px 20px 20px", minHeight: "calc(100vh - 80px)" }}>
-        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ padding: "150px 20px 20px 20px", minHeight: "calc(100vh - 80px)" }}>
+          {/* Network Status Indicator */}
+          {!isOnline && (
+            <div style={{
+              position: 'fixed',
+              top: '120px',
+              right: '20px',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              zIndex: 1000,
+              boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+            }}>
+              🔴 Offline - Some features may not work
+            </div>
+          )}
+          
+          <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* Aspect-ratio container to avoid cropping */}
           <div style={{
             position: 'relative',

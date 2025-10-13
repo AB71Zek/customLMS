@@ -88,8 +88,6 @@ const ICON_SOURCES: Record<PlacedItem['type'], string> = {
 
 const TOOLBOX_ITEMS: PlacedItem['type'][] = ['barrel', 'chest', 'key', 'torch', 'treasure'];
 
-const STORAGE_KEY = 'escape-room:editor:layout';
-const QUESTIONS_STORAGE_KEY = 'escape-room:editor:questions';
 
 // Story lines for each icon type
 const ICON_STORIES: Record<PlacedItem['type'], string> = {
@@ -106,29 +104,11 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string>('');
   const [showQuestionForm, setShowQuestionForm] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isDraggingRef = useRef<boolean>(false);
 
-  // Load saved layout and questions
-  useEffect(() => {
-    try {
-      const savedLayout = localStorage.getItem(STORAGE_KEY);
-      if (savedLayout) {
-        const parsed: PlacedItem[] = JSON.parse(savedLayout);
-        setItems(parsed);
-        
-        // Initialize questions for each icon
-        const initialQuestions: Question[] = parsed.map((item) => ({
-          id: `question-${item.id}`,
-          iconType: item.type,
-          question: '',
-          expectedAnswers: ['']
-        }));
-        setQuestions(initialQuestions);
-      }
-    } catch {}
-  }, []);
 
   // Global mouse listeners for robust dragging
   useEffect(() => {
@@ -260,6 +240,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
 
     try {
       setIsSaving(true);
+      setSaveError('');
       
       // Prepare room data for API
       const roomData: RoomData = {
@@ -276,11 +257,11 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
       if (result.success && result.roomId) {
         onComplete(result.roomId);
       } else {
-        alert(`Failed to save room: ${result.error || 'Unknown error'}`);
+        setSaveError(result.error || 'Unknown error occurred while saving');
       }
     } catch (error) {
       console.error('Error saving room:', error);
-      alert('Failed to save room. Please try again.');
+      setSaveError('Network error: Unable to connect to server. Please check your connection and try again.');
     } finally {
       setIsSaving(false);
     }
@@ -682,29 +663,47 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
         )}
 
         {/* Bottom Controls */}
-        <div style={{ position: 'absolute', bottom: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 11 }}>
-          <button
-            onClick={onCancel}
-            className="btn btn-outline-secondary"
-            style={{
-              backgroundColor: '#ffffff',
-              color: '#000',
-              borderColor: 'var(--border-color)',
-              borderWidth: '2px',
-              padding: '10px 18px',
-              fontSize: '15px'
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="btn btn-success"
-            style={{ padding: '10px 18px', fontSize: '15px' }}
-            disabled={!requirements.hasAtLeastOne || !requirements.hasExactlyOneChest || !requirements.withinMaxLimit || isSaving}
-          >
-            {isSaving ? 'Saving...' : 'Save Room'}
-          </button>
+        <div style={{ position: 'absolute', bottom: '16px', right: '16px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 11 }}>
+          {/* Error Message */}
+          {saveError && (
+            <div style={{
+              backgroundColor: '#f8d7da',
+              border: '1px solid #f5c6cb',
+              borderRadius: '8px',
+              color: '#721c24',
+              fontSize: '14px',
+              padding: '12px',
+              maxWidth: '300px',
+              textAlign: 'center'
+            }}>
+              {saveError}
+            </div>
+          )}
+          
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={onCancel}
+              className="btn btn-outline-secondary"
+              style={{
+                backgroundColor: '#ffffff',
+                color: '#000',
+                borderColor: 'var(--border-color)',
+                borderWidth: '2px',
+                padding: '10px 18px',
+                fontSize: '15px'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="btn btn-success"
+              style={{ padding: '10px 18px', fontSize: '15px' }}
+              disabled={!requirements.hasAtLeastOne || !requirements.hasExactlyOneChest || !requirements.withinMaxLimit || isSaving}
+            >
+              {isSaving ? 'Saving...' : 'Save Room'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
