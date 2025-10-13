@@ -7,10 +7,20 @@ services:
         - NODE_ENV=development
       volumes:
         - ./frontend:/app
-        - node_modules:/app/node_modules
       command: npm run dev
+
+    backend:
+      container_name: backend
+      image: backend
+      build:
+        context: ./backend
+        dockerfile: .dockerfile
+      ports:
+        - "4000:4000"
+      environment:
+        - DATABASE_URL="postgresql://customlms:customlms@db:5432/customlms?schema=public"
     db:
-      image: postgres:13
+      image: postgres:15
       container_name: db
       restart: always
       environment:
@@ -20,8 +30,7 @@ services:
       ports:
         - "5432:5432"
       volumes:
-        - db_data:/var/lib/postgresql/data
+        - postgres_data:/var/lib/postgresql/data
 
 volumes:
-    db_data: {}
-    node_modules:
+    postgres_data: {}
