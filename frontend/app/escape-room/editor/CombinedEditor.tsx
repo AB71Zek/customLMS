@@ -291,7 +291,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
           backgroundSize: '100% 100%',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          border: '3px solid var(--border-color)',
+          border: '3px solid #666666',
           borderRadius: '8px',
           boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
         }}
@@ -305,7 +305,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
           top: '16px',
           left: '16px',
           background: 'rgba(255,255,255,0.9)',
-          border: '2px solid var(--border-color)',
+          border: '2px solid #666666',
           borderRadius: '12px',
           padding: '12px 20px',
           zIndex: 11,
@@ -315,7 +315,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
             Combined Editor
           </div>
           <div style={{ fontSize: '14px', textAlign: 'center', marginBottom: '8px', color: '#666' }}>
-            Drag icons to place • Double-click to edit questions
+            Click icons to place • Double-click to edit questions
           </div>
           <div style={{ fontSize: '12px', fontWeight: 600, backgroundColor: '#fff8d1', border: '1px solid #ffe58f', borderRadius: '6px', padding: '6px 8px', marginTop: '4px' }}>
             <div style={{ color: '#dc3545' }}>📋 Requirements:</div>
@@ -337,7 +337,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
           top: '16px',
           right: '16px',
           background: 'rgba(255,255,255,0.9)',
-          border: '2px solid var(--border-color)',
+          border: '2px solid #666666',
           borderRadius: '12px',
           padding: '12px',
           zIndex: 11,
@@ -466,7 +466,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
           >
             <div style={{
               background: 'rgba(255,255,255,0.98)',
-              border: '2px solid var(--border-color)',
+              border: '2px solid #666666',
               borderRadius: '12px',
               padding: '20px',
               width: '90%',
@@ -485,7 +485,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
                   width={40} 
                   height={40}
                   style={{ 
-                    border: '2px solid var(--border-color)', 
+                    border: '2px solid #666666', 
                     borderRadius: '8px',
                     backgroundColor: 'rgba(255,255,255,0.9)',
                     padding: '4px'
@@ -527,7 +527,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
                       style={{
                         width: '100%',
                         padding: '8px',
-                        border: `1px solid ${isValidWordCount(selectedQuestion.question) ? 'var(--border-color)' : '#dc3545'}`,
+                        border: `1px solid ${isValidWordCount(selectedQuestion.question) ? '#666666' : '#dc3545'}`,
                         borderRadius: '6px',
                         fontSize: '14px',
                         minHeight: '60px',
@@ -573,7 +573,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
                       style={{
                         flex: 1,
                         padding: '8px',
-                        border: `1px solid ${isValidWordCount(answer) ? 'var(--border-color)' : '#dc3545'}`,
+                        border: `1px solid ${isValidWordCount(answer) ? '#666666' : '#dc3545'}`,
                         borderRadius: '6px',
                         fontSize: '14px',
                         minHeight: '60px',
@@ -687,7 +687,7 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
               style={{
                 backgroundColor: '#ffffff',
                 color: '#000',
-                borderColor: 'var(--border-color)',
+                borderColor: '#666666',
                 borderWidth: '2px',
                 padding: '10px 18px',
                 fontSize: '15px'

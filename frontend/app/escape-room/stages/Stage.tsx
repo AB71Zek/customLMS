@@ -59,7 +59,7 @@ export default function Stage({ onEnterRoom }: StageProps) {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         zIndex: 10,
-        border: '3px solid var(--border-color)',
+        border: '3px solid #dc3545',
         borderRadius: '8px'
       }}
     >

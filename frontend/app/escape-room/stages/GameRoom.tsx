@@ -288,12 +288,8 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
     if (allLocksUnlocked) {
       setShowFeedback({
         type: 'success',
-        message: 'Congratulations! You have successfully opened the treasure chest and escaped the room!'
+        message: 'Congratulations! You have successfully opened the treasure chest and escaped the room! You can now exit the page whenever you want.'
       });
-      
-      setTimeout(() => {
-        onComplete();
-      }, 3000);
     }
   };
 
@@ -325,7 +321,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         zIndex: 10,
-        border: '3px solid var(--border-color)',
+        border: '3px solid #dc3545',
         borderRadius: '8px'
       }}
     >
@@ -408,7 +404,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
         maxWidth: '300px'
       }}>
         <div style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: '16px' }}>Escape Room:</div>
-        <div style={{ marginBottom: '8px' }}>• Look around for clues</div>
+        <div style={{ marginBottom: '8px' }}>• Move your cursor around to find items</div>
         <div>• Find the treasure to win!</div>
       </div>
 
@@ -452,7 +448,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
         }}>
           <div style={{
             background: 'white',
-            border: '2px solid var(--border-color)',
+            border: '2px solid #666666',
             borderRadius: '12px',
             padding: '24px',
             width: '90%',
@@ -468,7 +464,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
                 width={48} 
                 height={48}
                 style={{ 
-                  border: '2px solid var(--border-color)', 
+                  border: '2px solid #666666', 
                   borderRadius: '8px',
                   marginBottom: '8px'
                 }}
@@ -536,7 +532,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
                   style={{
                     width: '100%',
                     padding: '8px',
-                    border: '1px solid var(--border-color)',
+                    border: '1px solid #666666',
                     borderRadius: '6px',
                     fontSize: '14px',
                     minHeight: '60px',
@@ -599,7 +595,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
         }}>
           <div style={{
             background: 'white',
-            border: '2px solid var(--border-color)',
+            border: '2px solid #666666',
             borderRadius: '12px',
             padding: '24px',
             width: '90%',
@@ -615,7 +611,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
                 width={64} 
                 height={64}
                 style={{ 
-                  border: '2px solid var(--border-color)', 
+                  border: '2px solid #666666', 
                   borderRadius: '8px',
                   marginBottom: '8px'
                 }}
@@ -710,7 +706,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
           fontSize: '18px',
           fontWeight: 'bold',
           textAlign: 'center',
-          zIndex: 15,
+          zIndex: 25,
           maxWidth: '80%'
         }}>
           <div style={{ marginBottom: showFeedback.type === 'error' ? '16px' : '0' }}>

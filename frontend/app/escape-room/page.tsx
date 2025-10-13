@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Header from '../Components/header';
 import { useTheme } from '../Components/ThemeContext';
 import CombinedEditor from './editor/CombinedEditor';
-import { generatePlayLink, generateShareText } from './linkGenerator';
+import { generatePlayLink } from './linkGenerator';
 import GameRoom from './stages/GameRoom';
 import Stage from './stages/Stage';
 
@@ -93,11 +93,11 @@ function EscapeRoomEditorContent() {
 
 
   return (
-    <div className="container theme-transition" style={{ backgroundColor: 'transparent', padding: "150px 20px 20px 20px", minHeight: "100vh" }} data-theme="dark">
+    <div className="container theme-transition" style={{ backgroundColor: 'transparent', padding: "150px 20px 20px 20px", minHeight: "100vh" }} data-theme={theme}>
       <Header studentNumber="21406232" />
 
       {/* Network Status Indicator */}
-          {!isOnline && (
+          {isClient && !isOnline && (
             <div style={{
               position: 'fixed',
               top: '120px',
@@ -171,7 +171,7 @@ function EscapeRoomEditorContent() {
                   width: '90%',
                   maxWidth: '500px',
                   background: '#ffffff',
-                  border: '3px solid var(--border-color)',
+                  border: '3px solid #666666',
                   borderRadius: '16px',
                   padding: '32px',
                   zIndex: 16,
@@ -214,7 +214,7 @@ function EscapeRoomEditorContent() {
                     style={{
                       width: '100%',
                       padding: '12px 16px',
-                      border: '2px solid var(--border-color)',
+                      border: '2px solid #666666',
                       borderRadius: '8px',
                       fontSize: '16px',
                       fontWeight: 600,
@@ -252,7 +252,7 @@ function EscapeRoomEditorContent() {
                     style={{
                       backgroundColor: '#ffffff',
                       color: '#000',
-                      borderColor: 'var(--border-color)',
+                      borderColor: '#666666',
                       borderWidth: '2px',
                       padding: '12px 24px',
                       borderRadius: '8px',
@@ -268,7 +268,7 @@ function EscapeRoomEditorContent() {
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = '#ffffff';
-                      e.currentTarget.style.borderColor = 'var(--border-color)';
+                      e.currentTarget.style.borderColor = '#666666';
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
@@ -448,7 +448,7 @@ function EscapeRoomEditorContent() {
                     style={{
                       backgroundColor: '#ffffff',
                       color: '#000',
-                      borderColor: 'var(--border-color)',
+                      borderColor: '#666666',
                       borderWidth: '2px',
                       padding: '12px 24px',
                       borderRadius: '8px',
@@ -464,7 +464,7 @@ function EscapeRoomEditorContent() {
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = '#ffffff';
-                      e.currentTarget.style.borderColor = 'var(--border-color)';
+                      e.currentTarget.style.borderColor = '#666666';
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
@@ -472,18 +472,18 @@ function EscapeRoomEditorContent() {
                   </button>
                 <button
                     onClick={() => {
-                      const shareText = generateShareText(savedRoomId);
-                      navigator.clipboard.writeText(shareText).then(() => {
-                        alert('Shareable content copied to clipboard!');
+                      const playLink = generatePlayLink(savedRoomId);
+                      navigator.clipboard.writeText(playLink).then(() => {
+                        alert('Link copied to clipboard!');
                       }).catch(() => {
                         // Fallback for older browsers
                         const textArea = document.createElement('textarea');
-                        textArea.value = shareText;
+                        textArea.value = playLink;
                         document.body.appendChild(textArea);
                         textArea.select();
                         document.execCommand('copy');
                         document.body.removeChild(textArea);
-                        alert('Shareable content copied to clipboard!');
+                        alert('Link copied to clipboard!');
                       });
                     }}
                     className="btn btn-primary"
