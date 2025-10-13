@@ -25,4 +25,5 @@ model Room {
   iconLayout  Json     // [{ id,type,x,y }, ...]
   questions   Json     // [{ itemId, question, expectedAnswers:[] }, ...]
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
