@@ -286,6 +286,8 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
   const handleOpenChest = () => {
     const allLocksUnlocked = unlockedLocks.size === chestKeyCodes.length;
     if (allLocksUnlocked) {
+      // Close the chest modal before showing congratulations
+      setShowChestModal(false);
       setShowFeedback({
         type: 'success',
         message: 'Congratulations! You have successfully opened the treasure chest and escaped the room! You can now exit the page whenever you want.'
@@ -698,16 +700,17 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          background: showFeedback.type === 'success' ? '#d4edda' : '#f8d7da',
-          color: showFeedback.type === 'success' ? '#155724' : '#721c24',
-          border: `2px solid ${showFeedback.type === 'success' ? '#28a745' : '#dc3545'}`,
-          borderRadius: '12px',
-          padding: '24px',
-          fontSize: '18px',
+          background: showFeedback.type === 'success' ? '#EBB800' : '#f8d7da',
+          color: showFeedback.type === 'success' ? '#ffffff' : '#721c24',
+          border: `3px solid ${showFeedback.type === 'success' ? '#000000' : '#dc3545'}`,
+          borderRadius: '16px',
+          padding: '28px',
+          fontSize: '20px',
           fontWeight: 'bold',
           textAlign: 'center',
           zIndex: 25,
-          maxWidth: '80%'
+          maxWidth: '80%',
+          boxShadow: '0 12px 24px rgba(0,0,0,0.35)'
         }}>
           <div style={{ marginBottom: showFeedback.type === 'error' ? '16px' : '0' }}>
             {showFeedback.message}
@@ -723,10 +726,10 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
                 backgroundColor: '#dc3545',
                 color: 'white',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '8px 16px',
-                fontSize: '14px',
-                fontWeight: 'bold',
+                borderRadius: '10px',
+                padding: '10px 18px',
+                fontSize: '15px',
+                fontWeight: 700,
                 cursor: 'pointer'
               }}
             >
