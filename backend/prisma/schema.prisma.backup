@@ -13,7 +13,6 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   name      String
-  email     String   @unique
   createdAt DateTime @default(now())
   rooms     Room[] @relation("UserRooms")
 }
@@ -21,9 +20,8 @@ model User {
 model Room {
   id          Int      @id @default(autoincrement())
   roomId      String   @unique @db.VarChar(8)
-  userId      Int?
-  user        User?    @relation("UserRooms", fields: [userId], references: [id], onDelete: Cascade)
-  createdBy   String   // Teacher/creator name
+  userId      Int
+  user        User     @relation("UserRooms", fields: [userId], references: [id], onDelete: Cascade)
   iconLayout  Json     // [{ id,type,x,y }, ...]
   questions   Json     // [{ itemId, question, expectedAnswers:[] }, ...]
   createdAt   DateTime @default(now())

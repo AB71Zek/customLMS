@@ -1,36 +1,42 @@
-services:
-    frontend:
-      build: ./frontend
-      ports:
-        - "3000:3000"
-      environment:
-        - NODE_ENV=development
-      volumes:
-        - ./frontend:/app
-      command: npm run dev
+version: '3.8'
 
-    backend:
-      container_name: backend
-      image: backend
-      build:
-        context: ./backend
-        dockerfile: .dockerfile
-      ports:
-        - "4000:4000"
-      environment:
-        - DATABASE_URL="postgresql://customlms:customlms@db:5432/customlms?schema=public"
-    db:
-      image: postgres:15
-      container_name: db
-      restart: always
-      environment:
-        POSTGRES_USER: customlms
-        POSTGRES_PASSWORD: customlms
-        POSTGRES_DB: customlms
-      ports:
-        - "5432:5432"
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:password@db:5432/customlms
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+    depends_on:
+      - db
+    command: ["./entrypoint.sh"]
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=customlms
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
 volumes:
-    postgres_data: {}
+  postgres_data:
