@@ -1,148 +1,57 @@
-.escape-room .er-on-image h1,
-.escape-room .er-on-image h2,
-.escape-room .er-on-image h3,
-.escape-room .er-on-image h4,
-.escape-room .er-on-image h5,
-.escape-room .er-on-image h6,
-.escape-room .er-on-image p,
-.escape-room .er-on-image label,
-.escape-room .er-on-image small {
-  color: #ffffff !important;
-}
+/* Custom LMS Escape Room Global Styles */
 
-/* Ensure inputs and input addons render white text in the Escape Room timer panel */
-.escape-room .er-on-image .form-control { color: #ffffff !important; }
-.escape-room .er-on-image .input-group-text { color: #ffffff !important; }
-
-/* Make card content in the timer grid white by default */
-.escape-room .er-on-image .card .card-title,
-.escape-room .er-on-image .card .card-text { color: #ffffff !important; }
-
-[data-theme="light"] .footer-meta { color: #000000 !important; }
-[data-theme="light"] footer { color: #ffffff !important; }
-[data-theme="light"] footer .footer-meta { color: #ffffff !important; }
-
-/* Restore placeholder visibility on purpose */
-::placeholder { color: rgba(128,128,128,0.9) !important; }
-
-
-/* Escape room timer selection text scope */
-.er-timer-text { color: #ffffff !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
-
-:root {
-  /* Dark Theme (Default) */
-  --background: #2a2a2a;
-  --foreground: #ffffff;
-  --header-bg: rgba(0, 0, 0, 0.95);
-  --footer-bg: var(--accent-color);
-  --section-bg: rgba(0, 0, 0, 0.8);
-  --accent-color: #dc3545;
-  --accent-color-secondary: #ffffff;
-  --accent-color-tertiary: #dc3545;
-  --text-primary: #ffffff;
-  --text-secondary: #666666;
-  --text-tertiary: #000000;
-  --border-color: #dc3545;
-  --footer-border-color: #dc3545;
-  --tab-inactive-bg: rgba(255, 255, 255, 0.1);
-  --tab-inactive-text: #dc3545;
-  --textarea-bg: rgba(255, 255, 255, 0.1);
-  --code-bg: rgba(0, 0, 0, 0.9);
-}
-
-[data-theme="light"] {
-  /* Light Theme */
-  --background: #ffffff;
-  --foreground: #000000;
-  --header-bg: rgba(128, 128, 128, 0.95);
-  --footer-bg: var(--accent-color);
-  --section-bg: #ffffff;
-  --accent-color: #dc3545;
-  --accent-color-secondary: #ffffff;
-  --accent-color-tertiary: #ffffff;
-  --text-primary: #000000;
-  --text-secondary: #333333;
-  --text-tertiary: #dc3545;
-  --border-color: #dc3545;
-  --footer-border-color: #000000;
-  --tab-inactive-bg: rgba(0, 0, 0, 0.1);
-  --tab-inactive-text: #dc3545;
-  --textarea-bg: rgba(0, 0, 0, 0.05);
-  --code-bg: rgba(0, 0, 0, 0.1);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-  padding: 0;
+.theme-transition {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Remove over-broad resets that caused unintended overrides */
-
-/* Theme toggle button should have pill background like student number */
-.theme-toggle-btn {
-  background-color: var(--section-bg) !important;
-  border: 2px solid var(--border-color) !important;
-  color: var(--accent-color) !important;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* In light mode, theme toggle text and student number text should be black */
-[data-theme="light"] .theme-toggle-btn { color: #000000 !important; }
-[data-theme="light"] .student-number-pill { color: #000000 !important; }
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
 
-/* Scoped utilities (opt-in) to style specific areas without affecting global elements */
-.er-surface { background-color: var(--section-bg) !important; }
-.er-border { border: 2px solid var(--border-color) !important; }
-.er-text { color: var(--text-primary) !important; }
-.er-btn-primary { background-color: var(--accent-color) !important; color: #fff !important; border-color: var(--accent-color) !important; }
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
 
-/* Theme transition utilities */
-.theme-transition {
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Button hover effects */
+.btn {
   transition: all 0.3s ease;
 }
 
-/* Keep headings readable in light mode; avoid forcing spans/buttons globally */
-[data-theme="light"] h1,
-[data-theme="light"] h2,
-[data-theme="light"] h3,
-[data-theme="light"] h4,
-[data-theme="light"] h5,
-[data-theme="light"] h6 {
-  color: var(--text-primary);
+.btn:hover {
+  transform: translateY(-1px);
 }
 
-/* Force tab text colors */
-[data-theme="light"] .tab-item { color: var(--tab-inactive-text); }
-
-[data-theme="light"] .tab-item.active { color: white; }
-
-[data-theme="dark"] ::placeholder { color: rgba(206, 199, 199, 0.95); }
-
-/* Ensure page background is pure white in light mode */
-html[data-theme="light"],
-html[data-theme="light"] body,
-html[data-theme="light"] #__next { background-color: #ffffff; }
-
-/* Visually hidden utility for screen readers */
-.visually-hidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  border: 0 !important;
+/* Custom focus styles */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid #dc3545;
+  outline-offset: 2px;
 }
 
-/* Respect reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation: none !important;
-    transition: none !important;
-    scroll-behavior: auto !important;
+/* Loading animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px !important;
   }
 }

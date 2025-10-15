@@ -1,426 +1,355 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
 
-// Link generator functions (moved from keyCodeGenerator)
-export interface PlacedItem {
+import { trace } from '@opentelemetry/api';
+import React, { useRef, useState } from 'react';
+
+interface PlacedItem {
   id: string;
-  type: 'barrel' | 'chest' | 'key' | 'torch' | 'treasure';
+  type: string;
   x: number;
   y: number;
 }
 
-export interface Question {
-  id: string;
-  iconType: PlacedItem['type'];
+interface Question {
+  itemId: string;
   question: string;
   expectedAnswers: string[];
 }
 
-export interface RoomData {
-  roomId: string;
-  iconLayout: PlacedItem[];
-  questions: Question[];
-  createdAt: string;
-  createdBy: string;
-}
-
-// Generate unique room ID (8 characters for better uniqueness)
-export const generateRoomId = (): string => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < 8; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
-// Generate embeddable link for external websites
-export const generateEmbedLink = (roomId: string): string => {
-  // This will be the URL where the game runs on your EC2 server
-  const baseUrl = process.env.NEXT_PUBLIC_GAME_SERVER_URL || 'https://your-ec2-server.com';
-  return `${baseUrl}/play/${roomId}`;
-};
-
-// Generate iframe embed code for websites
-export const generateEmbedCode = (roomId: string): string => {
-  const embedUrl = generateEmbedLink(roomId);
-  return `<iframe src="${embedUrl}" width="100%" height="600" frameborder="0" allowfullscreen></iframe>`;
-};
-
-// Save room data to backend (framework for future implementation)
-export const saveRoomToBackend = async (roomData: RoomData): Promise<{ success: boolean; roomId?: string; error?: string }> => {
-  try {
-    const response = await fetch('http://localhost:4000/api/rooms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userName: roomData.createdBy,
-        iconLayout: roomData.iconLayout,
-        questions: roomData.questions
-      })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      return { success: false, error: errorData.message || 'Failed to save room' };
-    }
-    
-    const result = await response.json();
-    return { success: true, roomId: result.roomId };
-  } catch (error) {
-    console.error('Error saving room:', error);
-    return { success: false, error: 'Network error: Failed to connect to server' };
-  }
-};
-
 interface CombinedEditorProps {
-  onComplete: (roomId: string) => void;
-  onCancel: () => void;
+  onSave: (roomData: any) => Promise<any>;
+  onBack: () => void;
 }
 
-const ICON_SOURCES: Record<PlacedItem['type'], string> = {
-  barrel: '/escape-room-misc/barrel.png',
-  chest: '/escape-room-misc/chest.png',
-  key: '/escape-room-misc/key.png',
-  torch: '/escape-room-misc/torch.png',
-  treasure: '/escape-room-misc/treasure.png',
-};
+const ICON_TYPES = ['torch', 'barrel', 'scroll', 'key', 'chest'];
 
-const TOOLBOX_ITEMS: PlacedItem['type'][] = ['barrel', 'chest', 'key', 'torch', 'treasure'];
-
-
-// Story lines for each icon type
-const ICON_STORIES: Record<PlacedItem['type'], string> = {
-  barrel: "You found a barrel, there seems to be an inscription on it... solve it to unlock the hint!",
-  chest: "You found a treasure chest! But there are locks on it. Enter all the key codes to unlock!",
-  key: "You found a key! There's something written on it... solve the puzzle to unlock its secrets!",
-  torch: "You found a torch, there seems to be an inscription on it... solve it to unlock the hint!",
-  treasure: "You found a treasure! But it's protected by a riddle... solve it to claim your prize!"
-};
-
-export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorProps) {
-  const [items, setItems] = useState<PlacedItem[]>([]);
+export default function CombinedEditor({ onSave, onBack }: CombinedEditorProps) {
+  const [placedItems, setPlacedItems] = useState<PlacedItem[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [selectedIcon, setSelectedIcon] = useState<string>('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [newQuestion, setNewQuestion] = useState({ question: '', expectedAnswers: [''] });
+  const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>('');
-  const [showQuestionForm, setShowQuestionForm] = useState<boolean>(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const isDraggingRef = useRef<boolean>(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-
-  // Global mouse listeners for robust dragging
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      if (!draggingId || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      
-      setItems(prev => prev.map(item => 
-        item.id === draggingId ? { ...item, x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) } : item
-      ));
-    };
-
-    const handleUp = () => {
-      setDraggingId(null);
-      isDraggingRef.current = false;
-    };
-
-    if (draggingId) {
-      document.addEventListener('mousemove', handleMove);
-      document.addEventListener('mouseup', handleUp);
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMove);
-      document.removeEventListener('mouseup', handleUp);
-    };
-  }, [draggingId]);
-
-  // Helper function to count words
-  const countWords = (text: string) => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const handleIconSelect = (iconType: string) => {
+    setSelectedIcon(iconType);
   };
 
-  // Helper function to validate word count
-  const isValidWordCount = (text: string) => {
-    const wordCount = countWords(text);
-    return wordCount >= 1 && wordCount <= 500;
-  };
+  const handleContainerClick = (e: React.MouseEvent) => {
+    if (!selectedIcon || !containerRef.current) return;
 
-  const handleQuestionChange = (questionId: string, field: keyof Question, value: string) => {
-    setQuestions(prev => prev.map(q => 
-      q.id === questionId ? { ...q, [field]: value } : q
-    ));
-  };
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-  const handleExpectedAnswerChange = (questionId: string, answerIndex: number, value: string) => {
-    setQuestions(prev => prev.map(q => {
-      if (q.id === questionId) {
-        const newAnswers = [...q.expectedAnswers];
-        newAnswers[answerIndex] = value;
-        return { ...q, expectedAnswers: newAnswers };
-      }
-      return q;
-    }));
-  };
-
-  const addExpectedAnswer = (questionId: string) => {
-    setQuestions(prev => prev.map(q => {
-      if (q.id === questionId && q.expectedAnswers.length < 2) {
-        return { ...q, expectedAnswers: [...q.expectedAnswers, ''] };
-      }
-      return q;
-    }));
-  };
-
-  const removeExpectedAnswer = (questionId: string, answerIndex: number) => {
-    setQuestions(prev => prev.map(q => {
-      if (q.id === questionId && q.expectedAnswers.length > 1) {
-        const newAnswers = q.expectedAnswers.filter((_, index) => index !== answerIndex);
-        return { ...q, expectedAnswers: newAnswers };
-      }
-      return q;
-    }));
-  };
-
-  const handleIconClick = (iconType: PlacedItem['type']) => {
     const newItem: PlacedItem = {
-      id: `item-${Date.now()}`,
-      type: iconType,
-      x: 50, // Center initially
-      y: 50
+      id: `item_${Date.now()}`,
+      type: selectedIcon,
+      x: x - 30, // Center the icon
+      y: y - 30
     };
-    setItems(prev => [...prev, newItem]);
+
+    setPlacedItems(prev => [...prev, newItem]);
+    setSelectedIcon('');
   };
 
-  const handleItemDoubleClick = (itemId: string) => {
-    setSelectedItemId(itemId);
-    setShowQuestionForm(true);
-    
-    // Initialize question if it doesn't exist
-    const existingQuestion = questions.find(q => q.id === `question-${itemId}`);
-    if (!existingQuestion) {
-      const item = items.find(i => i.id === itemId);
-      if (item) {
-        const newQuestion: Question = {
-          id: `question-${itemId}`,
-          iconType: item.type,
-          question: '',
-          expectedAnswers: ['']
-        };
-        setQuestions(prev => [...prev, newQuestion]);
+  const handleItemDoubleClick = (item: PlacedItem) => {
+    if (item.type === 'chest') return; // Chest doesn't have questions
+
+    const existingQuestion = questions.find(q => q.itemId === item.id);
+    if (existingQuestion) {
+      setEditingQuestion(existingQuestion);
+      setNewQuestion({
+        question: existingQuestion.question,
+        expectedAnswers: existingQuestion.expectedAnswers
+      });
+    } else {
+      setEditingQuestion(null);
+      setNewQuestion({ question: '', expectedAnswers: [''] });
+    }
+    setShowQuestionModal(true);
+  };
+
+  const handleSaveQuestion = () => {
+    if (!newQuestion.question.trim()) return;
+
+    const questionData: Question = {
+      itemId: editingQuestion?.itemId || '',
+      question: newQuestion.question,
+      expectedAnswers: newQuestion.expectedAnswers.filter(answer => answer.trim())
+    };
+
+    if (editingQuestion) {
+      setQuestions(prev => prev.map(q => 
+        q.itemId === editingQuestion.itemId ? questionData : q
+      ));
+    } else {
+      // Find the last placed item that's not a chest
+      const lastItem = placedItems.filter(item => item.type !== 'chest').pop();
+      if (lastItem) {
+        questionData.itemId = lastItem.id;
+        setQuestions(prev => [...prev, questionData]);
       }
     }
+
+    setShowQuestionModal(false);
+    setNewQuestion({ question: '', expectedAnswers: [''] });
+    setEditingQuestion(null);
+  };
+
+  const handleSaveRoom = async () => {
+    return await trace
+      .getTracer('custom-lms-frontend')
+      .startActiveSpan('save-room-editor', async (span) => {
+        try {
+          setIsSaving(true);
+          setSaveError('');
+
+          const roomData = {
+            iconLayout: placedItems,
+            questions: questions,
+            createdBy: 'Teacher'
+          };
+
+          span.setAttributes({
+            'room.itemsCount': placedItems.length,
+            'room.questionsCount': questions.length,
+            'room.hasChest': placedItems.some(item => item.type === 'chest')
+          });
+
+          await onSave(roomData);
+        } catch (error) {
+          span.setStatus({ code: 2, message: 'Failed to save room' });
+          setSaveError('Failed to save room. Please try again.');
+          console.error('Error saving room:', error);
+        } finally {
+          setIsSaving(false);
+          span.end();
+        }
+      });
   };
 
   const handleDeleteItem = (itemId: string) => {
-    setItems(prev => prev.filter(item => item.id !== itemId));
-    setQuestions(prev => prev.filter(q => q.id !== `question-${itemId}`));
+    setPlacedItems(prev => prev.filter(item => item.id !== itemId));
+    setQuestions(prev => prev.filter(q => q.itemId !== itemId));
   };
 
-  const handleSave = async () => {
-    // Validate all questions
-    const nonChestItems = items.filter(it => it.type !== 'chest');
-    const isItemValid = (itemId: string) => {
-      const q = questions.find(x => x.id === `question-${itemId}`);
-      if (!q) return false;
-      const questionOk = isValidWordCount(q.question);
-      const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
-      return questionOk && answersOk;
-    };
-    const allValid = nonChestItems.every(it => isItemValid(it.id));
-    
-    if (!allValid) {
-      alert('Please complete all questions (1-500 words each) for all non-chest icons before saving.');
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      setSaveError('');
-      
-      // Prepare room data for API
-      const roomData: RoomData = {
-        roomId: '', // Will be generated by backend
-        iconLayout: items,
-        questions: questions,
-        createdAt: new Date().toISOString(),
-        createdBy: 'teacher'
-      };
-      
-      // Save room to backend
-      const result = await saveRoomToBackend(roomData);
-      
-      if (result.success && result.roomId) {
-        onComplete(result.roomId);
-      } else {
-        setSaveError(result.error || 'Unknown error occurred while saving');
-      }
-    } catch (error) {
-      console.error('Error saving room:', error);
-      setSaveError('Network error: Unable to connect to server. Please check your connection and try again.');
-    } finally {
-      setIsSaving(false);
-    }
+  const addExpectedAnswer = () => {
+    setNewQuestion(prev => ({
+      ...prev,
+      expectedAnswers: [...prev.expectedAnswers, '']
+    }));
   };
 
-  const selectedQuestion = selectedItemId ? questions.find(q => q.id === `question-${selectedItemId}`) : null;
-  const selectedItem = selectedItemId ? items.find(item => item.id === selectedItemId) : null;
+  const updateExpectedAnswer = (index: number, value: string) => {
+    setNewQuestion(prev => ({
+      ...prev,
+      expectedAnswers: prev.expectedAnswers.map((answer, i) => 
+        i === index ? value : answer
+      )
+    }));
+  };
 
-  // Requirements validation
-  const requirements = {
-    hasAtLeastOne: items.length >= 1,
-    hasExactlyOneChest: items.filter(item => item.type === 'chest').length === 1,
-    withinMaxLimit: items.length <= 5
+  const removeExpectedAnswer = (index: number) => {
+    setNewQuestion(prev => ({
+      ...prev,
+      expectedAnswers: prev.expectedAnswers.filter((_, i) => i !== index)
+    }));
   };
 
   return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      overflow: 'hidden'
+    }}>
+      {/* Background Image */}
       <div
         style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          maxWidth: '1600px',
-          maxHeight: '675px',
-          aspectRatio: '16 / 9',
+          position: 'absolute',
+          inset: 0,
           backgroundImage: "url('/escape-room-misc/stage4-bg.png')",
           backgroundSize: '100% 100%',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          border: '3px solid #666666',
-          borderRadius: '8px',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
+          zIndex: 10,
+          border: '3px solid #dc3545',
+          borderRadius: '8px'
         }}
-        ref={containerRef}
-      >
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', pointerEvents: 'none' }} />
+      />
+
+      {/* Editor Controls */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        left: '20px',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        color: 'white',
+        padding: '20px',
+        borderRadius: '12px',
+        zIndex: 15,
+        minWidth: '300px'
+      }}>
+        <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Escape Room Editor</h3>
         
-        {/* Instructions and Requirements */}
-        <div style={{
-          position: 'absolute',
-          top: '16px',
-          left: '16px',
-          background: 'rgba(255,255,255,0.9)',
-          border: '2px solid #666666',
-          borderRadius: '12px',
-          padding: '12px 20px',
-          zIndex: 11,
-          maxWidth: '400px'
-        }}>
-          <div style={{ fontWeight: 800, fontSize: '16px', textAlign: 'center', marginBottom: '8px' }}>
-            Combined Editor
-          </div>
-          <div style={{ fontSize: '14px', textAlign: 'center', marginBottom: '8px', color: '#666' }}>
+        <div style={{ marginBottom: '15px' }}>
+          <p style={{ fontSize: '14px', marginBottom: '10px', fontWeight: 'bold' }}>
             Click icons to place • Double-click to edit questions
-          </div>
-          <div style={{ fontSize: '12px', fontWeight: 600, backgroundColor: '#fff8d1', border: '1px solid #ffe58f', borderRadius: '6px', padding: '6px 8px', marginTop: '4px' }}>
-            <div style={{ color: '#dc3545' }}>📋 Requirements:</div>
-            <div style={{ color: requirements.hasAtLeastOne ? '#28a745' : '#dc3545' }}>
-              • Place at least 1 icon
-            </div>
-            <div style={{ color: requirements.hasExactlyOneChest ? '#28a745' : '#dc3545' }}>
-              • Place exactly 1 chest icon
-            </div>
-            <div style={{ color: requirements.withinMaxLimit ? '#28a745' : '#dc3545' }}>
-              • Maximum 5 icons total
-            </div>
+          </p>
+        </div>
+
+        {/* Icon Selection */}
+        <div style={{ marginBottom: '20px' }}>
+          <p style={{ fontSize: '14px', marginBottom: '8px', fontWeight: 'bold' }}>
+            Select Icon to Place:
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {ICON_TYPES.map(iconType => (
+              <button
+                key={iconType}
+                onClick={() => handleIconSelect(iconType)}
+                style={{
+                  backgroundColor: selectedIcon === iconType ? '#dc3545' : 'rgba(255, 255, 255, 0.2)',
+                  border: `2px solid ${selectedIcon === iconType ? '#dc3545' : 'rgba(255, 255, 255, 0.5)'}`,
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  minWidth: '60px'
+                }}
+              >
+                <img
+                  src={`/escape-room-icons/${iconType}.png`}
+                  alt={iconType}
+                  style={{ width: '30px', height: '30px', objectFit: 'contain' }}
+                />
+                <span style={{ fontSize: '10px', marginTop: '4px', textTransform: 'capitalize' }}>
+                  {iconType}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Icon Toolbox */}
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleSaveRoom}
+            disabled={isSaving || placedItems.length === 0}
+            style={{
+              backgroundColor: '#28a745',
+              color: 'white',
+              border: 'none',
+              padding: '10px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              opacity: (isSaving || placedItems.length === 0) ? 0.6 : 1
+            }}
+          >
+            {isSaving ? 'Saving...' : 'Save Room'}
+          </button>
+          
+          <button
+            onClick={onBack}
+            style={{
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              padding: '10px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}
+          >
+            Back
+          </button>
+        </div>
+
+        {/* Error Message */}
+        {saveError && (
+          <div style={{
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            padding: '10px',
+            borderRadius: '6px',
+            marginTop: '15px',
+            fontSize: '14px',
+            border: '1px solid #f5c6cb'
+          }}>
+            {saveError}
+          </div>
+        )}
+
+        {/* Room Stats */}
         <div style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          background: 'rgba(255,255,255,0.9)',
-          border: '2px solid #666666',
-          borderRadius: '12px',
-          padding: '12px',
-          zIndex: 11,
-          display: 'flex',
-          gap: '8px'
+          marginTop: '15px',
+          padding: '10px',
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '6px',
+          fontSize: '12px'
         }}>
-          {TOOLBOX_ITEMS.map((iconType) => (
-            <div
-              key={iconType}
-              onClick={() => handleIconClick(iconType)}
-              style={{
-                width: '48px',
-                height: '48px',
-                cursor: 'pointer',
-                border: '2px solid transparent',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'border-color 0.2s ease',
-                backgroundColor: 'rgba(255,255,255,0.8)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#28a745';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'transparent';
-              }}
-            >
-              <img
-                src={ICON_SOURCES[iconType]}
-                alt={iconType}
-                style={{ width: '40px', height: '40px', userSelect: 'none', pointerEvents: 'none' }}
-                draggable={false}
-                onDragStart={(e) => e.preventDefault()}
-              />
-            </div>
-          ))}
+          <div>Items placed: {placedItems.length}</div>
+          <div>Questions created: {questions.length}</div>
         </div>
+      </div>
 
-        {/* Placed Icons */}
-        {items.map((item) => (
+      {/* Interactive Container */}
+      <div
+        ref={containerRef}
+        onClick={handleContainerClick}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          cursor: selectedIcon ? 'crosshair' : 'default',
+          zIndex: 12
+        }}
+      >
+        {/* Placed Items */}
+        {placedItems.map(item => (
           <div
             key={item.id}
-            onDoubleClick={() => handleItemDoubleClick(item.id)}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              setDraggingId(item.id);
-              isDraggingRef.current = true;
-            }}
             style={{
               position: 'absolute',
-              left: `${item.x}%`,
-              top: `${item.y}%`,
-              transform: 'translate(-50%, -50%)',
-              width: '56px',
-              height: '56px',
-              zIndex: 10,
-              cursor: 'move',
-              border: '2px solid transparent',
-              borderRadius: '8px',
-              transition: 'border-color 0.2s ease'
+              left: `${item.x}px`,
+              top: `${item.y}px`,
+              width: '60px',
+              height: '60px',
+              cursor: 'pointer',
+              zIndex: 13,
+              transition: 'transform 0.2s ease'
             }}
+            onDoubleClick={() => handleItemDoubleClick(item)}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#28a745';
+              e.currentTarget.style.transform = 'scale(1.1)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
           >
             <img
-              src={ICON_SOURCES[item.type]}
+              src={`/escape-room-icons/${item.type}.png`}
               alt={item.type}
-              draggable={false}
-              onDragStart={(e) => e.preventDefault()}
               style={{
-                width: '56px',
-                height: '56px',
-                userSelect: 'none',
-                pointerEvents: 'none'
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain'
               }}
             />
-            {/* Delete button */}
+            
+            {/* Delete Button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -428,284 +357,175 @@ export default function CombinedEditor({ onComplete, onCancel }: CombinedEditorP
               }}
               style={{
                 position: 'absolute',
-                top: '-8px',
-                right: '-8px',
-                width: '20px',
-                height: '20px',
+                top: '-5px',
+                right: '-5px',
                 backgroundColor: '#dc3545',
                 color: 'white',
                 border: 'none',
                 borderRadius: '50%',
+                width: '20px',
+                height: '20px',
                 cursor: 'pointer',
                 fontSize: '12px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 12
+                justifyContent: 'center'
               }}
             >
               ×
             </button>
+
+            {/* Question Indicator */}
+            {questions.some(q => q.itemId === item.id) && (
+              <div style={{
+                position: 'absolute',
+                bottom: '-5px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#28a745',
+                color: 'white',
+                borderRadius: '50%',
+                width: '16px',
+                height: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 'bold'
+              }}>
+                ?
+              </div>
+            )}
           </div>
         ))}
+      </div>
 
-        {/* Question Form Modal */}
-        {showQuestionForm && selectedQuestion && selectedItem && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'rgba(0,0,0,0.25)',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-              zIndex: 12,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <div style={{
-              background: 'rgba(255,255,255,0.98)',
-              border: '2px solid #666666',
-              borderRadius: '12px',
-              padding: '20px',
-              width: '90%',
-              maxWidth: '600px',
-              maxHeight: '80%',
-              overflowY: 'auto',
-              boxShadow: '0 12px 28px rgba(0,0,0,0.35)'
-            }}>
-              <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-                <div style={{ fontWeight: 600, fontSize: '16px', marginBottom: '8px' }}>
-                  Editing: {selectedItem.type}
-                </div>
-                <img 
-                  src={ICON_SOURCES[selectedItem.type]} 
-                  alt={selectedItem.type} 
-                  width={40} 
-                  height={40}
-                  style={{ 
-                    border: '2px solid #666666', 
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(255,255,255,0.9)',
-                    padding: '4px'
+      {/* Question Modal */}
+      {showQuestionModal && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'white',
+          padding: '30px',
+          borderRadius: '12px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          zIndex: 25,
+          minWidth: '600px',
+          maxWidth: '90vw'
+        }}>
+          <h3 style={{ marginBottom: '20px', color: '#2c3e50' }}>
+            {editingQuestion ? 'Edit Question' : 'Create Question'}
+          </h3>
+          
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+              Question:
+            </label>
+            <textarea
+              value={newQuestion.question}
+              onChange={(e) => setNewQuestion(prev => ({ ...prev, question: e.target.value }))}
+              placeholder="Enter your question..."
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '12px',
+                border: '2px solid #ddd',
+                borderRadius: '8px',
+                fontSize: '14px',
+                resize: 'vertical'
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+              Expected Answers:
+            </label>
+            {newQuestion.expectedAnswers.map((answer, index) => (
+              <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                <input
+                  type="text"
+                  value={answer}
+                  onChange={(e) => updateExpectedAnswer(index, e.target.value)}
+                  placeholder={`Answer ${index + 1}`}
+                  style={{
+                    flex: 1,
+                    padding: '8px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px'
                   }}
                 />
-              </div>
-
-              {/* Story Line (uneditable) */}
-              <div style={{
-                backgroundColor: '#f8f9fa',
-                border: '1px solid #dee2e6',
-                borderRadius: '6px',
-                padding: '12px',
-                marginBottom: '16px',
-                fontSize: '14px',
-                fontStyle: 'italic',
-                color: '#6c757d'
-              }}>
-                <strong>Story:</strong> {selectedItem.type === 'chest' 
-                  ? `You found a treasure chest! But there are ${items.filter(item => item.type !== 'chest').length} locks on it. Enter all the key codes to unlock!`
-                  : ICON_STORIES[selectedItem.type]
-                }
-              </div>
-
-              {/* Question and Answer Fields - Only for non-chest icons */}
-              {selectedItem.type !== 'chest' && (
-                <>
-                  {/* Question Field */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                      Edit Question
-                      <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
-                        ({countWords(selectedQuestion.question)}/500 words)
-                      </span>
-                    </label>
-                    <textarea
-                      value={selectedQuestion.question}
-                      onChange={(e) => handleQuestionChange(selectedQuestion.id, 'question', e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        border: `1px solid ${isValidWordCount(selectedQuestion.question) ? '#666666' : '#dc3545'}`,
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        minHeight: '60px',
-                        resize: 'vertical'
-                      }}
-                      placeholder="Enter your question here..."
-                    />
-                    {!isValidWordCount(selectedQuestion.question) && (
-                      <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
-                        Must be between 1-500 words
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Expected Answers */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                      Expected Answers
-                      {selectedQuestion.expectedAnswers.length < 2 && (
-                        <button
-                          type="button"
-                          onClick={() => addExpectedAnswer(selectedQuestion.id)}
-                          style={{
-                            marginLeft: '8px',
-                            background: '#28a745',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            padding: '2px 6px',
-                            fontSize: '12px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          + Add
-                        </button>
-                      )}
-                    </label>
-                {selectedQuestion.expectedAnswers.map((answer, index) => (
-                  <div key={index} style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                    <textarea
-                      value={answer}
-                      onChange={(e) => handleExpectedAnswerChange(selectedQuestion.id, index, e.target.value)}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        border: `1px solid ${isValidWordCount(answer) ? '#666666' : '#dc3545'}`,
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        minHeight: '60px',
-                        resize: 'vertical'
-                      }}
-                      placeholder={`Expected answer ${index + 1}`}
-                    />
-                    {selectedQuestion.expectedAnswers.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeExpectedAnswer(selectedQuestion.id, index)}
-                        style={{
-                          background: '#dc3545',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          padding: '4px 8px',
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          alignSelf: 'flex-start',
-                          marginTop: '4px'
-                        }}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                ))}
-                    {selectedQuestion.expectedAnswers.some(answer => !isValidWordCount(answer)) && (
-                      <div style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
-                        Each answer must be between 1-500 words
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {/* Chest-specific message */}
-              {selectedItem.type === 'chest' && (
-                <div style={{
-                  backgroundColor: '#fff3cd',
-                  border: '1px solid #ffeaa7',
-                  borderRadius: '6px',
-                  padding: '12px',
-                  marginBottom: '16px',
-                  fontSize: '14px',
-                  color: '#856404'
-                }}>
-                  <strong>Note:</strong> The chest will automatically unlock when all other icons&apos; key codes are collected during gameplay.
-                </div>
-              )}
-
-              {/* Modal action buttons */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button
-                  type="button"
-                  onClick={() => setShowQuestionForm(false)}
-                  className="btn btn-outline-secondary"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    // Skip validation for chest icons
-                    if (selectedItem?.type === 'chest') {
-                      setShowQuestionForm(false);
-                      return;
-                    }
-                    
-                    // Validate current question before closing
-                    const q = questions.find(x => x.id === selectedQuestion.id);
-                    if (!q) return;
-                    const questionOk = isValidWordCount(q.question);
-                    const answersOk = q.expectedAnswers.length >= 1 && q.expectedAnswers.length <= 2 && q.expectedAnswers.every(a => isValidWordCount(a));
-                    if (!questionOk) { alert('Question must be between 1 and 500 words.'); return; }
-                    if (!answersOk) { alert('Each expected answer must be between 1 and 500 words (up to 2).'); return; }
-                    setShowQuestionForm(false);
+                  onClick={() => removeExpectedAnswer(index)}
+                  style={{
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    fontSize: '12px'
                   }}
-                  className="btn btn-primary"
                 >
-                  Save
+                  Remove
                 </button>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Bottom Controls */}
-        <div style={{ position: 'absolute', bottom: '16px', right: '16px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 11 }}>
-          {/* Error Message */}
-          {saveError && (
-            <div style={{
-              backgroundColor: '#f8d7da',
-              border: '1px solid #f5c6cb',
-              borderRadius: '8px',
-              color: '#721c24',
-              fontSize: '14px',
-              padding: '12px',
-              maxWidth: '300px',
-              textAlign: 'center'
-            }}>
-              {saveError}
-            </div>
-          )}
-          
-          <div style={{ display: 'flex', gap: '8px' }}>
+            ))}
             <button
-              onClick={onCancel}
-              className="btn btn-outline-secondary"
+              onClick={addExpectedAnswer}
               style={{
-                backgroundColor: '#ffffff',
-                color: '#000',
-                borderColor: '#666666',
-                borderWidth: '2px',
-                padding: '10px 18px',
-                fontSize: '15px'
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Add Answer
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => {
+                setShowQuestionModal(false);
+                setNewQuestion({ question: '', expectedAnswers: [''] });
+                setEditingQuestion(null);
+              }}
+              style={{
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '6px',
+                cursor: 'pointer'
               }}
             >
               Cancel
             </button>
             <button
-              onClick={handleSave}
-              className="btn btn-success"
-              style={{ padding: '10px 18px', fontSize: '15px' }}
-              disabled={!requirements.hasAtLeastOne || !requirements.hasExactlyOneChest || !requirements.withinMaxLimit || isSaving}
+              onClick={handleSaveQuestion}
+              disabled={!newQuestion.question.trim()}
+              style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                opacity: !newQuestion.question.trim() ? 0.6 : 1
+              }}
             >
-              {isSaving ? 'Saving...' : 'Save Room'}
+              {editingQuestion ? 'Update' : 'Create'}
             </button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

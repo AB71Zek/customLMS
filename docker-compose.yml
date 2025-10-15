@@ -1,36 +1,91 @@
 services:
-    frontend:
-      build: ./frontend
-      ports:
-        - "3000:3000"
-      environment:
-        - NODE_ENV=development
-      volumes:
-        - ./frontend:/app
-      command: npm run dev
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_OTEL_VERBOSE=1
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=customlms-frontend
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=customlms-frontend,service.version=1.0.0
+    depends_on:
+      - backend
+      - otel-collector
 
-    backend:
-      container_name: backend
-      image: backend
-      build:
-        context: ./backend
-        dockerfile: .dockerfile
-      ports:
-        - "4000:4000"
-      environment:
-        - DATABASE_URL="postgresql://customlms:customlms@db:5432/customlms?schema=public"
-    db:
-      image: postgres:15
-      container_name: db
-      restart: always
-      environment:
-        POSTGRES_USER: customlms
-        POSTGRES_PASSWORD: customlms
-        POSTGRES_DB: customlms
-      ports:
-        - "5432:5432"
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:password@db:5432/customlms
+      - NEXT_OTEL_VERBOSE=1
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=customlms-backend
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=customlms-backend,service.version=1.0.0
+    depends_on:
+      - db
+      - otel-collector
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=customlms
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Jaeger
+  jaegertracing:
+    image: jaegertracing/jaeger:latest
+    restart: always
+    ports:
+      - "16686:16686"
+      - "14268"
+      - "14250"
+
+  # Zipkin
+  zipkin-all-in-one:
+    image: openzipkin/zipkin:latest
+    restart: always
+    ports:
+      - "9411:9411"
+
+  # Collector
+  otel-collector:
+    image: otel/opentelemetry-collector:0.67.0
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+      - jaegertracing
+      - zipkin-all-in-one
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
 
 volumes:
-    postgres_data: {}
+  postgres_data:

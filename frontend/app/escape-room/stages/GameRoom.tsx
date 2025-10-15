@@ -1,45 +1,21 @@
 'use client';
+
+import { trace } from '@opentelemetry/api';
 import { useEffect, useState } from 'react';
 
-// Answer code generation functions (moved from keyCodeGenerator)
-export const generateKeyCodePart = (): string => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const length = Math.floor(Math.random() * 3) + 3; // 3-5 characters
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
-export const isAnswerCorrect = (userAnswer: string, expectedAnswers: string[]): boolean => {
-  const normalizedUserAnswer = userAnswer.toLowerCase().trim();
-  return expectedAnswers.some(expected => 
-    expected.toLowerCase().trim() === normalizedUserAnswer
-  );
-};
-
-// Types (moved from keyCodeGenerator)
-export interface GameplayState {
-  collectedKeyCodes: string[];
-  chestAnswer: string;
-}
-
-export interface PlacedItem {
+interface PlacedItem {
   id: string;
-  type: 'barrel' | 'chest' | 'key' | 'torch' | 'treasure';
+  type: string;
   x: number;
   y: number;
 }
 
-export interface Question {
-  id: string;
-  iconType: PlacedItem['type'];
+interface Question {
+  itemId: string;
   question: string;
   expectedAnswers: string[];
 }
 
-// Temporary room interface (will be replaced by backend)
 interface TempRoomData {
   roomId: string;
   iconLayout: PlacedItem[];
@@ -48,137 +24,40 @@ interface TempRoomData {
   createdBy: string;
 }
 
-// Load room data from backend (framework for future implementation)
-const loadRoomByCode = async (roomCode: string): Promise<TempRoomData | null> => {
-  try {
-    const response = await fetch(`http://localhost:4000/api/play/${roomCode}`);
-    
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error('Room not found');
-      }
-      throw new Error('Failed to load room');
-    }
-    
-    const roomData = await response.json();
-    
-    // Transform API response to match expected format
-    return {
-      roomId: roomData.roomId,
-      iconLayout: roomData.iconLayout,
-      questions: roomData.questions,
-      createdAt: roomData.createdAt,
-      createdBy: 'teacher' // Default value since API doesn't return this
-    };
-  } catch (error) {
-    console.error('Error loading room:', error);
-    return null;
-  }
-};
-
 interface GameRoomProps {
   roomCode: string;
   onComplete: () => void;
   timerSeconds?: number;
 }
 
-const ICON_SOURCES: Record<PlacedItem['type'], string> = {
-  barrel: '/escape-room-misc/barrel.png',
-  chest: '/escape-room-misc/chest.png',
-  key: '/escape-room-misc/key.png',
-  torch: '/escape-room-misc/torch.png',
-  treasure: '/escape-room-misc/treasure.png',
-};
-
-// Story lines for each icon type (same as in editor)
-const ICON_STORIES: Record<PlacedItem['type'], string> = {
-  barrel: "You found a barrel, there seems to be an inscription on it... solve it to unlock the hint!",
-  chest: "You found a treasure chest! But there are locks on it. Enter all the key codes to unlock!",
-  key: "You found a key! There's something written on it... solve the puzzle to unlock its secrets!",
-  torch: "You found a torch, there seems to be an inscription on it... solve it to unlock the hint!",
-  treasure: "You found a treasure! But it's protected by a riddle... solve it to claim your prize!"
-};
-
 export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: GameRoomProps) {
-  const [roomData, setRoomData] = useState<{ iconLayout: PlacedItem[], questions: Question[] } | null>(null);
-  const [gameplayState, setGameplayState] = useState<GameplayState>({ collectedKeyCodes: [], chestAnswer: '' });
-  const [selectedIcon, setSelectedIcon] = useState<PlacedItem | null>(null);
-  const [showQuestionModal, setShowQuestionModal] = useState<boolean>(false);
-  const [userAnswer, setUserAnswer] = useState<string>('');
+  const [roomData, setRoomData] = useState<TempRoomData | null>(null);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [userAnswer, setUserAnswer] = useState('');
   const [showFeedback, setShowFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-  const [completedIcons, setCompletedIcons] = useState<Set<string>>(new Set());
-  const [showChestModal, setShowChestModal] = useState<boolean>(false);
-  const [retryCount, setRetryCount] = useState<number>(0);
+  const [unlockedItems, setUnlockedItems] = useState<Set<string>>(new Set());
+  const [keyCodes, setKeyCodes] = useState<Map<string, string>>(new Map());
+  const [showChestModal, setShowChestModal] = useState(false);
   const [chestKeyCodes, setChestKeyCodes] = useState<string[]>([]);
   const [unlockedLocks, setUnlockedLocks] = useState<Set<number>>(new Set());
-  const [usedKeyCodes, setUsedKeyCodes] = useState<Set<string>>(new Set());
-  const [iconKeyCodeMap, setIconKeyCodeMap] = useState<Map<string, string>>(new Map());
-
-  // Timer states
   const [timeLeft, setTimeLeft] = useState<number>(timerSeconds);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState(0);
 
-  // Timer functions
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Load room data
-  const loadRoom = async () => {
-    try {
-      const room = await loadRoomByCode(roomCode);
-      if (room) {
-        setRoomData({ iconLayout: room.iconLayout, questions: room.questions });
-
-        // Initialize gameplay state
-        const nonChestItems = room.iconLayout.filter((item: PlacedItem) => item.type !== 'chest');
-        const chestAnswer = nonChestItems.map(() => 'XXXX').join(''); // Placeholder
-        setGameplayState({ collectedKeyCodes: [], chestAnswer });
-
-        // Initialize chest key codes array
-        setChestKeyCodes(new Array(nonChestItems.length).fill(''));
-        
-        // Reset retry count on success
-        setRetryCount(0);
-      } else {
-        setShowFeedback({ 
-          type: 'error', 
-          message: 'Room not found. Please check the room code.' 
-        });
-      }
-    } catch (error) {
-      console.error('Error loading room:', error);
-      setShowFeedback({ 
-        type: 'error', 
-        message: `Failed to load room. ${retryCount < 2 ? 'Retrying...' : 'Please check your connection and try again.'}` 
-      });
-      
-      // Auto-retry up to 2 times
-      if (retryCount < 2) {
-        setTimeout(() => {
-          setRetryCount(prev => prev + 1);
-          loadRoom();
-        }, 2000);
-      }
-    }
-  };
-
-  useEffect(() => {
-    loadRoom();
-  }, [roomCode, retryCount]);
-
-  // Timer countdown effect
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
-
     if (isTimerRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
             setIsTimerRunning(false);
-            // Timer completed - trigger game over
             onComplete();
             return 0;
           }
@@ -186,15 +65,9 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
         });
       }, 1000);
     }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
+    return () => { if (interval) clearInterval(interval); };
   }, [isTimerRunning, timeLeft, onComplete]);
 
-  // Start timer when room loads and timerSeconds > 0
   useEffect(() => {
     if (timerSeconds > 0 && roomData) {
       setTimeLeft(timerSeconds);
@@ -202,91 +75,186 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
     }
   }, [timerSeconds, roomData]);
 
-  const handleIconClick = (icon: PlacedItem) => {
-    setSelectedIcon(icon);
-    setShowQuestionModal(true);
-    setUserAnswer('');
+  const loadRoomByCode = async (code: string): Promise<TempRoomData | null> => {
+    return await trace
+      .getTracer('custom-lms-frontend')
+      .startActiveSpan('load-room-by-code', async (span) => {
+        try {
+          const response = await fetch(`http://localhost:4000/api/play/${code}`);
+          
+          if (!response.ok) {
+            span.setStatus({ code: 2, message: 'Room not found' });
+            throw new Error('Room not found');
+          }
+
+          const room = await response.json();
+          
+          const transformedRoom: TempRoomData = {
+            roomId: room.roomId,
+            iconLayout: room.iconLayout,
+            questions: room.questions,
+            createdAt: room.createdAt,
+            createdBy: 'teacher' // Default value since API doesn't return this
+          };
+
+          span.setAttributes({
+            'room.load.success': true,
+            'room.id': room.roomId,
+            'room.questionsCount': room.questions.length,
+            'room.iconsCount': room.iconLayout.length
+          });
+
+          return transformedRoom;
+        } catch (error) {
+          span.setStatus({ code: 2, message: 'Failed to load room' });
+          console.error('Error loading room:', error);
+          throw error;
+        } finally {
+          span.end();
+        }
+      });
   };
 
-  const handleAnswerSubmit = () => {
-    if (!selectedIcon || !roomData) return;
-
-    const question = roomData.questions.find(q => q.id === `question-${selectedIcon.id}`);
-    if (!question) return;
-
-    // Check if answer is correct
-    const isCorrect = question.expectedAnswers.some(expectedAnswer => 
-      isAnswerCorrect(userAnswer, [expectedAnswer])
-    );
-
-    if (isCorrect) {
-      // Generate key code part
-      const keyCodePart = generateKeyCodePart();
-      setGameplayState(prev => ({
-        ...prev,
-        collectedKeyCodes: [...prev.collectedKeyCodes, keyCodePart]
-      }));
-      
-      // Mark icon as completed and store key code mapping
-      setCompletedIcons(prev => new Set([...prev, selectedIcon.id]));
-      setIconKeyCodeMap(prev => new Map([...prev, [selectedIcon.id, keyCodePart]]));
-      
-      setShowFeedback({
-        type: 'success',
-        message: `Correct! You earned key code: ${keyCodePart}`
-      });
-      
-      // Don't auto-close modal, let user see the key code
-    } else {
-      setShowFeedback({
-        type: 'error',
-        message: 'Incorrect answer. Try again!'
-      });
-    }
-  };
-
-  const handleChestClick = () => {
-    setShowChestModal(true);
-  };
-
-  const handleChestKeyCodeChange = (lockIndex: number, value: string) => {
-    const newKeyCodes = [...chestKeyCodes];
-    newKeyCodes[lockIndex] = value;
-    setChestKeyCodes(newKeyCodes);
-    
-    // Check if this key code matches any collected one and hasn't been used yet
-    const collectedKeyCode = gameplayState.collectedKeyCodes.find(code => 
-      code.toLowerCase() === value.toLowerCase() && !usedKeyCodes.has(code.toLowerCase())
-    );
-    
-    if (collectedKeyCode) {
-      setUnlockedLocks(prev => new Set([...prev, lockIndex]));
-      setUsedKeyCodes(prev => new Set([...prev, collectedKeyCode.toLowerCase()]));
-    } else {
-      setUnlockedLocks(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(lockIndex);
-        return newSet;
-      });
-      
-      // Remove from used codes if it was previously used
-      const previouslyUsedCode = Array.from(usedKeyCodes).find(code => 
-        code.toLowerCase() === value.toLowerCase()
-      );
-      if (previouslyUsedCode) {
-        setUsedKeyCodes(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(previouslyUsedCode);
-          return newSet;
+  const loadRoom = async () => {
+    try {
+      const data = await loadRoomByCode(roomCode);
+      if (data) {
+        setRoomData(data);
+        
+        // Generate key codes for chest
+        const nonChestItems = data.iconLayout.filter((item: PlacedItem) => item.type !== 'chest');
+        const generatedKeyCodes = nonChestItems.map(() => 
+          Math.random().toString(36).substring(2, 6).toUpperCase()
+        );
+        setChestKeyCodes(generatedKeyCodes);
+      }
+    } catch (error) {
+      console.error('Failed to load room:', error);
+      if (retryCount < 2) {
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => loadRoom(), 1000);
+      } else {
+        setShowFeedback({
+          type: 'error',
+          message: 'Failed to load room. Please check the room code and try again.'
         });
       }
     }
   };
 
+  useEffect(() => {
+    if (roomCode) {
+      loadRoom();
+    }
+  }, [roomCode, retryCount]);
+
+  const handleItemClick = (item: PlacedItem) => {
+    return trace
+      .getTracer('custom-lms-frontend')
+      .startActiveSpan('item-click', async (span) => {
+        try {
+          span.setAttributes({
+            'item.id': item.id,
+            'item.type': item.type,
+            'item.position': `${item.x},${item.y}`
+          });
+
+          if (item.type === 'chest') {
+            setShowChestModal(true);
+          } else {
+            const question = roomData?.questions.find(q => q.itemId === item.id);
+            if (question) {
+              setCurrentQuestion(question);
+              setShowQuestionModal(true);
+            }
+          }
+        } catch (error) {
+          span.setStatus({ code: 2, message: 'Item click error' });
+          console.error('Error handling item click:', error);
+        } finally {
+          span.end();
+        }
+      });
+  };
+
+  const handleAnswerSubmit = () => {
+    if (!currentQuestion) return;
+
+    return trace
+      .getTracer('custom-lms-frontend')
+      .startActiveSpan('answer-submit', async (span) => {
+        try {
+          const isCorrect = currentQuestion.expectedAnswers.some(expected => 
+            userAnswer.toLowerCase().trim() === expected.toLowerCase().trim()
+          );
+
+          span.setAttributes({
+            'question.id': currentQuestion.itemId,
+            'answer.correct': isCorrect,
+            'answer.length': userAnswer.length
+          });
+
+          if (isCorrect) {
+            setUnlockedItems(prev => new Set([...prev, currentQuestion.itemId]));
+            
+            // Generate key code for this item
+            const keyCode = Math.random().toString(36).substring(2, 6).toUpperCase();
+            setKeyCodes(prev => new Map([...prev, [currentQuestion.itemId, keyCode]]));
+            
+            setShowFeedback({
+              type: 'success',
+              message: `Correct! Key code: ${keyCode}. This code might unlock something...`
+            });
+          } else {
+            setShowFeedback({
+              type: 'error',
+              message: 'Incorrect answer. Try again!'
+            });
+          }
+
+          setUserAnswer('');
+          setShowQuestionModal(false);
+        } catch (error) {
+          span.setStatus({ code: 2, message: 'Answer submit error' });
+          console.error('Error submitting answer:', error);
+        } finally {
+          span.end();
+        }
+      });
+  };
+
+  const handleChestKeySubmit = (lockIndex: number, keyCode: string) => {
+    return trace
+      .getTracer('custom-lms-frontend')
+      .startActiveSpan('chest-key-submit', async (span) => {
+        try {
+          const correctKeyCode = chestKeyCodes[lockIndex];
+          const isCorrect = keyCode.toUpperCase() === correctKeyCode;
+
+          span.setAttributes({
+            'chest.lockIndex': lockIndex,
+            'chest.keyCorrect': isCorrect,
+            'chest.totalLocks': chestKeyCodes.length
+          });
+
+          if (isCorrect) {
+            setUnlockedLocks(prev => new Set([...prev, lockIndex]));
+          }
+
+          return isCorrect;
+        } catch (error) {
+          span.setStatus({ code: 2, message: 'Chest key submit error' });
+          console.error('Error submitting chest key:', error);
+          return false;
+        } finally {
+          span.end();
+        }
+      });
+  };
+
   const handleOpenChest = () => {
     const allLocksUnlocked = unlockedLocks.size === chestKeyCodes.length;
     if (allLocksUnlocked) {
-      // Close the chest modal before showing congratulations
       setShowChestModal(false);
       setShowFeedback({
         type: 'success',
@@ -298,15 +266,12 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
   if (!roomData) {
     return (
       <div style={{
-        position: 'absolute',
-        inset: 0,
         display: 'flex',
-        alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.8)',
-        color: 'white',
-        fontSize: '24px',
-        zIndex: 10
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '1.2rem',
+        color: '#666'
       }}>
         Loading room...
       </div>
@@ -314,90 +279,34 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
   }
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: "url('/escape-room-misc/stage4-bg.png')",
-        backgroundSize: '100% 100%',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        zIndex: 10,
-        border: '3px solid #dc3545',
-        borderRadius: '8px'
-      }}
-    >
-      {/* Dark overlay for exploration feel */}
-      <div style={{ 
-        position: 'absolute', 
-        inset: 0, 
-        background: 'rgba(0,0,0,0.4)', 
-        zIndex: 11
-      }} />
-
-      {/* Invisible clickable areas for icons */}
-      {roomData.iconLayout.map((icon) => (
-        <div
-          key={icon.id}
-          onClick={() => icon.type === 'chest' ? handleChestClick() : handleIconClick(icon)}
-          style={{
-            position: 'absolute',
-            left: `${icon.x}%`,
-            top: `${icon.y}%`,
-            transform: 'translate(-50%, -50%)',
-            width: '80px', // Larger clickable area
-            height: '80px',
-            cursor: 'pointer',
-            zIndex: 12,
-            border: completedIcons.has(icon.id) ? '2px solid #28a745' : '2px solid transparent',
-            borderRadius: '8px',
-            backgroundColor: completedIcons.has(icon.id) ? 'rgba(40, 167, 69, 0.2)' : 'transparent',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-            e.currentTarget.style.borderColor = '#FFD700';
-            
-            // Show hover text
-            const hoverText = document.createElement('div');
-            hoverText.id = 'hover-text';
-            hoverText.textContent = completedIcons.has(icon.id) ? 'View your key code!' : 'You see something there!';
-            hoverText.style.cssText = `
-              position: absolute;
-              top: -30px;
-              left: 50%;
-              transform: translateX(-50%);
-              background: rgba(0,0,0,0.8);
-              color: #FFD700;
-              padding: 4px 8px;
-              border-radius: 4px;
-              font-size: 12px;
-              font-weight: bold;
-              white-space: nowrap;
-              z-index: 20;
-              pointer-events: none;
-            `;
-            e.currentTarget.appendChild(hoverText);
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = completedIcons.has(icon.id) ? 'rgba(40, 167, 69, 0.2)' : 'transparent';
-            e.currentTarget.style.borderColor = completedIcons.has(icon.id) ? '#28a745' : 'transparent';
-            
-            // Remove hover text
-            const hoverText = e.currentTarget.querySelector('#hover-text');
-            if (hoverText) {
-              hoverText.remove();
-            }
-          }}
-        />
-      ))}
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      overflow: 'hidden'
+    }}>
+      {/* Background Image */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: "url('/escape-room-misc/stage4-bg.png')",
+          backgroundSize: '100% 100%',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          zIndex: 10,
+          border: '3px solid #dc3545',
+          borderRadius: '8px'
+        }}
+      />
 
       {/* Instructions display */}
       <div style={{
         position: 'absolute',
         top: '20px',
         left: '20px',
-        background: 'rgba(0,0,0,0.8)',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         color: 'white',
         padding: '16px',
         borderRadius: '8px',
@@ -428,7 +337,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
           border: timeLeft <= 60 ? '2px solid #dc3545' : 'none'
         }}>
           <div style={{ marginBottom: '8px' }}>⏰ Timer</div>
-          <div style={{ 
+          <div style={{
             fontSize: '24px',
             color: timeLeft <= 60 ? '#ff6b6b' : '#ffffff'
           }}>
@@ -437,149 +346,128 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
         </div>
       )}
 
+      {/* Interactive Items */}
+      {roomData.iconLayout.map((item) => (
+        <div
+          key={item.id}
+          onClick={() => handleItemClick(item)}
+          style={{
+            position: 'absolute',
+            left: `${item.x}px`,
+            top: `${item.y}px`,
+            width: '60px',
+            height: '60px',
+            cursor: 'pointer',
+            zIndex: 12,
+            transition: 'transform 0.2s ease',
+            filter: unlockedItems.has(item.id) ? 'brightness(1.2)' : 'none'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.filter = 'brightness(1.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.filter = unlockedItems.has(item.id) ? 'brightness(1.2)' : 'none';
+          }}
+        >
+          <img
+            src={`/escape-room-icons/${item.type}.png`}
+            alt={item.type}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain'
+            }}
+          />
+          {unlockedItems.has(item.id) && (
+            <div style={{
+              position: 'absolute',
+              top: '-10px',
+              right: '-10px',
+              backgroundColor: '#28a745',
+              color: 'white',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}>
+              ✓
+            </div>
+          )}
+        </div>
+      ))}
+
       {/* Question Modal */}
-      {showQuestionModal && selectedIcon && (
+      {showQuestionModal && currentQuestion && (
         <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 20
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'white',
+          padding: '30px',
+          borderRadius: '12px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          zIndex: 20,
+          minWidth: '500px',
+          maxWidth: '80vw'
         }}>
-          <div style={{
-            background: 'white',
-            border: '2px solid #666666',
-            borderRadius: '12px',
-            padding: '24px',
-            width: '90%',
-            maxWidth: '600px',
-            maxHeight: '80%',
-            overflowY: 'auto'
-          }}>
-            {/* Icon and story */}
-            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-              <img 
-                src={ICON_SOURCES[selectedIcon.type]} 
-                alt={selectedIcon.type} 
-                width={48} 
-                height={48}
-                style={{ 
-                  border: '2px solid #666666', 
-                  borderRadius: '8px',
-                  marginBottom: '8px'
-                }}
-              />
-              <div style={{
-                backgroundColor: '#f8f9fa',
-                border: '1px solid #dee2e6',
+          <h3 style={{ marginBottom: '20px', color: '#2c3e50' }}>Question</h3>
+          <p style={{ marginBottom: '20px', fontSize: '16px', lineHeight: '1.5' }}>
+            {currentQuestion.question}
+          </p>
+          <textarea
+            value={userAnswer}
+            onChange={(e) => setUserAnswer(e.target.value)}
+            placeholder="Enter your answer..."
+            style={{
+              width: '100%',
+              minHeight: '100px',
+              padding: '12px',
+              border: '2px solid #ddd',
+              borderRadius: '8px',
+              fontSize: '14px',
+              resize: 'vertical',
+              marginBottom: '20px'
+            }}
+          />
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => {
+                setShowQuestionModal(false);
+                setUserAnswer('');
+              }}
+              style={{
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
                 borderRadius: '6px',
-                padding: '12px',
-                fontSize: '14px',
-                fontStyle: 'italic',
-                color: '#6c757d'
-              }}>
-                <strong>Story:</strong> {ICON_STORIES[selectedIcon.type]}
-              </div>
-            </div>
-
-            {/* Question */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontWeight: 600, fontSize: '16px', display: 'block', marginBottom: '8px' }}>
-                Question:
-              </label>
-              <div style={{
-                backgroundColor: '#f8f9fa',
-                border: '1px solid #dee2e6',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAnswerSubmit}
+              disabled={!userAnswer.trim()}
+              style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
                 borderRadius: '6px',
-                padding: '12px',
-                fontSize: '14px',
-                minHeight: '60px'
-              }}>
-                {roomData.questions.find(q => q.id === `question-${selectedIcon.id}`)?.question || 'No question found'}
-              </div>
-            </div>
-
-            {/* Show key code if already completed */}
-            {completedIcons.has(selectedIcon.id) && (
-              <div style={{
-                backgroundColor: '#d4edda',
-                border: '1px solid #c3e6cb',
-                borderRadius: '6px',
-                padding: '12px',
-                marginBottom: '16px'
-              }}>
-                <div style={{ fontWeight: 600, marginBottom: '8px', color: '#155724' }}>
-                  ✓ Quiz Completed!
-                </div>
-                <div style={{ marginBottom: '8px', color: '#155724' }}>
-                  <strong>Key Code:</strong> {iconKeyCodeMap.get(selectedIcon.id) || 'Not found'}
-                </div>
-                <div style={{ fontSize: '12px', color: '#6c757d', fontStyle: 'italic' }}>
-                  💡 This code might unlock something...
-                </div>
-              </div>
-            )}
-
-            {/* Answer input - only show if not completed */}
-            {!completedIcons.has(selectedIcon.id) && (
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontWeight: 600, fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                  Your Answer:
-                </label>
-                <textarea
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    border: '1px solid #666666',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    minHeight: '60px',
-                    resize: 'vertical'
-                  }}
-                  placeholder="Enter your answer here..."
-                />
-              </div>
-            )}
-
-            {/* Feedback */}
-            {showFeedback && (
-              <div style={{
-                marginBottom: '16px',
-                padding: '12px',
-                borderRadius: '6px',
-                backgroundColor: showFeedback.type === 'success' ? '#d4edda' : '#f8d7da',
-                color: showFeedback.type === 'success' ? '#155724' : '#721c24',
-                border: `1px solid ${showFeedback.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`
-              }}>
-                {showFeedback.message}
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-              <button
-                onClick={() => {
-                  setShowQuestionModal(false);
-                  setShowFeedback(null);
-                }}
-                className="btn btn-outline-secondary"
-              >
-                Close
-              </button>
-              {!completedIcons.has(selectedIcon.id) && (
-                <button
-                  onClick={handleAnswerSubmit}
-                  className="btn btn-primary"
-                  disabled={!userAnswer.trim()}
-                >
-                  Submit Answer
-                </button>
-              )}
-            </div>
+                cursor: 'pointer',
+                opacity: !userAnswer.trim() ? 0.6 : 1
+              }}
+            >
+              Submit
+            </button>
           </div>
         </div>
       )}
@@ -587,108 +475,102 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
       {/* Chest Modal */}
       {showChestModal && (
         <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 20
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'white',
+          padding: '30px',
+          borderRadius: '12px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          zIndex: 20,
+          minWidth: '600px',
+          maxWidth: '90vw'
         }}>
-          <div style={{
-            background: 'white',
-            border: '2px solid #666666',
-            borderRadius: '12px',
-            padding: '24px',
-            width: '90%',
-            maxWidth: '600px',
-            maxHeight: '80%',
-            overflowY: 'auto'
-          }}>
-            {/* Chest icon and story */}
-            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-              <img 
-                src={ICON_SOURCES.chest} 
-                alt="chest" 
-                width={64} 
-                height={64}
-                style={{ 
-                  border: '2px solid #666666', 
-                  borderRadius: '8px',
-                  marginBottom: '8px'
-                }}
-              />
-              <div style={{
-                backgroundColor: '#f8f9fa',
-                border: '1px solid #dee2e6',
+          <h3 style={{ marginBottom: '20px', color: '#2c3e50' }}>Treasure Chest</h3>
+          <p style={{ marginBottom: '20px', fontSize: '16px' }}>
+            You found a chest! But there are {chestKeyCodes.length} locks on it. 
+            Enter all the key codes to unlock!
+          </p>
+          
+          <div style={{ marginBottom: '20px' }}>
+            {chestKeyCodes.map((_, index) => (
+              <div key={index} style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '15px',
+                padding: '10px',
+                backgroundColor: unlockedLocks.has(index) ? '#d4edda' : '#f8f9fa',
                 borderRadius: '6px',
-                padding: '12px',
-                fontSize: '14px',
-                fontStyle: 'italic',
-                color: '#6c757d'
+                border: unlockedLocks.has(index) ? '2px solid #28a745' : '1px solid #dee2e6'
               }}>
-                <strong>Story:</strong> {ICON_STORIES.chest}
-              </div>
-            </div>
-
-            {/* Key code inputs */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontWeight: 600, fontSize: '16px', display: 'block', marginBottom: '12px' }}>
-                Enter Key Codes to Unlock Locks:
-              </label>
-              {chestKeyCodes.map((keyCode, index) => (
-                <div key={index} style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <label style={{ fontWeight: 600, minWidth: '80px' }}>
-                    Lock {index + 1}:
-                  </label>
+                <span style={{
+                  fontWeight: 'bold',
+                  marginRight: '10px',
+                  minWidth: '80px'
+                }}>
+                  Lock {index + 1}:
+                </span>
+                {unlockedLocks.has(index) ? (
+                  <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+                    ✓ Unlocked
+                  </span>
+                ) : (
                   <input
                     type="text"
-                    value={keyCode}
-                    onChange={(e) => handleChestKeyCodeChange(index, e.target.value)}
+                    placeholder="Enter key code..."
                     style={{
-                      flex: 1,
                       padding: '8px',
-                      border: `2px solid ${unlockedLocks.has(index) ? '#28a745' : '#dc3545'}`,
-                      borderRadius: '6px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
                       fontSize: '14px',
-                      backgroundColor: unlockedLocks.has(index) ? '#d4edda' : '#ffffff'
+                      width: '150px'
                     }}
-                    placeholder={`Enter key code ${index + 1}`}
+                    onKeyPress={async (e) => {
+                      if (e.key === 'Enter') {
+                        const input = e.target as HTMLInputElement;
+                        const isCorrect = await handleChestKeySubmit(index, input.value);
+                        if (isCorrect) {
+                          input.value = '';
+                        }
+                      }
+                    }}
                   />
-                  {unlockedLocks.has(index) && (
-                    <span style={{ color: '#28a745', fontWeight: 'bold', fontSize: '18px' }}>
-                      ✓
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            ))}
+          </div>
 
-            {/* Action buttons */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => setShowChestModal(false)}
+              style={{
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              Close
+            </button>
+            {unlockedLocks.size === chestKeyCodes.length && (
               <button
-                onClick={() => setShowChestModal(false)}
-                className="btn btn-outline-secondary"
+                onClick={handleOpenChest}
+                style={{
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
               >
-                Close
+                Open Chest!
               </button>
-              {unlockedLocks.size === chestKeyCodes.length && (
-                <button
-                  onClick={handleOpenChest}
-                  className="btn btn-success"
-                  style={{
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    borderColor: '#28a745',
-                    padding: '12px 24px',
-                    fontSize: '16px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  Open Chest!
-                </button>
-              )}
-            </div>
+            )}
           </div>
         </div>
       )}
