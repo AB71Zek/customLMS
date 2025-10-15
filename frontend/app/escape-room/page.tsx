@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { trace } from '@opentelemetry/api';
+import { useEffect, useState } from 'react';
 import Header from '../Components/header';
 import { ThemeContext } from '../Components/ThemeContext';
 import CombinedEditor from './editor/CombinedEditor';
-import Stage from './stages/Stage';
-import GameRoom from './stages/GameRoom';
 import { generatePlayLink } from './linkGenerator';
+import GameRoom from './stages/GameRoom';
+import Stage from './stages/Stage';
 
 export default function EscapeRoomEditorContent() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');

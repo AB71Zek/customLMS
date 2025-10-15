@@ -43,11 +43,11 @@ service:
       exporters: [prometheus, logging]
   
   extensions: [health_check, pprof, zpages]
-  
-  extensions:
-    health_check:
-      endpoint: 0.0.0.0:13133
-    pprof:
-      endpoint: 0.0.0.0:1888
-    zpages:
-      endpoint: 0.0.0.0:55679
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: 0.0.0.0:1888
+  zpages:
+    endpoint: 0.0.0.0:55679

@@ -526,10 +526,10 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
                       fontSize: '14px',
                       width: '150px'
                     }}
-                    onKeyPress={(e) => {
+                    onKeyPress={async (e) => {
                       if (e.key === 'Enter') {
                         const input = e.target as HTMLInputElement;
-                        const isCorrect = handleChestKeySubmit(index, input.value);
+                        const isCorrect = await handleChestKeySubmit(index, input.value);
                         if (isCorrect) {
                           input.value = '';
                         }

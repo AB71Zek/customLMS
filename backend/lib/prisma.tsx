@@ -1,12 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../prisma/app/generated/prisma/client';
 
-// Use globalThis to handle hot-reloading in development
-declare global {
-  var prisma: PrismaClient | undefined;
-}
-
-export const prisma = global.prisma || new PrismaClient();
-
+// Minimal global singleton to avoid deep type instantiation issues
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 if (process.env.NODE_ENV !== 'production') {
-  global.prisma = prisma; // Store Prisma client globally only in development mode
+  globalForPrisma.prisma = prisma;
 }

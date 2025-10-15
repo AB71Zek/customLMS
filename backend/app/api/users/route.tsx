@@ -1,6 +1,6 @@
+import { prisma } from '@/lib/prisma';
 import { trace } from '@opentelemetry/api';
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../lib/prisma.tsx';
 
 export async function POST(request: NextRequest) {
   return await trace

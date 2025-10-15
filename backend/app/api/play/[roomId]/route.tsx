@@ -1,9 +1,9 @@
+import { prisma } from '@/lib/prisma';
 import { trace } from '@opentelemetry/api';
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../../lib/prisma.tsx';
+import { NextResponse } from 'next/server';
 
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { roomId: string } }
 ) {
   return await trace
@@ -29,8 +29,8 @@ export async function GET(
         // Return room data for playing (without createdBy for security)
         const playRoom = {
           roomId: room.roomId,
-          iconLayout: JSON.parse(room.iconLayout),
-          questions: JSON.parse(room.questions),
+          iconLayout: room.iconLayout,
+          questions: room.questions,
           createdAt: room.createdAt,
         };
 

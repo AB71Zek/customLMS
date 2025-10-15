@@ -1,8 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './globals.css';
 import type { Metadata } from "next";
 import Footer from './Components/Footer';
 import { ThemeProvider } from './Components/ThemeContext';
-import './globals.css';
 
 export const metadata: Metadata = {
   title: "Custom LMS Escape Room",

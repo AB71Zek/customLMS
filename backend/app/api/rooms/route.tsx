@@ -1,6 +1,13 @@
+import { prisma } from '@/lib/prisma';
 import { trace } from '@opentelemetry/api';
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../lib/prisma.tsx';
+
+function generateRoomId(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = '';
+  for (let i = 0; i < 8; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
 
 export async function POST(request: NextRequest) {
   return await trace
@@ -20,8 +27,9 @@ export async function POST(request: NextRequest) {
 
         const room = await prisma.room.create({
           data: {
-            iconLayout: JSON.stringify(iconLayout),
-            questions: JSON.stringify(questions),
+            roomId: generateRoomId(),
+            iconLayout,
+            questions,
             createdBy,
           },
         });
