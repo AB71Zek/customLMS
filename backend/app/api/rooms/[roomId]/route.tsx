@@ -3,14 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { roomId: string } }
+  request: Request
 ) {
   return await trace
     .getTracer('custom-lms-backend')
     .startActiveSpan('get-room-by-id', async (span) => {
       try {
-        const roomId = params.roomId;
+        const url = new URL(request.url);
+        const parts = url.pathname.split('/');
+        const roomIndex = parts.findIndex((p) => p === 'rooms');
+        const roomId = roomIndex >= 0 ? parts[roomIndex + 1] : '';
 
         const room = await prisma.room.findUnique({
           where: {
@@ -47,14 +49,16 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { roomId: string } }
+  request: NextRequest
 ) {
   return await trace
     .getTracer('custom-lms-backend')
     .startActiveSpan('update-room', async (span) => {
       try {
-        const roomId = params.roomId;
+        const url = new URL(request.url);
+        const parts = url.pathname.split('/');
+        const roomIndex = parts.findIndex((p) => p === 'rooms');
+        const roomId = roomIndex >= 0 ? parts[roomIndex + 1] : '';
         const body = await request.json();
         const { iconLayout, questions } = body;
 
@@ -63,8 +67,8 @@ export async function PUT(
             roomId: roomId,
           },
           data: {
-            iconLayout: iconLayout ? JSON.stringify(iconLayout) : undefined,
-            questions: questions ? JSON.stringify(questions) : undefined,
+            iconLayout: iconLayout ?? undefined,
+            questions: questions ?? undefined,
           },
         });
 

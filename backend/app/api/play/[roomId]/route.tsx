@@ -3,14 +3,16 @@ import { trace } from '@opentelemetry/api';
 import { NextResponse } from 'next/server';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { roomId: string } }
+  request: Request
 ) {
   return await trace
     .getTracer('custom-lms-backend')
     .startActiveSpan('play-room', async (span) => {
       try {
-        const roomId = params.roomId;
+        const url = new URL(request.url);
+        const parts = url.pathname.split('/');
+        const roomIndex = parts.findIndex((p) => p === 'play');
+        const roomId = roomIndex >= 0 ? parts[roomIndex + 1] : '';
 
         const room = await prisma.room.findUnique({
           where: {
