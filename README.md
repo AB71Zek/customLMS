@@ -1,23 +1,70 @@
-# Custom LMS - Escape Room Application
+# Custom LMS Escape Room
 
-A full-stack escape room application built with Next.js, Express, Prisma, and PostgreSQL.
+An interactive escape room learning management system built with Next.js, React, Bootstrap, Prisma, PostgreSQL, and OpenTelemetry instrumentation.
 
 ## Features
 
-- **Escape Room Editor**: Create interactive escape rooms with drag-and-drop icons
-- **Question System**: Add questions and answers to interactive elements
-- **Treasure Chest Logic**: Dynamic lock system requiring multiple key codes
-- **Shareable Links**: Generate unique room codes for students to play
-- **Real-time Gameplay**: Interactive HTML image mapping for exploration
+- 🏰 **Interactive Escape Rooms**: Create and play educational escape room experiences
+- ⏰ **Timer System**: Configurable game timers (5, 10, 15 minutes + custom)
+- 🧩 **Puzzle System**: Interactive Q&A with key code generation
+- 🏆 **Treasure Chest**: Multi-lock treasure chest puzzle
+- 📊 **Real-time Analytics**: OpenTelemetry instrumentation for monitoring
+- 🎨 **Modern UI**: Bootstrap-based responsive design
+- 🌙 **Theme Support**: Light/dark mode toggle
 
-## Tech Stack
+## Technology Stack
 
-- **Frontend**: Next.js 15, React, TypeScript, Bootstrap
-- **Backend**: Express.js, Node.js
-- **Database**: PostgreSQL with Prisma ORM
+- **Frontend**: Next.js 13+ (App Router), React, Bootstrap
+- **Backend**: Next.js API Routes, Prisma ORM
+- **Database**: PostgreSQL
+- **Monitoring**: OpenTelemetry instrumentation
 - **Containerization**: Docker & Docker Compose
 
-## Quick Start
+## Project Structure
+
+```
+customLMS/
+├── frontend/               # Next.js frontend application
+│   ├── app/
+│   │   ├── escape-room/   # Main escape room application
+│   │   ├── Components/    # Reusable components
+│   │   └── public/        # Static assets
+│   ├── instrumentation.ts # OpenTelemetry setup
+│   └── package.json
+├── backend/               # Next.js backend API
+│   ├── app/
+│   │   ├── api/           # API routes
+│   │   └── page.tsx       # Backend dashboard
+│   ├── prisma/            # Database schema
+│   ├── lib/               # Prisma client
+│   ├── instrumentation.ts # OpenTelemetry setup
+│   └── package.json
+└── docker-compose.yml     # Multi-container setup
+```
+
+## API Endpoints
+
+### Users
+- `GET /api/users` - Fetch all users
+- `POST /api/users` - Create new user
+
+### Rooms
+- `GET /api/rooms` - Fetch all rooms
+- `POST /api/rooms` - Create new room
+- `GET /api/rooms/[roomId]` - Fetch specific room
+- `PUT /api/rooms/[roomId]` - Update room
+
+### Play
+- `GET /api/play/[roomId]` - Public room data for playing
+
+## Development
+
+### Prerequisites
+- Node.js 18+
+- Docker & Docker Compose
+- PostgreSQL (or use Docker)
+
+### Local Development
 
 1. **Clone the repository**
    ```bash
@@ -25,97 +72,71 @@ A full-stack escape room application built with Next.js, Express, Prisma, and Po
    cd customLMS
    ```
 
-2. **Start the application**
+2. **Start with Docker Compose**
    ```bash
-   docker-compose up -d
+   docker-compose up --build
    ```
 
-3. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:4000
+3. **Or run individually**
+   ```bash
+   # Backend
+   cd backend
+   npm install
+   npm run db:generate
+   npm run db:migrate
+   npm run dev
 
-## API Endpoints
+   # Frontend (in another terminal)
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
-### Room Management
-- `POST /api/rooms` - Create new escape room
-- `GET /api/rooms/:roomId` - Get room for editing
-- `PUT /api/rooms/:roomId` - Update room
-- `GET /api/play/:roomId` - Get room for gameplay (public)
+### Environment Variables
 
-### User Management
-- `GET /users` - List all users
-- `POST /users` - Create user
-- `GET /users/:id` - Get user by ID
-- `PUT /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
+Create `.env` files in both frontend and backend directories:
 
-## How It Works
+```env
+# Backend .env
+DATABASE_URL="postgresql://postgres:password@localhost:5432/customlms"
+NEXTAUTH_SECRET="your-secret-key"
+NODE_ENV="development"
+```
 
-1. **Teacher creates room**: Uses drag-and-drop editor to place icons and add questions
-2. **Room gets saved**: Backend generates unique 8-character room code
-3. **Share with students**: Teacher shares the room code/link
-4. **Students play**: Enter room code to start the escape room game
-5. **Solve puzzles**: Click on interactive areas to answer questions and unlock chest
+## OpenTelemetry Instrumentation
 
-## Development
+The application includes comprehensive OpenTelemetry instrumentation:
 
-### Backend Development
+- **Frontend**: User interactions, API calls, timer operations
+- **Backend**: Database operations, API request/response cycles
+- **Performance**: Response times, error tracking
+- **Custom Metrics**: Room creation, user engagement
+
+## Deployment
+
+### Docker Deployment
 ```bash
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm start
+docker-compose up --build -d
 ```
 
-### Frontend Development
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### Database Management
-```bash
-# Run migrations
-docker exec backend npx prisma migrate dev --name migration_name
-
-# Reset database
-docker exec backend npx prisma migrate reset
-
-# View database
-docker exec -it db psql -U customlms -d customlms
-```
-
-## Project Structure
-
-```
-customLMS/
-├── frontend/                 # Next.js frontend application
-│   ├── app/
-│   │   ├── escape-room/     # Main escape room pages
-│   │   └── Components/      # Reusable components
-│   └── public/              # Static assets
-├── backend/                 # Express.js backend API
-│   ├── prisma/              # Database schema and migrations
-│   └── index.js             # Main server file
-└── docker-compose.yml       # Container orchestration
-```
-
-## Testing
-
-Test the API endpoints:
-
-```bash
-# Create a room
-curl -X POST http://localhost:4000/api/rooms \
-  -H "Content-Type: application/json" \
-  -d '{"userName":"Teacher","iconLayout":[{"id":"item1","type":"torch","x":20,"y":30}],"questions":[{"itemId":"item1","question":"What burns?","expectedAnswers":["fire"]}]}'
-
-# Get room for playing
-curl http://localhost:4000/api/play/ROOMCODE123
-```
+### Manual Deployment
+1. Build both applications
+2. Set up PostgreSQL database
+3. Run Prisma migrations
+4. Deploy frontend and backend separately
 
 ## Contributing
 
-This is a university project. For questions or issues, please contact me on linkedin - https://www.linkedin.com/in/arun-babra/.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For support and questions, please open an issue in the repository.

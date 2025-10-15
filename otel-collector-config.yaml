@@ -1,0 +1,53 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  memory_limiter:
+    limit_mib: 512
+
+exporters:
+  jaeger:
+    endpoint: jaegertracing:14250
+    tls:
+      insecure: true
+  
+  zipkin:
+    endpoint: http://zipkin-all-in-one:9411/api/v2/spans
+    format: json
+  
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: customlms
+  
+  logging:
+    loglevel: debug
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [jaeger, zipkin, logging]
+    
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus, logging]
+  
+  extensions: [health_check, pprof, zpages]
+  
+  extensions:
+    health_check:
+      endpoint: 0.0.0.0:13133
+    pprof:
+      endpoint: 0.0.0.0:1888
+    zpages:
+      endpoint: 0.0.0.0:55679

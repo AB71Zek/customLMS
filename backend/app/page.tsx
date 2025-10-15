@@ -1,5 +1,6 @@
 'use client';
 
+import { trace } from '@opentelemetry/api';
 import React, { useEffect, useState } from 'react';
 
 const getPathUrl = () => {
@@ -19,30 +20,45 @@ const BackendDashboard: React.FC = () => {
 
   useEffect(() => {
     setBaseUrl(getPathUrl());
-    // Fetch basic stats
+    // Fetch basic stats with OpenTelemetry tracing
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
-    try {
-      const [roomsRes, usersRes] = await Promise.all([
-        fetch(`${baseUrl}/api/rooms`),
-        fetch(`${baseUrl}/api/users`)
-      ]);
-      
-      const rooms = await roomsRes.json();
-      const users = await usersRes.json();
-      
-      setStats({
-        totalRooms: rooms.length || 0,
-        totalUsers: users.length || 0,
-        activeRooms: rooms.filter((room: any) => 
-          new Date(room.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
-        ).length || 0
+    return await trace
+      .getTracer('custom-lms-frontend')
+      .startActiveSpan('fetch-backend-stats', async (span) => {
+        try {
+          const [roomsRes, usersRes] = await Promise.all([
+            fetch(`${baseUrl}/api/rooms`),
+            fetch(`${baseUrl}/api/users`)
+          ]);
+          
+          const rooms = await roomsRes.json();
+          const users = await usersRes.json();
+          
+          setStats({
+            totalRooms: rooms.length || 0,
+            totalUsers: users.length || 0,
+            activeRooms: rooms.filter((room: any) => 
+              new Date(room.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+            ).length || 0
+          });
+
+          span.setAttributes({
+            'stats.totalRooms': rooms.length || 0,
+            'stats.totalUsers': users.length || 0,
+            'stats.activeRooms': rooms.filter((room: any) => 
+              new Date(room.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+            ).length || 0
+          });
+        } catch (error) {
+          span.setStatus({ code: 2, message: 'Failed to fetch stats' });
+          console.error('Error fetching stats:', error);
+        } finally {
+          span.end();
+        }
       });
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
   };
 
   return (
@@ -54,6 +70,9 @@ const BackendDashboard: React.FC = () => {
           </h1>
           <p style={{ color: '#7f8c8d', fontSize: '1.2rem' }}>
             Server Status: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>● Online</span>
+          </p>
+          <p style={{ color: '#95a5a6', fontSize: '0.9rem' }}>
+            🔍 OpenTelemetry Instrumentation Active
           </p>
         </header>
 
@@ -146,7 +165,7 @@ const BackendDashboard: React.FC = () => {
         </div>
 
         <footer style={{ textAlign: 'center', marginTop: '40px', color: '#7f8c8d' }}>
-          <p>Custom LMS Escape Room Backend • Built with Next.js & Prisma</p>
+          <p>Custom LMS Escape Room Backend • Built with Next.js, Prisma & OpenTelemetry</p>
         </footer>
       </div>
     </div>

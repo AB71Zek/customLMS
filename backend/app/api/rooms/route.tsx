@@ -1,49 +1,78 @@
+import { trace } from '@opentelemetry/api';
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../lib/prisma';
+import { prisma } from '../../lib/prisma.tsx';
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { iconLayout, questions, createdBy } = body;
+  return await trace
+    .getTracer('custom-lms-backend')
+    .startActiveSpan('create-room', async (span) => {
+      try {
+        const body = await request.json();
+        const { iconLayout, questions, createdBy } = body;
 
-    if (!iconLayout || !questions || !createdBy) {
-      return NextResponse.json(
-        { error: 'iconLayout, questions, and createdBy are required' },
-        { status: 400 }
-      );
-    }
+        if (!iconLayout || !questions || !createdBy) {
+          span.setStatus({ code: 2, message: 'Missing required fields' });
+          return NextResponse.json(
+            { error: 'iconLayout, questions, and createdBy are required' },
+            { status: 400 }
+          );
+        }
 
-    const room = await prisma.room.create({
-      data: {
-        iconLayout: JSON.stringify(iconLayout),
-        questions: JSON.stringify(questions),
-        createdBy,
-      },
+        const room = await prisma.room.create({
+          data: {
+            iconLayout: JSON.stringify(iconLayout),
+            questions: JSON.stringify(questions),
+            createdBy,
+          },
+        });
+
+        span.setAttributes({
+          'room.id': room.id,
+          'room.roomId': room.roomId,
+          'room.createdBy': room.createdBy,
+          'room.iconsCount': Array.isArray(iconLayout) ? iconLayout.length : 0,
+          'room.questionsCount': Array.isArray(questions) ? questions.length : 0
+        });
+
+        return NextResponse.json(room, { status: 201 });
+      } catch (error) {
+        span.setStatus({ code: 2, message: 'Failed to create room' });
+        console.error('Error creating room:', error);
+        return NextResponse.json(
+          { error: 'Failed to create room' },
+          { status: 500 }
+        );
+      } finally {
+        span.end();
+      }
     });
-
-    return NextResponse.json(room, { status: 201 });
-  } catch (error) {
-    console.error('Error creating room:', error);
-    return NextResponse.json(
-      { error: 'Failed to create room' },
-      { status: 500 }
-    );
-  }
 }
 
 export async function GET() {
-  try {
-    const rooms = await prisma.room.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+  return await trace
+    .getTracer('custom-lms-backend')
+    .startActiveSpan('fetch-rooms', async (span) => {
+      try {
+        const rooms = await prisma.room.findMany({
+          orderBy: {
+            createdAt: 'desc',
+          },
+        });
+
+        span.setAttributes({
+          'rooms.count': rooms.length
+        });
+
+        return NextResponse.json(rooms);
+      } catch (error) {
+        span.setStatus({ code: 2, message: 'Failed to fetch rooms' });
+        console.error('Error fetching rooms:', error);
+        return NextResponse.json(
+          { error: 'Failed to fetch rooms' },
+          { status: 500 }
+        );
+      } finally {
+        span.end();
+      }
     });
-    return NextResponse.json(rooms);
-  } catch (error) {
-    console.error('Error fetching rooms:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch rooms' },
-      { status: 500 }
-    );
-  }
 }

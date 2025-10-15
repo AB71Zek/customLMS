@@ -1,44 +1,71 @@
+import { trace } from '@opentelemetry/api';
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../lib/prisma';
+import { prisma } from '../../lib/prisma.tsx';
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { name, email } = body;
+  return await trace
+    .getTracer('custom-lms-backend')
+    .startActiveSpan('create-user', async (span) => {
+      try {
+        const body = await request.json();
+        const { name, email } = body;
 
-    if (!name || !email) {
-      return NextResponse.json(
-        { error: 'Name and email are required' },
-        { status: 400 }
-      );
-    }
+        if (!name || !email) {
+          span.setStatus({ code: 2, message: 'Missing required fields' });
+          return NextResponse.json(
+            { error: 'Name and email are required' },
+            { status: 400 }
+          );
+        }
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-      },
+        const user = await prisma.user.create({
+          data: {
+            name,
+            email,
+          },
+        });
+
+        span.setAttributes({
+          'user.id': user.id,
+          'user.email': user.email,
+          'user.name': user.name
+        });
+
+        return NextResponse.json(user, { status: 201 });
+      } catch (error) {
+        span.setStatus({ code: 2, message: 'Failed to create user' });
+        console.error('Error creating user:', error);
+        return NextResponse.json(
+          { error: 'Failed to create user' },
+          { status: 500 }
+        );
+      } finally {
+        span.end();
+      }
     });
-
-    return NextResponse.json(user, { status: 201 });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    return NextResponse.json(
-      { error: 'Failed to create user' },
-      { status: 500 }
-    );
-  }
 }
 
 export async function GET() {
-  try {
-    const users = await prisma.user.findMany();
-    return NextResponse.json(users);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch users' },
-      { status: 500 }
-    );
-  }
+  return await trace
+    .getTracer('custom-lms-backend')
+    .startActiveSpan('fetch-users', async (span) => {
+      try {
+        const users = await prisma.user.findMany();
+        
+        span.setAttributes({
+          'users.count': users.length
+        });
+
+        return NextResponse.json(users);
+      } catch (error) {
+        span.setStatus({ code: 2, message: 'Failed to fetch users' });
+        console.error('Error fetching users:', error);
+        return NextResponse.json(
+          { error: 'Failed to fetch users' },
+          { status: 500 }
+        );
+      } finally {
+        span.end();
+      }
+    });
 }
