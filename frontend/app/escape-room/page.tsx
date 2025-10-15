@@ -1,387 +1,598 @@
 'use client';
-
-import { trace } from '@opentelemetry/api';
-import { useEffect, useState } from 'react';
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import Header from '../Components/header';
-import { ThemeContext } from '../Components/ThemeContext';
+import { useTheme } from '../Components/ThemeContext';
 import CombinedEditor from './editor/CombinedEditor';
 import { generatePlayLink } from './linkGenerator';
 import GameRoom from './stages/GameRoom';
 import Stage from './stages/Stage';
 
-export default function EscapeRoomEditorContent() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [stageView, setStageView] = useState<'none' | 'editor' | 'game-room' | 'gameplay'>('none');
-  const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
-  const [gameTimerSeconds, setGameTimerSeconds] = useState<number>(0);
-  const [isClient, setIsClient] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
-  const [savedRoomId, setSavedRoomId] = useState<string>('');
-  const [showJoinRoomPopup, setShowJoinRoomPopup] = useState(false);
-  const [roomId, setRoomId] = useState<string>('');
-  const [isLoadingRoom, setIsLoadingRoom] = useState(false);
-  const [roomError, setRoomError] = useState<string>('');
+export default function EscapeRoomEditor() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EscapeRoomEditorContent />
+    </Suspense>
+  );
+}
 
+function EscapeRoomEditorContent() {
+  const { theme } = useTheme();
+  const searchParams = useSearchParams();
+  
+  // View state (map, combined editor, timer selection, join room, room saved, game room, gameplay)
+  const [stageView, setStageView] = useState<'none' | 'combined-editor' | 'join-room' | 'room-saved' | 'game-room' | 'gameplay'>('none');
+  const [isClient, setIsClient] = useState(false);
+  const [roomId, setRoomId] = useState<string>('');
+  const [savedRoomId, setSavedRoomId] = useState<string>('');
+  const [currentGameRoomCode, setCurrentGameRoomCode] = useState<string>('');
+  const [isLoadingRoom, setIsLoadingRoom] = useState<boolean>(false);
+  const [roomError, setRoomError] = useState<string>('');
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+  const [gameTimerSeconds, setGameTimerSeconds] = useState<number>(0);
+
+  // Handle URL parameter for direct room access
+  useEffect(() => {
+    const roomParam = searchParams.get('room');
+    if (roomParam && roomParam.length === 8) {
+      setRoomId(roomParam);
+      setCurrentGameRoomCode(roomParam);
+      setStageView('game-room');
+    }
+  }, [searchParams]);
+
+  // Set client-side flag to prevent hydration issues
   useEffect(() => {
     setIsClient(true);
-    
-    // Network status detection
-    setIsOnline(navigator.onLine);
+  }, []);
+
+  // Network status monitoring
+  useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-    
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
 
-  const validateRoomExists = async (roomCode: string) => {
-    return await trace
-      .getTracer('custom-lms-frontend')
-      .startActiveSpan('validate-room-exists', async (span) => {
-        try {
-          setIsLoadingRoom(true);
-          setRoomError('');
-          
-          const response = await fetch(`http://localhost:4000/api/play/${roomCode}`);
-          
-          if (response.ok) {
-            span.setAttributes({
-              'room.validation.success': true,
-              'room.code': roomCode
-            });
-            setCurrentGameRoomCode(roomCode);
-            setStageView('game-room');
-            setShowJoinRoomPopup(false);
-            setRoomId('');
-            return true;
-          } else {
-            span.setStatus({ code: 2, message: 'Room not found' });
-            setRoomError('Room not found. Please check the room code.');
-            return false;
-          }
-        } catch (error) {
-          span.setStatus({ code: 2, message: 'Network error' });
-          setRoomError('Network error. Please check your connection.');
-          console.error('Error validating room:', error);
-          return false;
-        } finally {
-          setIsLoadingRoom(false);
-          span.end();
-        }
-      });
+  // Function to validate room existence via API
+  const validateRoomExists = async (roomCode: string): Promise<boolean> => {
+    try {
+      setIsLoadingRoom(true);
+      setRoomError('');
+      
+      const response = await fetch(`http://localhost:4000/api/play/${roomCode}`);
+      
+      if (response.ok) {
+        return true;
+      } else if (response.status === 404) {
+        setRoomError('Room not found. Please check the room code.');
+        return false;
+      } else {
+        setRoomError('Failed to load room. Please try again.');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error validating room:', error);
+      setRoomError('Network error: Unable to connect to server.');
+      return false;
+    } finally {
+      setIsLoadingRoom(false);
+    }
   };
 
-  const handleSaveRoom = async (roomData: any) => {
-    return await trace
-      .getTracer('custom-lms-frontend')
-      .startActiveSpan('save-room', async (span) => {
-        try {
-          const response = await fetch('http://localhost:4000/api/rooms', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(roomData),
-          });
 
-          if (response.ok) {
-            const savedRoom = await response.json();
-            setSavedRoomId(savedRoom.roomId);
-            
-            span.setAttributes({
-              'room.save.success': true,
-              'room.id': savedRoom.roomId,
-              'room.createdBy': savedRoom.createdBy
-            });
-            
-            return savedRoom;
-          } else {
-            span.setStatus({ code: 2, message: 'Failed to save room' });
-            throw new Error('Failed to save room');
-          }
-        } catch (error) {
-          span.setStatus({ code: 2, message: 'Save room error' });
-          console.error('Error saving room:', error);
-          throw error;
-        } finally {
-          span.end();
-        }
-      });
-  };
+
+
+
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      <div className="container theme-transition" style={{ backgroundColor: 'transparent', padding: "150px 20px 20px 20px", minHeight: "100vh" }} data-theme={theme}>
-        <Header studentNumber="21406232" />
+    <div className="container theme-transition" style={{ backgroundColor: 'transparent', padding: "150px 20px 20px 20px", minHeight: "100vh" }} data-theme={theme}>
+      <Header studentNumber="21406232" />
 
-        {/* Network Status Indicator */}
-        {isClient && !isOnline && (
-          <div style={{
-            position: 'fixed',
-            top: '120px',
-            right: '20px',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            zIndex: 1000,
-            boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
-          }}>
-            🔴 Offline - Some features may not work
-          </div>
-        )}
-
-        {/* Main Content */}
-        {stageView === 'none' && (
-          <div style={{ textAlign: 'center', marginTop: '50px' }}>
-            <h1 style={{ fontSize: '2.5rem', marginBottom: '30px', color: '#2c3e50' }}>
-              🏰 Escape Room Editor
-            </h1>
-            
-            <div style={{ marginBottom: '30px' }}>
-              <button
-                onClick={() => setStageView('editor')}
-                className="btn btn-primary"
+      {/* Network Status Indicator */}
+          {isClient && !isOnline && (
+            <div style={{
+              position: 'fixed',
+              top: '120px',
+              right: '20px',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              zIndex: 1000,
+              boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+            }}>
+              🔴 Offline - Some features may not work
+            </div>
+          )}
+          
+          {isClient && (
+            <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* Aspect-ratio container to avoid cropping */}
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '1600px',
+              height: '600px',
+              backgroundImage: "url('/escape-room-misc/treasure-map.png')",
+              backgroundSize: '100% 100%',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              border: '3px solid #dc3545',
+              borderRadius: '8px'
+            }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
+            </div>
+          {stageView === 'combined-editor' && (
+            <CombinedEditor
+              onComplete={(roomId) => { 
+                setSavedRoomId(roomId);
+                setStageView('room-saved');
+              }}
+              onCancel={() => setStageView('none')}
+            />
+          )}
+          
+          {/* Join Room Popup */}
+          {stageView === 'join-room' && (
+            <>
+              {/* Background blur overlay */}
+              <div
                 style={{
-                  fontSize: '1.2rem',
-                  padding: '15px 30px',
-                  backgroundColor: '#dc3545',
-                  borderColor: '#000',
+                  position: 'absolute',
+                  top: '3px',
+                  left: '3px',
+                  right: '3px',
+                  bottom: '3px',
+                  background: 'rgba(0,0,0,0.4)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  zIndex: 15,
+                  borderRadius: '5px'
+                }}
+              />
+              
+              {/* Join Room Modal */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '90%',
+                  maxWidth: '500px',
+                  background: '#ffffff',
+                  border: '3px solid #666666',
+                  borderRadius: '16px',
+                  padding: '32px',
+                  zIndex: 16,
+                  boxShadow: '0 16px 32px rgba(0,0,0,0.4)'
+                }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                  <h2 style={{ 
+                    fontWeight: 800, 
+                    fontSize: '24px', 
+                    marginBottom: '8px',
+                    color: '#333'
+                  }}>
+                    Join a Room
+                  </h2>
+                  <p style={{ 
+                    fontSize: '16px', 
+                    color: '#666',
+                    margin: 0
+                  }}>
+                    Enter the room code to join an escape room
+                  </p>
+                </div>
+                
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ 
+                    fontWeight: 600, 
+                    fontSize: '16px', 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    color: '#333'
+                  }}>
+                    Room Code
+                  </label>
+                  <input
+                    type="text"
+                    value={roomId}
+                    onChange={(e) => setRoomId(e.target.value.toUpperCase())}
+                    placeholder="Enter room code (e.g., ABC123)"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '2px solid #666666',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      textAlign: 'center',
+                      letterSpacing: '2px',
+                      textTransform: 'uppercase'
+                    }}
+                    maxLength={8}
+                  />
+                </div>
+                
+                {/* Error Message */}
+                {roomError && (
+                  <div style={{
+                    marginBottom: '16px',
+                    padding: '12px',
+                    backgroundColor: '#f8d7da',
+                    border: '1px solid #f5c6cb',
+                    borderRadius: '8px',
+                    color: '#721c24',
+                    fontSize: '14px',
+                    textAlign: 'center'
+                  }}>
+                    {roomError}
+                  </div>
+                )}
+                
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+                  <button
+                    onClick={() => {
+                      setRoomId('');
+                      setStageView('none');
+                    }}
+                    className="btn btn-outline-secondary"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#000',
+                      borderColor: '#666666',
+                      borderWidth: '2px',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      minWidth: '120px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      e.currentTarget.style.borderColor = '#6c757d';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#ffffff';
+                      e.currentTarget.style.borderColor = '#666666';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (roomId.trim().length === 8) {
+                        const isValidRoom = await validateRoomExists(roomId.trim());
+                        if (isValidRoom) {
+                          setCurrentGameRoomCode(roomId);
+                          setRoomId('');
+                          setRoomError('');
+                          setStageView('game-room');
+                        }
+                      } else {
+                        setRoomError('Please enter a valid 8-character room code');
+                      }
+                    }}
+                    disabled={isLoadingRoom}
+                    className="btn btn-primary"
+                    style={{
+                      backgroundColor: '#28a745',
+                      color: '#fff',
+                      borderColor: '#28a745',
+                      borderWidth: '2px',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      minWidth: '120px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#218838';
+                      e.currentTarget.style.borderColor = '#1e7e34';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#28a745';
+                      e.currentTarget.style.borderColor = '#28a745';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    {isLoadingRoom ? 'Loading...' : 'Continue'}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+          
+          {/* Room Saved Success Popup */}
+          {stageView === 'room-saved' && (
+            <>
+              {/* Background blur overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '3px',
+                  left: '3px',
+                  right: '3px',
+                  bottom: '3px',
+                  background: 'rgba(0,0,0,0.4)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  zIndex: 15,
+                  borderRadius: '5px'
+                }}
+              />
+              
+              {/* Success Modal */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '90%',
+                  maxWidth: '500px',
+                  background: '#ffffff',
+                  border: '3px solid #28a745',
+                  borderRadius: '16px',
+                  padding: '32px',
+                  zIndex: 16,
+                  boxShadow: '0 16px 32px rgba(0,0,0,0.4)'
+                }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                  <div style={{ 
+                    fontSize: '48px', 
+                    marginBottom: '16px',
+                    color: '#28a745'
+                  }}>
+                    ✅
+                  </div>
+                  <h2 style={{ 
+                  fontWeight: 800,
+                  fontSize: '24px',
+                    marginBottom: '8px',
+                    color: '#333'
+                  }}>
+                    Room Saved Successfully!
+                  </h2>
+                  <p style={{ 
+                    fontSize: '16px', 
+                    color: '#666',
+                    margin: 0
+                  }}>
+                    Your escape room has been created and saved
+                  </p>
+                </div>
+                
+                <div style={{ 
+                  marginBottom: '24px',
+                  textAlign: 'center',
+                  backgroundColor: '#f8f9fa',
+                  border: '2px solid #dee2e6',
                   borderRadius: '8px',
-                  fontWeight: 'bold',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                  transition: 'all 0.3s ease'
+                  padding: '16px'
+                }}>
+                  <label style={{ 
+                    fontWeight: 600, 
+                    fontSize: '14px', 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    color: '#666'
+                  }}>
+                    Room Code
+                  </label>
+                  <div style={{
+                    fontSize: '24px',
+                    fontWeight: 800,
+                    color: '#28a745',
+                    letterSpacing: '3px',
+                    fontFamily: 'monospace',
+                    backgroundColor: '#ffffff',
+                    border: '2px solid #28a745',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    display: 'inline-block',
+                    marginBottom: '16px'
+                  }}>
+                    {savedRoomId}
+                  </div>
+                  
+                  <label style={{ 
+                    fontWeight: 600, 
+                    fontSize: '14px', 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    color: '#666'
+                  }}>
+                    Shareable Link
+                  </label>
+                  <div style={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#007bff',
+                    backgroundColor: '#ffffff',
+                    border: '2px solid #007bff',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    display: 'inline-block',
+                    wordBreak: 'break-all',
+                    maxWidth: '100%'
+                  }}>
+                    {generatePlayLink(savedRoomId)}
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+                  <button
+                    onClick={() => {
+                      setStageView('none');
+                    }}
+                    className="btn btn-outline-secondary"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#000',
+                      borderColor: '#666666',
+                      borderWidth: '2px',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      minWidth: '140px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      e.currentTarget.style.borderColor = '#6c757d';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#ffffff';
+                      e.currentTarget.style.borderColor = '#666666';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    Back to Map
+                  </button>
+                <button
+                    onClick={() => {
+                      const playLink = generatePlayLink(savedRoomId);
+                      navigator.clipboard.writeText(playLink).then(() => {
+                        alert('Link copied to clipboard!');
+                      }).catch(() => {
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = playLink;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Link copied to clipboard!');
+                      });
+                    }}
+                    className="btn btn-primary"
+                  style={{
+                      backgroundColor: '#007bff',
+                    color: '#fff',
+                      borderColor: '#007bff',
+                      borderWidth: '2px',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                    fontWeight: 600,
+                      minWidth: '140px',
+                      transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#0056b3';
+                      e.currentTarget.style.borderColor = '#004085';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#007bff';
+                      e.currentTarget.style.borderColor = '#007bff';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
+                    Copy Share Link
+                </button>
+              </div>
+            </div>
+            </>
+          )}
+          
+          {/* Game Room Story */}
+          {stageView === 'game-room' && (
+            <Stage onEnterRoom={(timerSeconds: number) => {
+              setGameTimerSeconds(timerSeconds);
+              setStageView('gameplay');
+            }} />
+          )}
+          
+          {/* Gameplay */}
+          {stageView === 'gameplay' && (
+            <GameRoom 
+              roomCode={currentGameRoomCode || roomId} 
+              timerSeconds={gameTimerSeconds}
+              onComplete={() => {
+                setStageView('none');
+                setCurrentGameRoomCode('');
+                setGameTimerSeconds(0);
+              }} 
+            />
+          )}
+          
+          {/* Map buttons - only visible on map screen */}
+          {stageView === 'none' && (
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              {/* Escape Room Editor Text */}
+              <div style={{ 
+                fontSize: '2.5rem', 
+                fontWeight: 'bold', 
+                borderStyle: 'groove',
+                borderWidth: '4px',
+                borderColor: theme === 'light' ? '#EBB800' : '#EBB800',
+                color: theme === 'light' ? '#EBB800' : '#EBB800',
+                padding: '6px 20px',
+                borderRadius: '18px',
+                backgroundColor: theme === 'light' ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.25)',
+                margin: '0 0 20px 0',
+                textAlign: 'center',
+                textShadow: theme === 'light' ? '2px 2px 4px rgba(0,0,0,0.8)' : '2px 2px 4px rgba(0,0,0,0.8)'
+              }}>
+                ESCAPE ROOM EDITOR
+              </div>
+              
+              <button
+                onClick={() => setStageView('combined-editor')}
+                className="btn btn-outline-primary"
+                style={{
+                  backgroundColor: '#EBB800',
+                  color: '#fff',
+                  borderColor: '#000',
+                  borderWidth: '3px',
+                  borderStyle: 'solid',
+                  fontWeight: 800,
+                  padding: '14px 24px',
+                  borderRadius: '14px',
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
+                  fontSize: '20px',
+                  letterSpacing: '0.8px',
+                  minWidth: '200px'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#c82333';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.3)';
+                  e.currentTarget.style.backgroundColor = '#B8910F';
+                  e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#dc3545';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                  e.currentTarget.style.backgroundColor = '#EBB800';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
                 Create Escape Room
               </button>
-            </div>
-
-            <div>
-              <button
-                onClick={() => setShowJoinRoomPopup(true)}
-                className="btn btn-outline-primary"
-                style={{
-                  fontSize: '1.1rem',
-                  padding: '12px 25px',
-                  borderColor: '#dc3545',
-                  color: '#dc3545',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#dc3545';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#dc3545';
-                }}
-              >
-                Join Room
-              </button>
-            </div>
           </div>
-        )}
-
-        {/* Editor */}
-        {stageView === 'editor' && (
-          <CombinedEditor
-            onSave={handleSaveRoom}
-            onBack={() => setStageView('none')}
-          />
-        )}
-
-        {/* Game Room Story */}
-        {stageView === 'game-room' && (
-          <Stage onEnterRoom={(timerSeconds: number) => {
-            setGameTimerSeconds(timerSeconds);
-            setStageView('gameplay');
-          }} />
-        )}
-
-        {/* Gameplay */}
-        {stageView === 'gameplay' && (
-          <GameRoom
-            roomCode={currentGameRoomCode || roomId}
-            timerSeconds={gameTimerSeconds}
-            onComplete={() => {
-              setStageView('none');
-              setCurrentGameRoomCode('');
-              setGameTimerSeconds(0);
-            }}
-          />
-        )}
-
-        {/* Room Saved Successfully Popup */}
-        {savedRoomId && (
-          <div style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'white',
-            padding: '30px',
-            borderRadius: '12px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-            zIndex: 1000,
-            textAlign: 'center',
-            minWidth: '400px'
-          }}>
-            <h3 style={{ color: '#28a745', marginBottom: '20px' }}>✅ Room Saved Successfully!</h3>
-            <p style={{ marginBottom: '15px', fontSize: '16px' }}>
-              <strong>Room Code:</strong> {savedRoomId}
-            </p>
-            <p style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
-              Share this link with your students:
-            </p>
-            <div style={{ marginBottom: '20px' }}>
-              <button
-                onClick={() => {
-                  const playLink = generatePlayLink(savedRoomId);
-                  navigator.clipboard.writeText(playLink).then(() => {
-                    alert('Link copied to clipboard!');
-                  }).catch(() => {
-                    const textArea = document.createElement('textarea');
-                    textArea.value = playLink;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    alert('Link copied to clipboard!');
-                  });
-                }}
-                className="btn btn-primary"
-                style={{
-                  backgroundColor: '#007bff',
-                  borderColor: '#007bff',
-                  padding: '10px 20px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '600'
-                }}
-              >
-                Copy Play Link
-              </button>
-            </div>
-            <button
-              onClick={() => {
-                setSavedRoomId('');
-                setStageView('none');
-              }}
-              className="btn btn-secondary"
-              style={{
-                backgroundColor: '#6c757d',
-                borderColor: '#6c757d',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
-            >
-              Back to Main Menu
-            </button>
-          </div>
-        )}
-
-        {/* Join Room Popup */}
-        {showJoinRoomPopup && (
-          <div style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'white',
-            padding: '30px',
-            borderRadius: '12px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-            zIndex: 1000,
-            textAlign: 'center',
-            minWidth: '400px'
-          }}>
-            <h3 style={{ marginBottom: '20px', color: '#2c3e50' }}>Join Escape Room</h3>
-            <p style={{ marginBottom: '20px', color: '#666' }}>
-              Enter the room code to start playing:
-            </p>
-            <input
-              type="text"
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-              placeholder="Enter room code..."
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '2px solid #ddd',
-                borderRadius: '8px',
-                fontSize: '16px',
-                marginBottom: '20px',
-                textAlign: 'center'
-              }}
-            />
-            {roomError && (
-              <div style={{
-                color: '#dc3545',
-                marginBottom: '15px',
-                fontSize: '14px'
-              }}>
-                {roomError}
-              </div>
-            )}
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-              <button
-                onClick={() => validateRoomExists(roomId)}
-                disabled={!roomId || isLoadingRoom}
-                className="btn btn-primary"
-                style={{
-                  backgroundColor: '#dc3545',
-                  borderColor: '#dc3545',
-                  padding: '10px 20px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  opacity: (!roomId || isLoadingRoom) ? 0.6 : 1
-                }}
-              >
-                {isLoadingRoom ? 'Loading...' : 'Continue'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowJoinRoomPopup(false);
-                  setRoomId('');
-                  setRoomError('');
-                }}
-                className="btn btn-secondary"
-                style={{
-                  backgroundColor: '#6c757d',
-                  borderColor: '#6c757d',
-                  padding: '10px 20px',
-                  borderRadius: '6px',
-                  fontSize: '14px'
-                }}
-              >
-                Back
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </ThemeContext.Provider>
+          )}
+        </div>
+      )}
+    </div>
   );
-}
+} 
+
+

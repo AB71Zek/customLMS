@@ -1,57 +1,46 @@
 'use client';
-
+import "bootstrap/dist/css/bootstrap.min.css";
 import Header from '../Components/header';
+import { useTheme } from '../Components/ThemeContext';
 
 export default function CodingRaces() {
+  const { theme } = useTheme();
+
   return (
-    <div style={{ paddingTop: '100px', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", marginBottom: "60px" }} data-theme={theme}>
       <Header studentNumber="21406232" />
-      
-      <div className="container" style={{ padding: '40px 20px' }}>
+
+      <div style={{ marginTop: "133px" }}>
         <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div style={{
-              backgroundColor: 'white',
-              padding: '40px',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-            }}>
-              <h1 style={{ color: '#2c3e50', marginBottom: '30px', textAlign: 'center' }}>
-                🏁 Coding Races
-              </h1>
-              
-              <div style={{ fontSize: '16px', lineHeight: '1.6', color: '#555' }}>
-                <p style={{ marginBottom: '20px' }}>
-                  Challenge yourself and compete with other students in fast-paced coding competitions. 
-                  Solve algorithmic problems under time pressure and climb the leaderboard!
-                </p>
-                
-                <div style={{
-                  backgroundColor: '#fff3cd',
-                  padding: '20px',
-                  borderRadius: '8px',
-                  border: '1px solid #ffeaa7',
-                  marginBottom: '30px'
-                }}>
-                  <h4 style={{ color: '#856404', marginBottom: '10px' }}>
-                    🚧 Coming Soon
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '14px' }}>
-                    The Coding Races feature is currently under development. 
-                    Stay tuned for exciting competitive programming challenges!
+          <div className="col-md-8">
+            <div className="text-center" style={{ color: "var(--text-primary)" }}>
+              <h1 className="display-4 mb-4">Coding Races</h1>
+              <p className="lead mb-4">
+                Ready to test your coding speed? Compete against others in real-time coding challenges!
+              </p>
+              <div className="card mb-4" style={{
+                backgroundColor: "var(--section-bg)",
+                color: "var(--text-primary)",
+                borderColor: "var(--border-color)"
+              }}>
+                <div className="card-body">
+                  <h2 className="card-title mb-3">Race Format</h2>
+                  <p className="card-text">
+                    Coding races feature timed challenges where you&apos;ll solve programming problems 
+                    against the clock and compete with other students for the fastest solution.
                   </p>
+                  <button className="btn btn-primary" disabled>
+                    Join Race (Coming Soon)
+                  </button>
                 </div>
-                
-                <h3 style={{ color: '#2c3e50', marginTop: '30px', marginBottom: '15px' }}>
-                  🎯 What to Expect
-                </h3>
-                <ul style={{ marginBottom: '20px' }}>
-                  <li><strong>Algorithm Challenges:</strong> Solve complex problems step by step</li>
-                  <li><strong>Time-based Competitions:</strong> Race against the clock</li>
-                  <li><strong>Leaderboards:</strong> Compete with peers globally</li>
-                  <li><strong>Multiple Languages:</strong> Support for various programming languages</li>
-                  <li><strong>Real-time Feedback:</strong> Instant results and explanations</li>
-                </ul>
+              </div>
+              <div className="alert alert-info" style={{
+                backgroundColor: "var(--textarea-bg)",
+                color: "var(--text-primary)",
+                borderColor: "var(--border-color)"
+              }}>
+                <strong>Note:</strong> This feature is currently under development. 
+                Get ready for exciting coding competitions!
               </div>
             </div>
           </div>
@@ -59,4 +48,4 @@ export default function CodingRaces() {
       </div>
     </div>
   );
-}
+} 

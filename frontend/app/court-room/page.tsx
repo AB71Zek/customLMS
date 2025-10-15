@@ -1,58 +1,46 @@
 'use client';
-
+import "bootstrap/dist/css/bootstrap.min.css";
 import Header from '../Components/header';
+import { useTheme } from '../Components/ThemeContext';
 
 export default function CourtRoom() {
+  const { theme } = useTheme();
+
   return (
-    <div style={{ paddingTop: '100px', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", marginBottom: "60px" }} data-theme={theme}>
       <Header studentNumber="21406232" />
-      
-      <div className="container" style={{ padding: '40px 20px' }}>
+
+      <div style={{ marginTop: "133px" }}>
         <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div style={{
-              backgroundColor: 'white',
-              padding: '40px',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-            }}>
-              <h1 style={{ color: '#2c3e50', marginBottom: '30px', textAlign: 'center' }}>
-                ⚖️ Court Room
-              </h1>
-              
-              <div style={{ fontSize: '16px', lineHeight: '1.6', color: '#555' }}>
-                <p style={{ marginBottom: '20px' }}>
-                  Practice your argumentation and debate skills in our virtual courtroom. 
-                  Present cases, cross-examine witnesses, and develop critical thinking abilities 
-                  through interactive legal scenarios.
-                </p>
-                
-                <div style={{
-                  backgroundColor: '#fff3cd',
-                  padding: '20px',
-                  borderRadius: '8px',
-                  border: '1px solid #ffeaa7',
-                  marginBottom: '30px'
-                }}>
-                  <h4 style={{ color: '#856404', marginBottom: '10px' }}>
-                    🚧 Coming Soon
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '14px' }}>
-                    The Court Room feature is currently under development. 
-                    Prepare for engaging legal debates and argumentation practice!
+          <div className="col-md-8">
+            <div className="text-center" style={{ color: "var(--text-primary)" }}>
+              <h1 className="display-4 mb-4">Court Room</h1>
+              <p className="lead mb-4">
+                Step into the virtual courtroom and experience interactive legal scenarios and debates!
+              </p>
+              <div className="card mb-4" style={{
+                backgroundColor: "var(--section-bg)",
+                color: "var(--text-primary)",
+                borderColor: "var(--border-color)"
+              }}>
+                <div className="card-body">
+                  <h2 className="card-title mb-3">Courtroom Experience</h2>
+                  <p className="card-text">
+                    The virtual courtroom provides realistic legal scenarios where you can practice 
+                    argumentation, evidence presentation, and legal reasoning skills.
                   </p>
+                  <button className="btn btn-primary" disabled>
+                    Enter Courtroom (Coming Soon)
+                  </button>
                 </div>
-                
-                <h3 style={{ color: '#2c3e50', marginTop: '30px', marginBottom: '15px' }}>
-                  🎯 What to Expect
-                </h3>
-                <ul style={{ marginBottom: '20px' }}>
-                  <li><strong>Mock Trials:</strong> Participate in simulated court proceedings</li>
-                  <li><strong>Case Studies:</strong> Analyze real-world legal scenarios</li>
-                  <li><strong>Debate Practice:</strong> Hone your argumentation skills</li>
-                  <li><strong>Role Playing:</strong> Take on different legal roles</li>
-                  <li><strong>Peer Evaluation:</strong> Learn from fellow students</li>
-                </ul>
+              </div>
+              <div className="alert alert-info" style={{
+                backgroundColor: "var(--textarea-bg)",
+                color: "var(--text-primary)",
+                borderColor: "var(--border-color)"
+              }}>
+                <strong>Note:</strong> This feature is currently under development. 
+                Prepare for engaging legal simulations!
               </div>
             </div>
           </div>
@@ -60,4 +48,4 @@ export default function CourtRoom() {
       </div>
     </div>
   );
-}
+} 

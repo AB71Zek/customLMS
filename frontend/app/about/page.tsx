@@ -1,73 +1,81 @@
 'use client';
-
-import Header from '../Components/header';
+import "bootstrap/dist/css/bootstrap.min.css";
+import Header from "../Components/header";
+import { useTheme } from "../Components/ThemeContext";
 
 export default function About() {
+  const { theme } = useTheme();
+
   return (
-    <div style={{ paddingTop: '100px', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+    <div className="container theme-transition" style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", minHeight: "100vh", marginBottom: "60px" }} data-theme={theme}>
       <Header studentNumber="21406232" />
-      
-      <div className="container" style={{ padding: '40px 20px' }}>
+
+      <div style={{ marginTop: "133px" }}>
         <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div style={{
-              backgroundColor: 'white',
-              padding: '40px',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-            }}>
-              <h1 style={{ color: '#2c3e50', marginBottom: '30px', textAlign: 'center' }}>
-                🏰 About Custom LMS
-              </h1>
-              
-              <div style={{ fontSize: '16px', lineHeight: '1.6', color: '#555' }}>
-                <p style={{ marginBottom: '20px' }}>
-                  Welcome to the Custom Learning Management System - an innovative platform designed 
-                  to make learning interactive, engaging, and fun through gamified experiences.
-                </p>
-                
-                <h3 style={{ color: '#2c3e50', marginTop: '30px', marginBottom: '15px' }}>
-                  🎯 Our Mission
-                </h3>
-                <p style={{ marginBottom: '20px' }}>
-                  We believe that learning should be an adventure. Our platform transforms traditional 
-                  educational content into immersive experiences that challenge students while making 
-                  learning enjoyable and memorable.
-                </p>
-                
-                <h3 style={{ color: '#2c3e50', marginTop: '30px', marginBottom: '15px' }}>
-                  🚀 Features
-                </h3>
-                <ul style={{ marginBottom: '20px' }}>
-                  <li><strong>Escape Rooms:</strong> Interactive puzzle-solving experiences</li>
-                  <li><strong>Coding Races:</strong> Competitive programming challenges</li>
-                  <li><strong>Court Room:</strong> Debate and argumentation practice</li>
-                  <li><strong>Real-time Analytics:</strong> Track progress and performance</li>
-                  <li><strong>OpenTelemetry Integration:</strong> Advanced monitoring and insights</li>
-                </ul>
-                
-                <h3 style={{ color: '#2c3e50', marginTop: '30px', marginBottom: '15px' }}>
-                  🛠️ Technology Stack
-                </h3>
-                <p style={{ marginBottom: '20px' }}>
-                  Built with modern technologies including Next.js, React, Bootstrap, Prisma, 
-                  PostgreSQL, and OpenTelemetry for comprehensive observability.
-                </p>
-                
-                <div style={{
-                  backgroundColor: '#e3f2fd',
-                  padding: '20px',
-                  borderRadius: '8px',
-                  border: '1px solid #2196f3',
-                  marginTop: '30px'
-                }}>
-                  <h4 style={{ color: '#1976d2', marginBottom: '10px' }}>
-                    🔍 OpenTelemetry Instrumentation
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '14px' }}>
-                    Our platform includes comprehensive instrumentation for monitoring performance, 
-                    tracking user interactions, and providing detailed analytics for educators.
-                  </p>
+          <div className="col-md-8">
+            <div className="text-center" style={{ color: "var(--text-primary)" }}>
+              <h1 className="display-4 mb-4">About</h1>
+
+              {/* Student Information */}
+              <div className="card mb-4" style={{
+                backgroundColor: "var(--section-bg)",
+                color: "var(--text-primary)",
+                borderColor: "var(--border-color)"
+              }}>
+                <div className="card-body">
+                  <h2 className="card-title mb-3">Student Information</h2>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <p className="card-text">
+                        <strong>Name:</strong> Arunjot Babra
+                      </p>
+                    </div>
+                    <div className="col-md-6">
+                      <p className="card-text">
+                        <strong>Student Number:</strong> 21406232
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Video Section */}
+              <div className="card" style={{
+                backgroundColor: "var(--section-bg)",
+                color: "var(--text-primary)",
+                borderColor: "var(--border-color)"
+              }}>
+                <div className="card-body">
+                  <h2 className="card-title mb-3">Video Presentation</h2>
+                  <div className="video-container" style={{
+                    position: "relative",
+                    width: "100%",
+                    maxWidth: "800px",
+                    margin: "20px auto",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)"
+                  }}>
+                    <iframe
+                      src="/Moodle LMS Front End.mp4"
+                      title="Moodle LMS Front End Demo"
+                      style={{
+                        width: "100%",
+                        height: "450px",
+                        border: "none",
+                        borderRadius: "10px"
+                      }}
+                      allowFullScreen
+                    />
+                  </div>
+                  <div style={{ 
+                    textAlign: "center", 
+                    color: "var(--text-secondary)", 
+                    fontSize: "14px", 
+                    marginTop: "10px" 
+                  }}>
+                    <strong>Moodle LMS Front End Demo</strong> - Interactive demonstration of the learning management system features
+                  </div>
                 </div>
               </div>
             </div>
@@ -76,4 +84,4 @@ export default function About() {
       </div>
     </div>
   );
-}
+} 
