@@ -51,7 +51,8 @@ interface TempRoomData {
 // Load room data from backend (framework for future implementation)
 const loadRoomByCode = async (roomCode: string): Promise<TempRoomData | null> => {
   try {
-    const response = await fetch(`http://localhost:4000/api/play/${roomCode}`);
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4080';
+    const response = await fetch(`${baseUrl}/api/play/${roomCode}`);
     
     if (!response.ok) {
       if (response.status === 404) {

@@ -123,7 +123,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  email: 'email',
   createdAt: 'createdAt'
 };
 
@@ -131,7 +130,6 @@ exports.Prisma.RoomScalarFieldEnum = {
   id: 'id',
   roomId: 'roomId',
   userId: 'userId',
-  createdBy: 'createdBy',
   iconLayout: 'iconLayout',
   questions: 'questions',
   createdAt: 'createdAt',
@@ -156,11 +154,6 @@ exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
 };
 
 

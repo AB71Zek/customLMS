@@ -95,7 +95,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  email: 'email',
   createdAt: 'createdAt'
 };
 
@@ -103,7 +102,6 @@ exports.Prisma.RoomScalarFieldEnum = {
   id: 'id',
   roomId: 'roomId',
   userId: 'userId',
-  createdBy: 'createdBy',
   iconLayout: 'iconLayout',
   questions: 'questions',
   createdAt: 'createdAt',
@@ -128,11 +126,6 @@ exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
 };
 
 
@@ -162,6 +155,10 @@ const config = {
         "fromEnvVar": null,
         "value": "darwin-arm64",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "linux-arm64-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -179,6 +176,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -187,13 +185,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"app/generated/prisma/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  name      String\n  email     String   @unique\n  createdAt DateTime @default(now())\n  rooms     Room[]   @relation(\"UserRooms\")\n}\n\nmodel Room {\n  id         Int      @id @default(autoincrement())\n  roomId     String   @unique @db.VarChar(8)\n  userId     Int?\n  user       User?    @relation(\"UserRooms\", fields: [userId], references: [id], onDelete: Cascade)\n  createdBy  String // Teacher/creator name\n  iconLayout Json // [{ id,type,x,y }, ...]\n  questions  Json // [{ itemId, question, expectedAnswers:[] }, ...]\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n}\n",
-  "inlineSchemaHash": "efcedf48185767b8e781b32667b47a6857b729404b5ea3c766521f0af815ffdd",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"app/generated/prisma/client\"\n  binaryTargets = [\"native\", \"linux-arm64-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  name      String\n  createdAt DateTime @default(now())\n  rooms     Room[]   @relation(\"UserRooms\")\n}\n\nmodel Room {\n  id         Int      @id @default(autoincrement())\n  roomId     String   @unique @db.VarChar(8)\n  userId     Int\n  user       User     @relation(\"UserRooms\", fields: [userId], references: [id], onDelete: Cascade)\n  iconLayout Json // [{ id,type,x,y }, ...]\n  questions  Json // [{ itemId, question, expectedAnswers:[] }, ...]\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n}\n",
+  "inlineSchemaHash": "34689f8fe7e36b9876ac52eed983bf24b14a9d0e09bf237f16ff63b0d3ef868f",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"rooms\",\"kind\":\"object\",\"type\":\"Room\",\"relationName\":\"UserRooms\"}],\"dbName\":null},\"Room\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"roomId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserRooms\"},{\"name\":\"createdBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"iconLayout\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"questions\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"rooms\",\"kind\":\"object\",\"type\":\"Room\",\"relationName\":\"UserRooms\"}],\"dbName\":null},\"Room\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"roomId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserRooms\"},{\"name\":\"iconLayout\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"questions\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

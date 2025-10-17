@@ -25,17 +25,3 @@ scrape_configs:
       - targets: ['otel-collector:8889']
     scrape_interval: 10s
     metrics_path: /metrics
-
-  # Custom LMS Backend metrics
-  - job_name: 'customlms-backend'
-    static_configs:
-      - targets: ['backend:3000']
-    scrape_interval: 10s
-    metrics_path: /api/metrics
-
-  # Custom LMS Frontend metrics
-  - job_name: 'customlms-frontend'
-    static_configs:
-      - targets: ['frontend:3000']
-    scrape_interval: 10s
-    metrics_path: /api/metrics

@@ -50,7 +50,8 @@ export const generateEmbedCode = (roomId: string): string => {
 // Save room data to backend (framework for future implementation)
 export const saveRoomToBackend = async (roomData: RoomData): Promise<{ success: boolean; roomId?: string; error?: string }> => {
   try {
-    const response = await fetch('http://localhost:4000/api/rooms', {
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4080';
+    const response = await fetch(`${baseUrl}/api/rooms`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

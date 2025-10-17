@@ -67,7 +67,8 @@ function EscapeRoomEditorContent() {
       setIsLoadingRoom(true);
       setRoomError('');
       
-      const response = await fetch(`http://localhost:4000/api/play/${roomCode}`);
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4080';
+      const response = await fetch(`${baseUrl}/api/play/${roomCode}`);
       
       if (response.ok) {
         return true;

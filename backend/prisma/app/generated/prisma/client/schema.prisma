@@ -2,8 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "app/generated/prisma/client"
+  provider      = "prisma-client-js"
+  output        = "app/generated/prisma/client"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -14,7 +15,6 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   name      String
-  email     String   @unique
   createdAt DateTime @default(now())
   rooms     Room[]   @relation("UserRooms")
 }
@@ -22,9 +22,8 @@ model User {
 model Room {
   id         Int      @id @default(autoincrement())
   roomId     String   @unique @db.VarChar(8)
-  userId     Int?
-  user       User?    @relation("UserRooms", fields: [userId], references: [id], onDelete: Cascade)
-  createdBy  String // Teacher/creator name
+  userId     Int
+  user       User     @relation("UserRooms", fields: [userId], references: [id], onDelete: Cascade)
   iconLayout Json // [{ id,type,x,y }, ...]
   questions  Json // [{ itemId, question, expectedAnswers:[] }, ...]
   createdAt  DateTime @default(now())

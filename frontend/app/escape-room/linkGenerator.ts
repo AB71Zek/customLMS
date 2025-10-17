@@ -4,7 +4,7 @@
 // Generate direct play link for students
 export const generatePlayLink = (roomId: string): string => {
   // For development, use localhost. In production, this would be your EC2 server URL
-  const baseUrl = process.env.NEXT_PUBLIC_GAME_SERVER_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_GAME_SERVER_URL || 'http://localhost:80';
   return `${baseUrl}/escape-room?room=${roomId}`;
 };
 

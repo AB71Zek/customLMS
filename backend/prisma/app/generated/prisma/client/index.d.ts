@@ -1004,21 +1004,18 @@ export namespace Prisma {
   export type UserMinAggregateOutputType = {
     id: number | null
     name: string | null
-    email: string | null
     createdAt: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
     id: number | null
     name: string | null
-    email: string | null
     createdAt: Date | null
   }
 
   export type UserCountAggregateOutputType = {
     id: number
     name: number
-    email: number
     createdAt: number
     _all: number
   }
@@ -1035,21 +1032,18 @@ export namespace Prisma {
   export type UserMinAggregateInputType = {
     id?: true
     name?: true
-    email?: true
     createdAt?: true
   }
 
   export type UserMaxAggregateInputType = {
     id?: true
     name?: true
-    email?: true
     createdAt?: true
   }
 
   export type UserCountAggregateInputType = {
     id?: true
     name?: true
-    email?: true
     createdAt?: true
     _all?: true
   }
@@ -1143,7 +1137,6 @@ export namespace Prisma {
   export type UserGroupByOutputType = {
     id: number
     name: string
-    email: string
     createdAt: Date
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
@@ -1169,7 +1162,6 @@ export namespace Prisma {
   export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    email?: boolean
     createdAt?: boolean
     rooms?: boolean | User$roomsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1178,25 +1170,22 @@ export namespace Prisma {
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    email?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    email?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
     id?: boolean
     name?: boolean
-    email?: boolean
     createdAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "createdAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "createdAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     rooms?: boolean | User$roomsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1212,7 +1201,6 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
-      email: string
       createdAt: Date
     }, ExtArgs["result"]["user"]>
     composites: {}
@@ -1640,7 +1628,6 @@ export namespace Prisma {
   interface UserFieldRefs {
     readonly id: FieldRef<"User", 'Int'>
     readonly name: FieldRef<"User", 'String'>
-    readonly email: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
   }
     
@@ -2098,7 +2085,6 @@ export namespace Prisma {
     id: number | null
     roomId: string | null
     userId: number | null
-    createdBy: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2107,7 +2093,6 @@ export namespace Prisma {
     id: number | null
     roomId: string | null
     userId: number | null
-    createdBy: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2116,7 +2101,6 @@ export namespace Prisma {
     id: number
     roomId: number
     userId: number
-    createdBy: number
     iconLayout: number
     questions: number
     createdAt: number
@@ -2139,7 +2123,6 @@ export namespace Prisma {
     id?: true
     roomId?: true
     userId?: true
-    createdBy?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2148,7 +2131,6 @@ export namespace Prisma {
     id?: true
     roomId?: true
     userId?: true
-    createdBy?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2157,7 +2139,6 @@ export namespace Prisma {
     id?: true
     roomId?: true
     userId?: true
-    createdBy?: true
     iconLayout?: true
     questions?: true
     createdAt?: true
@@ -2254,8 +2235,7 @@ export namespace Prisma {
   export type RoomGroupByOutputType = {
     id: number
     roomId: string
-    userId: number | null
-    createdBy: string
+    userId: number
     iconLayout: JsonValue
     questions: JsonValue
     createdAt: Date
@@ -2285,70 +2265,65 @@ export namespace Prisma {
     id?: boolean
     roomId?: boolean
     userId?: boolean
-    createdBy?: boolean
     iconLayout?: boolean
     questions?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    user?: boolean | Room$userArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room"]>
 
   export type RoomSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     roomId?: boolean
     userId?: boolean
-    createdBy?: boolean
     iconLayout?: boolean
     questions?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    user?: boolean | Room$userArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room"]>
 
   export type RoomSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     roomId?: boolean
     userId?: boolean
-    createdBy?: boolean
     iconLayout?: boolean
     questions?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    user?: boolean | Room$userArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room"]>
 
   export type RoomSelectScalar = {
     id?: boolean
     roomId?: boolean
     userId?: boolean
-    createdBy?: boolean
     iconLayout?: boolean
     questions?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "userId" | "createdBy" | "iconLayout" | "questions" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
+  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "userId" | "iconLayout" | "questions" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
   export type RoomInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | Room$userArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type RoomIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | Room$userArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type RoomIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | Room$userArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }
 
   export type $RoomPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Room"
     objects: {
-      user: Prisma.$UserPayload<ExtArgs> | null
+      user: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       roomId: string
-      userId: number | null
-      createdBy: string
+      userId: number
       iconLayout: Prisma.JsonValue
       questions: Prisma.JsonValue
       createdAt: Date
@@ -2747,7 +2722,7 @@ export namespace Prisma {
    */
   export interface Prisma__RoomClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends Room$userArgs<ExtArgs> = {}>(args?: Subset<T, Room$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2780,7 +2755,6 @@ export namespace Prisma {
     readonly id: FieldRef<"Room", 'Int'>
     readonly roomId: FieldRef<"Room", 'String'>
     readonly userId: FieldRef<"Room", 'Int'>
-    readonly createdBy: FieldRef<"Room", 'String'>
     readonly iconLayout: FieldRef<"Room", 'Json'>
     readonly questions: FieldRef<"Room", 'Json'>
     readonly createdAt: FieldRef<"Room", 'DateTime'>
@@ -3181,25 +3155,6 @@ export namespace Prisma {
   }
 
   /**
-   * Room.user
-   */
-  export type Room$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
    * Room without action
    */
   export type RoomDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3235,7 +3190,6 @@ export namespace Prisma {
   export const UserScalarFieldEnum: {
     id: 'id',
     name: 'name',
-    email: 'email',
     createdAt: 'createdAt'
   };
 
@@ -3246,7 +3200,6 @@ export namespace Prisma {
     id: 'id',
     roomId: 'roomId',
     userId: 'userId',
-    createdBy: 'createdBy',
     iconLayout: 'iconLayout',
     questions: 'questions',
     createdAt: 'createdAt',
@@ -3286,14 +3239,6 @@ export namespace Prisma {
   };
 
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-  export const NullsOrder: {
-    first: 'first',
-    last: 'last'
-  };
-
-  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -3380,7 +3325,6 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     id?: IntFilter<"User"> | number
     name?: StringFilter<"User"> | string
-    email?: StringFilter<"User"> | string
     createdAt?: DateTimeFilter<"User"> | Date | string
     rooms?: RoomListRelationFilter
   }
@@ -3388,26 +3332,23 @@ export namespace Prisma {
   export type UserOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    email?: SortOrder
     createdAt?: SortOrder
     rooms?: RoomOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
     id?: number
-    email?: string
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     name?: StringFilter<"User"> | string
     createdAt?: DateTimeFilter<"User"> | Date | string
     rooms?: RoomListRelationFilter
-  }, "id" | "email">
+  }, "id">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    email?: SortOrder
     createdAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
@@ -3422,7 +3363,6 @@ export namespace Prisma {
     NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"User"> | number
     name?: StringWithAggregatesFilter<"User"> | string
-    email?: StringWithAggregatesFilter<"User"> | string
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
 
@@ -3432,20 +3372,18 @@ export namespace Prisma {
     NOT?: RoomWhereInput | RoomWhereInput[]
     id?: IntFilter<"Room"> | number
     roomId?: StringFilter<"Room"> | string
-    userId?: IntNullableFilter<"Room"> | number | null
-    createdBy?: StringFilter<"Room"> | string
+    userId?: IntFilter<"Room"> | number
     iconLayout?: JsonFilter<"Room">
     questions?: JsonFilter<"Room">
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
-    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type RoomOrderByWithRelationInput = {
     id?: SortOrder
     roomId?: SortOrder
-    userId?: SortOrderInput | SortOrder
-    createdBy?: SortOrder
+    userId?: SortOrder
     iconLayout?: SortOrder
     questions?: SortOrder
     createdAt?: SortOrder
@@ -3459,20 +3397,18 @@ export namespace Prisma {
     AND?: RoomWhereInput | RoomWhereInput[]
     OR?: RoomWhereInput[]
     NOT?: RoomWhereInput | RoomWhereInput[]
-    userId?: IntNullableFilter<"Room"> | number | null
-    createdBy?: StringFilter<"Room"> | string
+    userId?: IntFilter<"Room"> | number
     iconLayout?: JsonFilter<"Room">
     questions?: JsonFilter<"Room">
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
-    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id" | "roomId">
 
   export type RoomOrderByWithAggregationInput = {
     id?: SortOrder
     roomId?: SortOrder
-    userId?: SortOrderInput | SortOrder
-    createdBy?: SortOrder
+    userId?: SortOrder
     iconLayout?: SortOrder
     questions?: SortOrder
     createdAt?: SortOrder
@@ -3490,8 +3426,7 @@ export namespace Prisma {
     NOT?: RoomScalarWhereWithAggregatesInput | RoomScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"Room"> | number
     roomId?: StringWithAggregatesFilter<"Room"> | string
-    userId?: IntNullableWithAggregatesFilter<"Room"> | number | null
-    createdBy?: StringWithAggregatesFilter<"Room"> | string
+    userId?: IntWithAggregatesFilter<"Room"> | number
     iconLayout?: JsonWithAggregatesFilter<"Room">
     questions?: JsonWithAggregatesFilter<"Room">
     createdAt?: DateTimeWithAggregatesFilter<"Room"> | Date | string
@@ -3500,7 +3435,6 @@ export namespace Prisma {
 
   export type UserCreateInput = {
     name: string
-    email: string
     createdAt?: Date | string
     rooms?: RoomCreateNestedManyWithoutUserInput
   }
@@ -3508,14 +3442,12 @@ export namespace Prisma {
   export type UserUncheckedCreateInput = {
     id?: number
     name: string
-    email: string
     createdAt?: Date | string
     rooms?: RoomUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rooms?: RoomUpdateManyWithoutUserNestedInput
   }
@@ -3523,7 +3455,6 @@ export namespace Prisma {
   export type UserUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rooms?: RoomUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -3531,38 +3462,33 @@ export namespace Prisma {
   export type UserCreateManyInput = {
     id?: number
     name: string
-    email: string
     createdAt?: Date | string
   }
 
   export type UserUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RoomCreateInput = {
     roomId: string
-    createdBy: string
     iconLayout: JsonNullValueInput | InputJsonValue
     questions: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    user?: UserCreateNestedOneWithoutRoomsInput
+    user: UserCreateNestedOneWithoutRoomsInput
   }
 
   export type RoomUncheckedCreateInput = {
     id?: number
     roomId: string
-    userId?: number | null
-    createdBy: string
+    userId: number
     iconLayout: JsonNullValueInput | InputJsonValue
     questions: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -3571,19 +3497,17 @@ export namespace Prisma {
 
   export type RoomUpdateInput = {
     roomId?: StringFieldUpdateOperationsInput | string
-    createdBy?: StringFieldUpdateOperationsInput | string
     iconLayout?: JsonNullValueInput | InputJsonValue
     questions?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneWithoutRoomsNestedInput
+    user?: UserUpdateOneRequiredWithoutRoomsNestedInput
   }
 
   export type RoomUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     roomId?: StringFieldUpdateOperationsInput | string
-    userId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdBy?: StringFieldUpdateOperationsInput | string
+    userId?: IntFieldUpdateOperationsInput | number
     iconLayout?: JsonNullValueInput | InputJsonValue
     questions?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -3593,8 +3517,7 @@ export namespace Prisma {
   export type RoomCreateManyInput = {
     id?: number
     roomId: string
-    userId?: number | null
-    createdBy: string
+    userId: number
     iconLayout: JsonNullValueInput | InputJsonValue
     questions: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -3603,7 +3526,6 @@ export namespace Prisma {
 
   export type RoomUpdateManyMutationInput = {
     roomId?: StringFieldUpdateOperationsInput | string
-    createdBy?: StringFieldUpdateOperationsInput | string
     iconLayout?: JsonNullValueInput | InputJsonValue
     questions?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -3613,8 +3535,7 @@ export namespace Prisma {
   export type RoomUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     roomId?: StringFieldUpdateOperationsInput | string
-    userId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdBy?: StringFieldUpdateOperationsInput | string
+    userId?: IntFieldUpdateOperationsInput | number
     iconLayout?: JsonNullValueInput | InputJsonValue
     questions?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -3671,7 +3592,6 @@ export namespace Prisma {
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    email?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -3682,14 +3602,12 @@ export namespace Prisma {
   export type UserMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    email?: SortOrder
     createdAt?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    email?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -3744,17 +3662,6 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
-
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -3779,21 +3686,15 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type UserNullableScalarRelationFilter = {
-    is?: UserWhereInput | null
-    isNot?: UserWhereInput | null
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
   }
 
   export type RoomCountOrderByAggregateInput = {
     id?: SortOrder
     roomId?: SortOrder
     userId?: SortOrder
-    createdBy?: SortOrder
     iconLayout?: SortOrder
     questions?: SortOrder
     createdAt?: SortOrder
@@ -3809,7 +3710,6 @@ export namespace Prisma {
     id?: SortOrder
     roomId?: SortOrder
     userId?: SortOrder
-    createdBy?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -3818,7 +3718,6 @@ export namespace Prisma {
     id?: SortOrder
     roomId?: SortOrder
     userId?: SortOrder
-    createdBy?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -3826,22 +3725,6 @@ export namespace Prisma {
   export type RoomSumOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -3934,22 +3817,12 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type UserUpdateOneWithoutRoomsNestedInput = {
+  export type UserUpdateOneRequiredWithoutRoomsNestedInput = {
     create?: XOR<UserCreateWithoutRoomsInput, UserUncheckedCreateWithoutRoomsInput>
     connectOrCreate?: UserCreateOrConnectWithoutRoomsInput
     upsert?: UserUpsertWithoutRoomsInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRoomsInput, UserUpdateWithoutRoomsInput>, UserUncheckedUpdateWithoutRoomsInput>
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -4045,44 +3918,6 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
-
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -4109,7 +3944,6 @@ export namespace Prisma {
 
   export type RoomCreateWithoutUserInput = {
     roomId: string
-    createdBy: string
     iconLayout: JsonNullValueInput | InputJsonValue
     questions: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -4119,7 +3953,6 @@ export namespace Prisma {
   export type RoomUncheckedCreateWithoutUserInput = {
     id?: number
     roomId: string
-    createdBy: string
     iconLayout: JsonNullValueInput | InputJsonValue
     questions: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -4158,8 +3991,7 @@ export namespace Prisma {
     NOT?: RoomScalarWhereInput | RoomScalarWhereInput[]
     id?: IntFilter<"Room"> | number
     roomId?: StringFilter<"Room"> | string
-    userId?: IntNullableFilter<"Room"> | number | null
-    createdBy?: StringFilter<"Room"> | string
+    userId?: IntFilter<"Room"> | number
     iconLayout?: JsonFilter<"Room">
     questions?: JsonFilter<"Room">
     createdAt?: DateTimeFilter<"Room"> | Date | string
@@ -4168,14 +4000,12 @@ export namespace Prisma {
 
   export type UserCreateWithoutRoomsInput = {
     name: string
-    email: string
     createdAt?: Date | string
   }
 
   export type UserUncheckedCreateWithoutRoomsInput = {
     id?: number
     name: string
-    email: string
     createdAt?: Date | string
   }
 
@@ -4197,21 +4027,18 @@ export namespace Prisma {
 
   export type UserUpdateWithoutRoomsInput = {
     name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserUncheckedUpdateWithoutRoomsInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RoomCreateManyUserInput = {
     id?: number
     roomId: string
-    createdBy: string
     iconLayout: JsonNullValueInput | InputJsonValue
     questions: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -4220,7 +4047,6 @@ export namespace Prisma {
 
   export type RoomUpdateWithoutUserInput = {
     roomId?: StringFieldUpdateOperationsInput | string
-    createdBy?: StringFieldUpdateOperationsInput | string
     iconLayout?: JsonNullValueInput | InputJsonValue
     questions?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4230,7 +4056,6 @@ export namespace Prisma {
   export type RoomUncheckedUpdateWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     roomId?: StringFieldUpdateOperationsInput | string
-    createdBy?: StringFieldUpdateOperationsInput | string
     iconLayout?: JsonNullValueInput | InputJsonValue
     questions?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4240,7 +4065,6 @@ export namespace Prisma {
   export type RoomUncheckedUpdateManyWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     roomId?: StringFieldUpdateOperationsInput | string
-    createdBy?: StringFieldUpdateOperationsInput | string
     iconLayout?: JsonNullValueInput | InputJsonValue
     questions?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

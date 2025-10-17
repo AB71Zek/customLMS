@@ -8,12 +8,12 @@ export async function POST(request: NextRequest) {
     .startActiveSpan('create-user', async (span) => {
       try {
         const body = await request.json();
-        const { name, email } = body;
+        const { name } = body;
 
-        if (!name || !email) {
+        if (!name) {
           span.setStatus({ code: 2, message: 'Missing required fields' });
           return NextResponse.json(
-            { error: 'Name and email are required' },
+            { error: 'Name is required' },
             { status: 400 }
           );
         }
@@ -21,13 +21,11 @@ export async function POST(request: NextRequest) {
         const user = await prisma.user.create({
           data: {
             name,
-            email,
           },
         });
 
         span.setAttributes({
           'user.id': user.id,
-          'user.email': user.email,
           'user.name': user.name
         });
 
