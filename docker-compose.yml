@@ -8,10 +8,6 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:4080
-      - NEXT_OTEL_VERBOSE=1
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-      - OTEL_SERVICE_NAME=customlms-frontend
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=customlms-frontend,service.version=1.0.0
     depends_on:
       - backend
       - otel-collector
