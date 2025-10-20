@@ -67,7 +67,10 @@ function EscapeRoomEditorContent() {
       setIsLoadingRoom(true);
       setRoomError('');
       
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4080';
+      const isProduction = process.env.NODE_ENV === 'production';
+      const baseUrl = isProduction 
+        ? `http://${window.location.hostname}:4080`
+        : (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4080');
       const response = await fetch(`${baseUrl}/api/play/${roomCode}`);
       
       if (response.ok) {
