@@ -61,6 +61,33 @@ function EscapeRoomEditorContent() {
     };
   }, []);
 
+  // Helper function for legacy clipboard copy
+  const copyToClipboardLegacy = (text: string) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        alert('Link copied to clipboard!');
+      } else {
+        // Show the link in a prompt as last resort
+        prompt('Copy this link manually:', text);
+      }
+    } catch (err) {
+      // Show the link in a prompt as last resort
+      prompt('Copy this link manually:', text);
+    }
+  };
+
   // Function to validate room existence via API
   const validateRoomExists = async (roomCode: string): Promise<boolean> => {
     try {
@@ -437,8 +464,16 @@ function EscapeRoomEditorContent() {
                     padding: '8px 12px',
                     display: 'inline-block',
                     wordBreak: 'break-all',
-                    maxWidth: '100%'
-                  }}>
+                    maxWidth: '100%',
+                    cursor: 'pointer',
+                    userSelect: 'all'
+                  }}
+                  onClick={() => {
+                    const playLink = generatePlayLink(savedRoomId);
+                    copyToClipboardLegacy(playLink);
+                  }}
+                  title="Click to copy link"
+                  >
                     {generatePlayLink(savedRoomId)}
                   </div>
                 </div>
@@ -477,18 +512,19 @@ function EscapeRoomEditorContent() {
                 <button
                     onClick={() => {
                       const playLink = generatePlayLink(savedRoomId);
-                      navigator.clipboard.writeText(playLink).then(() => {
-                        alert('Link copied to clipboard!');
-                      }).catch(() => {
-                        // Fallback for older browsers
-                        const textArea = document.createElement('textarea');
-                        textArea.value = playLink;
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(textArea);
-                        alert('Link copied to clipboard!');
-                      });
+                      
+                      // Try modern clipboard API first
+                      if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(playLink).then(() => {
+                          alert('Link copied to clipboard!');
+                        }).catch(() => {
+                          // Fallback to legacy method
+                          copyToClipboardLegacy(playLink);
+                        });
+                      } else {
+                        // Use legacy method for HTTP sites
+                        copyToClipboardLegacy(playLink);
+                      }
                     }}
                     className="btn btn-primary"
                   style={{
