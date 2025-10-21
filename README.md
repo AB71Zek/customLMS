@@ -11,14 +11,18 @@ An interactive escape room learning management system built with Next.js, React,
 - 📊 **Real-time Analytics**: OpenTelemetry instrumentation for monitoring
 - 🎨 **Modern UI**: Bootstrap-based responsive design
 - 🌙 **Theme Support**: Light/dark mode toggle
+- ☁️ **AWS Lambda**: Room validation and listing functions
+- 🧪 **Testing**: Playwright end-to-end tests
 
 ## Technology Stack
 
 - **Frontend**: Next.js 13+ (App Router), React, Bootstrap
 - **Backend**: Next.js API Routes, Prisma ORM
 - **Database**: PostgreSQL
-- **Monitoring**: OpenTelemetry instrumentation
+- **Monitoring**: OpenTelemetry instrumentation (Jaeger, Zipkin, Prometheus)
 - **Containerization**: Docker & Docker Compose
+- **Cloud**: AWS Lambda, API Gateway
+- **Testing**: Playwright
 
 ## Project Structure
 
@@ -29,7 +33,7 @@ customLMS/
 │   │   ├── escape-room/   # Main escape room application
 │   │   ├── Components/    # Reusable components
 │   │   └── public/        # Static assets
-│   ├── instrumentation.ts # OpenTelemetry setup
+│   ├── tests/             # Playwright tests
 │   └── package.json
 ├── backend/               # Next.js backend API
 │   ├── app/
@@ -37,38 +41,42 @@ customLMS/
 │   │   └── page.tsx       # Backend dashboard
 │   ├── prisma/            # Database schema
 │   ├── lib/               # Prisma client
-│   ├── instrumentation.ts # OpenTelemetry setup
 │   └── package.json
-└── docker-compose.yml     # Multi-container setup
+├── lambda/                # AWS Lambda functions
+│   └── room-validator/    # Room validation Lambda
+├── docker-compose.yml     # Multi-container setup
+├── otel-collector-config.yaml # OpenTelemetry configuration
+└── prometheus.yaml        # Prometheus monitoring config
 ```
 
 ## API Endpoints
 
-### Users
+### Backend API (EC2)
 - `GET /api/users` - Fetch all users
 - `POST /api/users` - Create new user
-
-### Rooms
 - `GET /api/rooms` - Fetch all rooms
 - `POST /api/rooms` - Create new room
 - `GET /api/rooms/[roomId]` - Fetch specific room
 - `PUT /api/rooms/[roomId]` - Update room
-
-### Play
 - `GET /api/play/[roomId]` - Public room data for playing
 
-## Development
+### AWS Lambda API
+- `GET /room-list` - List all rooms (Lambda function)
+- `GET /room-list?limit=5` - Limited results
+- `GET /room-list?createdBy=John` - Filter by creator
+
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+
 - Docker & Docker Compose
-- PostgreSQL (or use Docker)
+- AWS Account (for Lambda functions)
 
 ### Local Development
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/AB71Zek/customLMS.git
    cd customLMS
    ```
 
@@ -77,53 +85,124 @@ customLMS/
    docker-compose up --build
    ```
 
-3. **Or run individually**
-   ```bash
-   # Backend
-   cd backend
-   npm install
-   npm run db:generate
-   npm run db:migrate
-   npm run dev
+3. **Access the application**
+   - Frontend: http://localhost:80
+   - Backend: http://localhost:4080
+   - Prometheus: http://localhost:9090
+   - Jaeger: http://localhost:16686
 
-   # Frontend (in another terminal)
-   cd frontend
-   npm install
-   npm run dev
+### EC2 Deployment
+
+1. **Launch EC2 instance** (Amazon Linux 2)
+2. **Install Docker**
+   ```bash
+   sudo yum update -y
+   sudo yum install -y docker
+   sudo systemctl start docker
+   sudo systemctl enable docker
+   sudo usermod -a -G docker ec2-user
    ```
 
-### Environment Variables
+3. **Install Docker Compose**
+   ```bash
+   sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+   sudo chmod +x /usr/local/bin/docker-compose
+   ```
 
-Create `.env` files in both frontend and backend directories:
+4. **Deploy application**
+   ```bash
+   git clone https://github.com/AB71Zek/customLMS.git
+   cd customLMS
+   sudo docker-compose up -d
+   ```
 
-```env
-# Backend .env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/customlms"
-NEXTAUTH_SECRET="your-secret-key"
-NODE_ENV="development"
+5. **Update URLs** (see URL Configuration section below)
+
+## URL Configuration
+
+When deploying to a new EC2 instance, update these URLs in the following files:
+
+### Files to Update:
+
+1. **`docker-compose.yml`**
+   ```yaml
+   environment:
+     - NEXT_PUBLIC_BACKEND_URL=http://YOUR-NEW-EC2-DNS:4080
+     - NEXT_PUBLIC_GAME_SERVER_URL=http://YOUR-NEW-EC2-DNS
+   ```
+
+2. **`frontend/playwright.config.ts`**
+   ```typescript
+   baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://YOUR-NEW-EC2-DNS',
+   url: 'http://YOUR-NEW-EC2-DNS',
+   ```
+
+3. **`frontend/app/escape-room/linkGenerator.ts`**
+   ```typescript
+   const baseUrl = process.env.NEXT_PUBLIC_GAME_SERVER_URL || 'http://YOUR-NEW-EC2-DNS';
+   ```
+
+4. **`frontend/app/escape-room/editor/CombinedEditor.tsx`**
+   ```typescript
+   const baseUrl = process.env.NEXT_PUBLIC_GAME_SERVER_URL || 'http://YOUR-NEW-EC2-DNS';
+   ```
+
+5. **`prometheus.yaml`**
+   ```yaml
+   - targets: ['YOUR-NEW-EC2-DNS:9090']
+   ```
+
+### Dynamic URLs (No Changes Needed):
+- `window.location.hostname` - Automatically uses new DNS
+- Environment variables - Will use new values from docker-compose.yml
+
+### Lambda Function URLs:
+- Update Lambda environment variables if connecting to database
+- Update API Gateway endpoints if needed
+
+## Monitoring & Observability
+
+### OpenTelemetry Stack
+- **Jaeger**: http://YOUR-EC2-DNS:16686 (Distributed tracing)
+- **Zipkin**: http://YOUR-EC2-DNS:9411 (Alternative tracing)
+- **Prometheus**: http://YOUR-EC2-DNS:9090 (Metrics)
+- **OpenTelemetry Collector**: Port 8888 (Data processing)
+
+### Security Groups Required:
+```
+Port 22 (SSH) - Your IP
+Port 80 (Frontend) - 0.0.0.0/0
+Port 4080 (Backend) - 0.0.0.0/0
+Port 5432 (PostgreSQL) - 0.0.0.0/0 (for Lambda)
+Port 8888 (OTEL Collector) - 0.0.0.0/0
+Port 9090 (Prometheus) - 0.0.0.0/0
+Port 16686 (Jaeger) - 0.0.0.0/0
+Port 9411 (Zipkin) - 0.0.0.0/0
 ```
 
-## OpenTelemetry Instrumentation
+## Testing
 
-The application includes comprehensive OpenTelemetry instrumentation:
-
-- **Frontend**: User interactions, API calls, timer operations
-- **Backend**: Database operations, API request/response cycles
-- **Performance**: Response times, error tracking
-- **Custom Metrics**: Room creation, user engagement
-
-## Deployment
-
-### Docker Deployment
+### Playwright Tests
 ```bash
-docker-compose up --build -d
+cd frontend
+npx playwright test
 ```
 
-### Manual Deployment
-1. Build both applications
-2. Set up PostgreSQL database
-3. Run Prisma migrations
-4. Deploy frontend and backend separately
+### Lambda Testing
+- Use AWS Console test events
+- Test API Gateway endpoints
+- Verify database connectivity
+
+## Features Checklist
+
+- ✅ **Game Features**: Interactive escape rooms, timer system, puzzle system
+- ✅ **Dockerization**: Multi-container setup with Docker Compose
+- ✅ **APIs/Database**: RESTful APIs with PostgreSQL database
+- ✅ **Instrumentation**: OpenTelemetry with Jaeger, Zipkin, Prometheus
+- ✅ **Playwright Tests**: End-to-end testing framework
+- ✅ **Lighthouse Report**: Performance and accessibility testing
+- ✅ **Cloud Deployment**: EC2 deployment with monitoring
+- ✅ **Lambda Function**: AWS Lambda for room validation and listing
 
 ## Contributing
 
