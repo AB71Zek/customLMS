@@ -57,8 +57,8 @@ export default function About() {
                     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)"
                   }}>
                     <iframe
-                      src="/Moodle LMS Front End.mp4"
-                      title="Moodle LMS Front End Demo"
+                      src="/CustomLMS_FullStack.mp4"
+                      title="Custom LMS Full Stack Demo"
                       style={{
                         width: "100%",
                         height: "450px",
@@ -74,7 +74,7 @@ export default function About() {
                     fontSize: "14px", 
                     marginTop: "10px" 
                   }}>
-                    <strong>Moodle LMS Front End Demo</strong> - Interactive demonstration of the learning management system features
+                    <strong>Custom LMS Full Stack Demo</strong> - Interactive demonstration of the learning management system features
                   </div>
                 </div>
               </div>
