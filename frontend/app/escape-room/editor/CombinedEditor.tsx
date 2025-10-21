@@ -37,7 +37,7 @@ export const generateRoomId = (): string => {
 // Generate embeddable link for external websites
 export const generateEmbedLink = (roomId: string): string => {
   // This will be the URL where the game runs on your EC2 server
-  const baseUrl = process.env.NEXT_PUBLIC_GAME_SERVER_URL || 'http://ec2-98-86-174-80.compute-1.amazonaws.com';
+  const baseUrl = process.env.NEXT_PUBLIC_GAME_SERVER_URL || 'http://ec2-3-81-227-94.compute-1.amazonaws.com';
   return `${baseUrl}/play/${roomId}`;
 };
 
