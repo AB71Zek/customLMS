@@ -454,7 +454,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
         }}>
           <div style={{
             background: 'white',
-            border: '2px solid #666666',
+            border: '2px solid var(--border-color)',
             borderRadius: '12px',
             padding: '24px',
             width: '90%',
@@ -470,7 +470,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
                 width={48} 
                 height={48}
                 style={{ 
-                  border: '2px solid #666666', 
+                  border: '2px solid var(--border-color)', 
                   borderRadius: '8px',
                   marginBottom: '8px'
                 }}
@@ -538,7 +538,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
                   style={{
                     width: '100%',
                     padding: '8px',
-                    border: '1px solid #666666',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '6px',
                     fontSize: '14px',
                     minHeight: '60px',
@@ -601,7 +601,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
         }}>
           <div style={{
             background: 'white',
-            border: '2px solid #666666',
+            border: '2px solid var(--border-color)',
             borderRadius: '12px',
             padding: '24px',
             width: '90%',
@@ -617,7 +617,7 @@ export default function GameRoom({ roomCode, onComplete, timerSeconds = 0 }: Gam
                 width={64} 
                 height={64}
                 style={{ 
-                  border: '2px solid #666666', 
+                  border: '2px solid var(--border-color)', 
                   borderRadius: '8px',
                   marginBottom: '8px'
                 }}

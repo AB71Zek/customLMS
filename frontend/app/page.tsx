@@ -174,12 +174,12 @@ export default function Home() {
 
 
   return (
-    <div style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", marginBottom: "60px", minHeight: "100vh" }} className="theme-transition" data-theme={theme}>
+    <div style={{ backgroundColor: theme === 'light' ? '#ffffff' : 'var(--background)', padding: "0", marginBottom: "0px", minHeight: "100vh" }} className="theme-transition" data-theme={theme}>
       <Header studentNumber="21406232" />
 
       {/* Main Content - 3 Sections */}
-      <div style={{ marginTop: "133px", padding: "20px" }}>
-        <div className="row" style={{ minHeight: "70vh" }}>
+      <div style={{ marginTop: "135px", padding: "20px" }}>
+        <div className="row" style={{ minHeight: "80vh" }}>
           
           {/* Left Section - Tabs */}
           <div className="col-md-3">

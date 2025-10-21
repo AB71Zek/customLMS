@@ -202,7 +202,7 @@ function EscapeRoomEditorContent() {
                   width: '90%',
                   maxWidth: '500px',
                   background: '#ffffff',
-                  border: '3px solid #666666',
+                  border: '3px solid var(--border-color)',
                   borderRadius: '16px',
                   padding: '32px',
                   zIndex: 16,
@@ -245,7 +245,7 @@ function EscapeRoomEditorContent() {
                     style={{
                       width: '100%',
                       padding: '12px 16px',
-                      border: '2px solid #666666',
+                      border: '2px solid var(--border-color)',
                       borderRadius: '8px',
                       fontSize: '16px',
                       fontWeight: 600,
@@ -283,7 +283,7 @@ function EscapeRoomEditorContent() {
                     style={{
                       backgroundColor: '#ffffff',
                       color: '#000',
-                      borderColor: '#666666',
+                      borderColor: 'var(--border-color)',
                       borderWidth: '2px',
                       padding: '12px 24px',
                       borderRadius: '8px',
@@ -299,7 +299,7 @@ function EscapeRoomEditorContent() {
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = '#ffffff';
-                      e.currentTarget.style.borderColor = '#666666';
+                      e.currentTarget.style.borderColor = 'var(--border-color)';
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
@@ -487,7 +487,7 @@ function EscapeRoomEditorContent() {
                     style={{
                       backgroundColor: '#ffffff',
                       color: '#000',
-                      borderColor: '#666666',
+                      borderColor: 'var(--border-color)',
                       borderWidth: '2px',
                       padding: '12px 24px',
                       borderRadius: '8px',
@@ -503,7 +503,7 @@ function EscapeRoomEditorContent() {
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = '#ffffff';
-                      e.currentTarget.style.borderColor = '#666666';
+                      e.currentTarget.style.borderColor = 'var(--border-color)';
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
