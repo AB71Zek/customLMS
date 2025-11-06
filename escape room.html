@@ -6,16 +6,259 @@
   <title>Escape Room</title>
 </head>
 <body style="margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; background: #1f1f1f; color: #ffffff; min-height:100vh;">
-  <!-- NOTE: Replace light blue with background-image: url('your-image.png') when ready -->
-  <div
+  <!-- Landing (Generator intro) -->
+  <div id="landing"
     style="
-      background-color: lightblue;
-      outline: 3px solid red;
+      background-color: lightblue; /* NOTE: replace with background-image later */
+      outline: 2px solid red;
       width: 96%;
-      height: 60vh;
+      height: 50vh;
       margin: 5vh auto;
       border-radius: 8px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     "
-  ></div>
+  >
+    <div>
+      <div style="color: rgba(255, 255, 255, 1); 
+        margin-bottom: 16px;          
+        border: 2px solid;
+        border-color: #EBB800;
+        background-color: rgba(235, 184, 0, 0.5);
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-weight: 900;">
+        ESCAPE ROOM GENERATOR
+      </div>
+
+      <button id="btnCreate"
+        style="
+          background: #EBB800;
+          color: #ffffff;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 20px;
+          font-weight: 700;
+          cursor: pointer;
+        "
+      >
+        Create Room
+      </button>
+    </div>
+  </div>
+
+  <!-- Editor container (hidden initially) -->
+  <div id="editor"
+    style="
+      display: none;
+      width: 96%;
+      height: 50vh;
+      margin: 5vh auto;
+      border-radius: 8px;
+      outline: 2px solid red;
+      background: #202020; /* NOTE: will be replaced by an image later */
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+      font-size: clamp(10px, 1.1vw, 14px); /* base scales with container */
+    "
+  >
+    <!-- STEP 1: Select Timer -->
+    <div id="step1">
+      <div style="font-weight:900; color:#EBB800; margin-bottom:10px; font-size:1.1em; letter-spacing:0.5px; text-align:center;">STEP 1 : SELECT TIMER</div>
+      <div style="position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; text-align:center;">
+        <div style="display:flex; gap:0.6em; flex-wrap:wrap; align-items:center; justify-content:center; margin-bottom:0.5em;">
+          <button id="opt5"
+            style="
+              background:#333; color:#fff; border:1px solid #666; border-radius:0.5em; padding:0.6em 0.9em; cursor:pointer; font-size:1em; font-weight:700; display:inline-block;"
+          >5 min</button>
+          <button id="opt10"
+            style="
+              background:#333; color:#fff; border:1px solid #666; border-radius:0.5em; padding:0.6em 0.9em; cursor:pointer; font-size:1em; font-weight:700; display:inline-block;"
+          >10 min</button>
+        </div>
+
+        <div style="font-size:0.9em; color:#ccc; margin:0.4em 0;">OR</div>
+
+        <div style="font-size:0.9em; color:#ccc; margin:0.3em 0;">Custom Timer (max 1800 seconds)</div>
+        <input id="customSec" type="number" min="1" max="1800" placeholder="e.g., 600"
+          style="
+            width:8em; background:#1a1a1a; color:#fff; border:1px solid #555; border-radius:0.4em; padding:0.5em 0.6em; font-size:0.95em; margin-bottom:0.4em; text-align:center;"
+        >
+        <div id="timerMsg" style="color:#bbb; font-size:0.85em; min-height:1.2em;">&nbsp;</div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Create Room (single overlay box inside main area) -->
+    <div id="step2" style="display:none; width:100%; height:100%; position:relative;">
+      <div style="font-weight:900; color:#EBB800; margin-bottom:0.4em; font-size:1.05em; letter-spacing:0.4px; text-align:center;">STEP 2 : CREATE ROOM</div>
+
+      <!-- HTML Image Map filling the editor area (behind overlays) -->
+      <img id="roomImg"
+        src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='500'><rect width='100%' height='100%' fill='%23202020'/></svg>"
+        width="1000" height="500"
+        usemap="#roommap"
+        alt="Room Map"
+        style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; z-index:0;"
+      >
+      <map name="roommap">
+        <!-- 4 clickable slots (prevent default and handle in JS). Coords are intrinsic, will be scaled in JS -->
+        <!-- Slot1 moved away from top-left box: from (120,80,240,160) to (180,110,300,190) -->
+        <area id="slot1" shape="rect" coords="180,110,300,190" data-coords="180,110,300,190" href="#" alt="Slot 1" title="Slot 1">
+        <area id="slot2" shape="rect" coords="360,120,480,200" data-coords="360,120,480,200" href="#" alt="Slot 2" title="Slot 2">
+        <area id="slot3" shape="rect" coords="600,180,720,260" data-coords="600,180,720,260" href="#" alt="Slot 3" title="Slot 3">
+        <area id="slot4" shape="rect" coords="240,300,360,380" data-coords="240,300,360,380" href="#" alt="Slot 4" title="Slot 4">
+        <!-- 1 unclickable slot: no href -->
+        <area id="slot5" shape="rect" coords="760,80,880,160" data-coords="760,80,880,160" alt="Slot 5 (disabled)" title="Slot 5 (disabled)">
+      </map>
+
+      <!-- Visible editor highlights matching the 5 areas -->
+      <!-- White translucent for clickable ones -->
+      <div id="hl1" style="position:absolute; left:18%; top:22%; width:12%; height:16%; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); z-index:1; pointer-events:none;"></div>
+      <div id="hl2" style="position:absolute; left:36%; top:24%; width:12%; height:16%; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); z-index:1; pointer-events:none;"></div>
+      <div id="hl3" style="position:absolute; left:60%; top:36%; width:12%; height:16%; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); z-index:1; pointer-events:none;"></div>
+      <div id="hl4" style="position:absolute; left:24%; top:60%; width:12%; height:16%; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); z-index:1; pointer-events:none;"></div>
+      <!-- Yellow and unclickable for the disabled one -->
+      <div id="hl5" style="position:absolute; left:76%; top:16%; width:12%; height:16%; border:2px dashed #EBB800; background-color:rgba(235,184,0,0.25); z-index:1; pointer-events:none;"></div>
+
+      <!-- Left overlay Requirement box, inside the main editor area -->
+      <div
+        style="
+          position:absolute;
+          top:6px;
+          left:10px;
+          width:16%;
+          min-width:140px;
+          max-width:200px;
+          background:#1a1a1a;
+          border:1px solid #333;
+          border-radius:0.4em;
+          padding:0.6em;
+          text-align:left;
+          z-index:2;
+        "
+      >
+        <div style="font-weight:800; color:#fff; font-size:0.9em; margin-bottom:0.5em; text-align:center;">Requirement:</div>
+        <div id="req-line-has-icon" style="font-size:0.8em; margin-bottom:0.35em; color:#dc3545;">
+          • Click & Edit at least 1 Icon
+        </div>
+      </div>
+      <!-- The rest of the editor area remains unobstructed for future drag/drop on background image -->
+    </div>
+
+    <!-- Bottom-right controls -->
+    <div style="position:absolute; right:12px; bottom:12px; display:flex; gap:8px; font-size:1em;">
+      <button id="btnBack"
+        style="
+          background: transparent; color: #ffffff; border: 1px solid #777; border-radius: 0.4em; padding: 0.5em 0.8em; font-weight: 700; cursor: pointer; font-size:0.9em;"
+      >Back</button>
+      <button id="btnNext"
+        style="
+          background:#EBB800; color:#111; border: none; border-radius: 0.4em; padding: 0.5em 0.8em; font-weight: 800; cursor: pointer; font-size:0.9em;"
+      >Next</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var btn = document.getElementById('btnCreate');
+      var landing = document.getElementById('landing');
+      var editor = document.getElementById('editor');
+      var btnBack = document.getElementById('btnBack');
+      var btnNext = document.getElementById('btnNext');
+
+      var step1 = document.getElementById('step1');
+      var step2 = document.getElementById('step2');
+      var currentStep = 1;
+
+      // Timer controls
+      var opt5 = document.getElementById('opt5');
+      var opt10 = document.getElementById('opt10');
+      var customSec = document.getElementById('customSec');
+      var timerMsg = document.getElementById('timerMsg');
+      var selectedSeconds = null;
+
+      function setActive(button){
+        if(!opt5 || !opt10) return;
+        opt5.style.background = '#333'; opt5.style.borderColor = '#666'; opt5.style.color = '#fff';
+        opt10.style.background = '#333'; opt10.style.borderColor = '#666'; opt10.style.color = '#fff';
+        if(button){ button.style.background = '#EBB800'; button.style.borderColor = '#EBB800'; button.style.color = '#111'; }
+      }
+
+      if(opt5){ opt5.addEventListener('click', function(){ selectedSeconds = 5*60; setActive(opt5); if(customSec) customSec.value=''; if(timerMsg) timerMsg.textContent = '(300 seconds)'; }); }
+      if(opt10){ opt10.addEventListener('click', function(){ selectedSeconds = 10*60; setActive(opt10); if(customSec) customSec.value=''; if(timerMsg) timerMsg.textContent = '(600 seconds)'; }); }
+      if(customSec){ customSec.addEventListener('input', function(){ setActive(null); var v = parseInt(customSec.value||'0',10); if(!isNaN(v)){ selectedSeconds = v; if(timerMsg) timerMsg.textContent = '('+v+' seconds)'; } else { selectedSeconds = null; if(timerMsg) timerMsg.textContent=''; } }); }
+
+      if(btn){ btn.addEventListener('click', function(){
+        landing.style.display = 'none';
+        editor.style.display = 'block';
+        selectedSeconds = null; setActive(null); if(timerMsg) timerMsg.textContent='';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }); }
+
+      if(btnBack){ btnBack.addEventListener('click', function(){
+        if(currentStep === 2){
+          step2.style.display = 'none';
+          step1.style.display = 'block';
+          currentStep = 1;
+          return;
+        }
+        editor.style.display = 'none';
+        landing.style.display = 'flex';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }); }
+
+      if(btnNext){ btnNext.addEventListener('click', function(){
+        if(currentStep === 1){
+          if(selectedSeconds === null || selectedSeconds <= 0){ alert('Please select a timer or enter custom seconds.'); return; }
+          if(selectedSeconds > 1800){ alert('Maximum allowed is 1800 seconds.'); return; }
+          step1.style.display = 'none';
+          step2.style.display = 'block';
+          currentStep = 2;
+          return;
+        }
+        if(currentStep === 2){
+          alert('Proceeding to next setup step (to be implemented).');
+        }
+      }); }
+
+      // Requirement status: turn green once any clickable slot is used
+      var reqLineHasIcon = document.getElementById('req-line-has-icon');
+      function setReqLine(ok){ if(!reqLineHasIcon) return; reqLineHasIcon.style.color = ok ? '#28a745' : '#dc3545'; }
+
+      function bindSlot(id){
+        var a = document.getElementById(id); if(!a) return;
+        a.addEventListener('click', function(ev){ ev.preventDefault(); setReqLine(true); });
+      }
+      bindSlot('slot1'); bindSlot('slot2'); bindSlot('slot3'); bindSlot('slot4');
+      // slot5 is intentionally unclickable
+
+      // Responsive image map: scale coords based on rendered size
+      var img = document.getElementById('roomImg');
+      function scaleMap() {
+        if(!img) return;
+        var natW = 1000, natH = 500; // intrinsic
+        var rect = img.getBoundingClientRect();
+        var sx = rect.width / natW;
+        var sy = rect.height / natH;
+        ['slot1','slot2','slot3','slot4','slot5'].forEach(function(id){
+          var el = document.getElementById(id);
+          if(!el) return;
+          var base = el.getAttribute('data-coords');
+          if(!base) return;
+          var parts = base.split(',').map(function(n){ return parseFloat(n); });
+          var x1 = Math.round(parts[0]*sx), y1 = Math.round(parts[1]*sy), x2 = Math.round(parts[2]*sx), y2 = Math.round(parts[3]*sy);
+          el.coords = x1+','+y1+','+x2+','+y2;
+        });
+      }
+      window.addEventListener('resize', scaleMap);
+      window.addEventListener('load', scaleMap);
+      // also run once when step2 becomes visible
+      var obs = new MutationObserver(scaleMap); obs.observe(step2, { attributes:true, attributeFilter:['style'] });
+    })();
+  </script>
 </body>
 </html>
