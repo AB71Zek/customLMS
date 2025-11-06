@@ -59,11 +59,11 @@
       margin: 5vh auto;
       border-radius: 8px;
       outline: 2px solid red;
-      background: #202020; /* NOTE: will be replaced by an image later */
+      background: #202020;
       padding: 12px;
       position: relative;
       overflow: hidden;
-      font-size: clamp(10px, 1.1vw, 14px); /* base scales with container */
+      font-size: clamp(10px, 1.1vw, 14px);
     "
   >
     <!-- STEP 1: Select Timer -->
@@ -92,39 +92,49 @@
       </div>
     </div>
 
-    <!-- STEP 2: Create Room (single overlay box inside main area) -->
+    <!-- STEP 2: Create Room (independent maps per slot) -->
     <div id="step2" style="display:none; width:100%; height:100%; position:relative;">
       <div style="font-weight:900; color:#EBB800; margin-bottom:0.4em; font-size:1.05em; letter-spacing:0.4px; text-align:center;">STEP 2 : CREATE ROOM</div>
 
-      <!-- HTML Image Map filling the editor area (behind overlays) -->
-      <img id="roomImg"
-        src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='500'><rect width='100%' height='100%' fill='%23202020'/></svg>"
-        width="1000" height="500"
-        usemap="#roommap"
-        alt="Room Map"
-        style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; z-index:0;"
-      >
-      <map name="roommap">
-        <!-- 4 clickable slots (prevent default and handle in JS). Coords are intrinsic, will be scaled in JS -->
-        <!-- Slot1 moved away from top-left box: from (120,80,240,160) to (180,110,300,190) -->
-        <area id="slot1" shape="rect" coords="180,110,300,190" data-coords="180,110,300,190" href="#" alt="Slot 1" title="Slot 1">
-        <area id="slot2" shape="rect" coords="360,120,480,200" data-coords="360,120,480,200" href="#" alt="Slot 2" title="Slot 2">
-        <area id="slot3" shape="rect" coords="600,180,720,260" data-coords="600,180,720,260" href="#" alt="Slot 3" title="Slot 3">
-        <area id="slot4" shape="rect" coords="240,300,360,380" data-coords="240,300,360,380" href="#" alt="Slot 4" title="Slot 4">
-        <!-- 1 unclickable slot: no href -->
-        <area id="slot5" shape="rect" coords="760,80,880,160" data-coords="760,80,880,160" alt="Slot 5 (disabled)" title="Slot 5 (disabled)">
-      </map>
+      <!-- Background placeholder (no usemap) -->
+      <div style="position:absolute; inset:0; z-index:0;"></div>
 
-      <!-- Visible editor highlights matching the 5 areas -->
-      <!-- White translucent for clickable ones -->
-      <div id="hl1" style="position:absolute; left:18%; top:22%; width:12%; height:16%; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); z-index:1; pointer-events:none;"></div>
-      <div id="hl2" style="position:absolute; left:36%; top:24%; width:12%; height:16%; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); z-index:1; pointer-events:none;"></div>
-      <div id="hl3" style="position:absolute; left:60%; top:36%; width:12%; height:16%; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); z-index:1; pointer-events:none;"></div>
-      <div id="hl4" style="position:absolute; left:24%; top:60%; width:12%; height:16%; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); z-index:1; pointer-events:none;"></div>
-      <!-- Yellow and unclickable for the disabled one -->
-      <div id="hl5" style="position:absolute; left:76%; top:16%; width:12%; height:16%; border:2px dashed #EBB800; background-color:rgba(235,184,0,0.25); z-index:1; pointer-events:none;"></div>
+      <!-- Slot 1 (clickable) -->
+      <div style="position:absolute; left:14%; top:28%; width:12%; height:16%; z-index:1;">
+        <div style="position:absolute; inset:0; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); pointer-events:none;"></div>
+        <img id="s1img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m1" alt="Slot 1" style="width:100%; height:100%; object-fit:contain;">
+        <map name="m1"><area id="slot1" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" href="#" alt="Slot 1"></area></map>
+      </div>
 
-      <!-- Left overlay Requirement box, inside the main editor area -->
+      <!-- Slot 2 (clickable) -->
+      <div style="position:absolute; left:36%; top:24%; width:12%; height:16%; z-index:1;">
+        <div style="position:absolute; inset:0; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); pointer-events:none;"></div>
+        <img id="s2img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m2" alt="Slot 2" style="width:100%; height:100%; object-fit:contain;">
+        <map name="m2"><area id="slot2" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" href="#" alt="Slot 2"></area></map>
+      </div>
+
+      <!-- Slot 3 (clickable) -->
+      <div style="position:absolute; left:60%; top:36%; width:12%; height:16%; z-index:1;">
+        <div style="position:absolute; inset:0; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); pointer-events:none;"></div>
+        <img id="s3img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m3" alt="Slot 3" style="width:100%; height:100%; object-fit:contain;">
+        <map name="m3"><area id="slot3" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" href="#" alt="Slot 3"></area></map>
+      </div>
+
+      <!-- Slot 4 (clickable) -->
+      <div style="position:absolute; left:24%; top:60%; width:12%; height:16%; z-index:1;">
+        <div style="position:absolute; inset:0; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); pointer-events:none;"></div>
+        <img id="s4img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m4" alt="Slot 4" style="width:100%; height:100%; object-fit:contain;">
+        <map name="m4"><area id="slot4" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" href="#" alt="Slot 4"></area></map>
+      </div>
+
+      <!-- Slot 5 (disabled - yellow) -->
+      <div style="position:absolute; left:76%; top:16%; width:12%; height:16%; z-index:1;">
+        <div style="position:absolute; inset:0; border:2px dashed #EBB800; background-color:rgba(235,184,0,0.25); pointer-events:none;"></div>
+        <img id="s5img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m5" alt="Slot 5" style="width:100%; height:100%; object-fit:contain;">
+        <map name="m5"><area id="slot5" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" alt="Slot 5 (disabled)"></area></map>
+      </div>
+
+      <!-- Requirement box -->
       <div
         style="
           position:absolute;
@@ -146,7 +156,6 @@
           • Click & Edit at least 1 Icon
         </div>
       </div>
-      <!-- The rest of the editor area remains unobstructed for future drag/drop on background image -->
     </div>
 
     <!-- Bottom-right controls -->
@@ -225,7 +234,7 @@
         }
       }); }
 
-      // Requirement status: turn green once any clickable slot is used
+      // Requirement status: green once any clickable slot is used
       var reqLineHasIcon = document.getElementById('req-line-has-icon');
       function setReqLine(ok){ if(!reqLineHasIcon) return; reqLineHasIcon.style.color = ok ? '#28a745' : '#dc3545'; }
 
@@ -236,28 +245,30 @@
       bindSlot('slot1'); bindSlot('slot2'); bindSlot('slot3'); bindSlot('slot4');
       // slot5 is intentionally unclickable
 
-      // Responsive image map: scale coords based on rendered size
-      var img = document.getElementById('roomImg');
-      function scaleMap() {
-        if(!img) return;
-        var natW = 1000, natH = 500; // intrinsic
+      // Scale per-slot maps to their respective img containers (square 1000 intrinsic)
+      function scaleMapFor(imgId, areaId) {
+        var img = document.getElementById(imgId);
+        var area = document.getElementById(areaId);
+        if(!img || !area) return;
+        var nat = 1000;
         var rect = img.getBoundingClientRect();
-        var sx = rect.width / natW;
-        var sy = rect.height / natH;
-        ['slot1','slot2','slot3','slot4','slot5'].forEach(function(id){
-          var el = document.getElementById(id);
-          if(!el) return;
-          var base = el.getAttribute('data-coords');
-          if(!base) return;
-          var parts = base.split(',').map(function(n){ return parseFloat(n); });
-          var x1 = Math.round(parts[0]*sx), y1 = Math.round(parts[1]*sy), x2 = Math.round(parts[2]*sx), y2 = Math.round(parts[3]*sy);
-          el.coords = x1+','+y1+','+x2+','+y2;
-        });
+        var sx = rect.width / nat;
+        var sy = rect.height / nat;
+        var base = area.getAttribute('data-coords');
+        var parts = base.split(',').map(function(n){ return parseFloat(n); });
+        var x1 = Math.round(parts[0]*sx), y1 = Math.round(parts[1]*sy), x2 = Math.round(parts[2]*sx), y2 = Math.round(parts[3]*sy);
+        area.coords = x1+','+y1+','+x2+','+y2;
       }
-      window.addEventListener('resize', scaleMap);
-      window.addEventListener('load', scaleMap);
-      // also run once when step2 becomes visible
-      var obs = new MutationObserver(scaleMap); obs.observe(step2, { attributes:true, attributeFilter:['style'] });
+      function scaleAll(){
+        scaleMapFor('s1img','slot1');
+        scaleMapFor('s2img','slot2');
+        scaleMapFor('s3img','slot3');
+        scaleMapFor('s4img','slot4');
+        var a5 = document.getElementById('slot5'); if(a5){ scaleMapFor('s5img','slot5'); }
+      }
+      window.addEventListener('resize', scaleAll);
+      window.addEventListener('load', scaleAll);
+      var obs = new MutationObserver(scaleAll); obs.observe(step2, { attributes:true, attributeFilter:['style'] });
     })();
   </script>
 </body>
