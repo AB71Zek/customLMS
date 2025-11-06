@@ -105,82 +105,12 @@ const Header = ({ studentNumber }: HeaderProps) => {
       }} className="theme-transition">
         <div style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "center",
           alignItems: "center",
           maxWidth: "1200px",
           margin: "0 auto",
           padding: "0 20px"
         }}>
-          {/* Home */}
-          <Link href="/" style={{
-            color: isActivePage('/') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-          }} 
-          onMouseEnter={(e) => {
-            if (!isActivePage('/')) {
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/')) {
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            HOME
-          </Link>
-
-          {/* Divider */}
-          <div style={{
-            width: "2px",
-            height: "20px",
-            backgroundColor: "var(--border-color)",
-            borderRadius: "1px"
-          }}></div>
-
-          {/* About */}
-          <Link href="/about" style={{
-            color: isActivePage('/about') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/about') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/about') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-          }}
-          onMouseEnter={(e) => {
-            if (!isActivePage('/about')) {
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/about')) {
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            ABOUT
-          </Link>
-
-          {/* Divider */}
-          <div style={{
-            width: "2px",
-            height: "20px",
-            backgroundColor: "var(--border-color)",
-            borderRadius: "1px"
-          }}></div>
-
           {/* Escape Room */}
           <Link href="/escape-room" style={{
             color: isActivePage('/escape-room') ? "white" : "var(--text-primary)",
@@ -206,76 +136,6 @@ const Header = ({ studentNumber }: HeaderProps) => {
             }
           }}>
             ESCAPE ROOM
-          </Link>
-
-          {/* Divider */}
-          <div style={{
-            width: "2px",
-            height: "20px",
-            backgroundColor: "var(--border-color)",
-            borderRadius: "1px"
-          }}></div>
-
-          {/* Coding Races */}
-          <Link href="/coding-races" style={{
-            color: isActivePage('/coding-races') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/coding-races') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/coding-races') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-          }}
-          onMouseEnter={(e) => {
-            if (!isActivePage('/coding-races')) {
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/coding-races')) {
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            CODING RACES
-          </Link>
-
-          {/* Divider */}
-          <div style={{
-            width: "2px",
-            height: "20px",
-            backgroundColor: "var(--border-color)",
-            borderRadius: "1px"
-          }}></div>
-
-          {/* Court Room */}
-          <Link href="/court-room" style={{
-            color: isActivePage('/court-room') ? "white" : "var(--text-primary)",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            padding: "6px 14px",
-            borderRadius: "18px",
-            transition: "all 0.3s ease",
-            backgroundColor: isActivePage('/court-room') ? "var(--accent-color)" : "transparent",
-            border: isActivePage('/court-room') ? "2px solid var(--accent-color)" : "2px solid transparent",
-            minWidth: "120px",
-            textAlign: "center"
-          }}
-          onMouseEnter={(e) => {
-            if (!isActivePage('/court-room')) {
-              e.currentTarget.style.borderColor = "var(--accent-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isActivePage('/court-room')) {
-              e.currentTarget.style.borderColor = "transparent";
-            }
-          }}>
-            COURT ROOM
           </Link>
         </div>
       </nav>

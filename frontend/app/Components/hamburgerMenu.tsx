@@ -56,11 +56,7 @@ const HamburgerMenu = () => {
         aria-label="Main menu"
       >
         <ul>
-          <li role="none"><Link role="menuitem" href="/">Home</Link></li>
-          <li role="none"><Link role="menuitem" href="/about">About</Link></li>
           <li role="none"><Link role="menuitem" href="/escape-room">Escape Room</Link></li>
-          <li role="none"><Link role="menuitem" href="/coding-races">Coding Races</Link></li>
-          <li role="none"><Link role="menuitem" href="/court-room">Court Room</Link></li>
         </ul>
       </nav>
     </div>

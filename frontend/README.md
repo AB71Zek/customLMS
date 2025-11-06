@@ -1,54 +1,78 @@
-# MOODLE LMS (Next.js)
+# Escape Room - Interactive Learning Platform
 
-A Learning Management System prototype built with Next.js (App Router). Includes multi-page layout, dark/light themes, tabbed content editor with output generator, and accessibility improvements.
-
-## Setup
-
-```bash
-npm install
-npm run dev
-```
-
-- Dev server: http://localhost:3000
-- Node 18+ recommended
+An interactive escape room learning management system built with Next.js, React, and Bootstrap.
 
 ## Features
 
-- Header with student number (left), centered title, theme toggle + hamburger menu (right)
-- Footer (fixed): © 2025, Arunjot Babra, 21406232, Date
-- Pages: Home, About, Escape Room, Coding Races, Court Room
-- Dark/Light mode with persistence
-- Hamburger menu with CSS transform animation and a11y (button, aria-expanded, ESC/Click-outside)
-- Tabs (Home):
-  - Up to 15 tabs (+ / -)
-  - Rename tab headings (double-click)
-  - Per-tab content editing
-  - Persisted to localStorage
-  - Last active tab remembered via cookie
-- Output generator:
-  - Produces HTML with ONLY inline CSS (no classes, no <style></style>)
-  - Copy to clipboard and paste as Hello.html to open in a browser
+- 🏰 **Interactive Escape Rooms**: Create and play educational escape room experiences
+- ⏰ **Timer System**: Configurable game timers (5, 10, 15 minutes + custom)
+- 🧩 **Puzzle System**: Interactive Q&A with key code generation
+- 🏆 **Treasure Chest**: Multi-lock treasure chest puzzle
+- 🎨 **Modern UI**: Bootstrap-based responsive design
+- 🌙 **Theme Support**: Light/dark mode toggle
 
-## Branching
+## Technology Stack
 
-- main: stable integration
-- feature/theme-toggle: theme + header standardization + a11y fixes
-- feature/tabs-and-output: tabs, localStorage, inline-only output
-- feature/accessibility: accessibility enhancements
+- **Frontend**: Next.js 15+ (App Router), React 19, Bootstrap 5
+- **Language**: TypeScript
+- **Testing**: Playwright
 
-## Scripts
+## Quick Start
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
 
 ```bash
-npm run dev     # start dev server
-npm run build   # build
-npm start       # run production build
+npm install
 ```
 
-## Repository Hygiene
+### Development
 
-- node_modules is excluded via root .gitignore
-- .next and .DS_Store also ignored
+```bash
+npm run dev
+```
 
-## Notes
+Access the application at http://localhost:3000
 
-- My Github Repository for the code : https://github.com/AB71Zek/customLMS.git
+### Build
+
+```bash
+npm run build
+npm start
+```
+
+### Testing
+
+```bash
+npm test              # Run Playwright tests
+npm run test:ui       # Run with UI mode
+npm run test:headed   # Run in headed mode
+npm run test:debug    # Debug mode
+```
+
+## Project Structure
+
+```
+escape-room/
+├── app/
+│   ├── escape-room/    # Main escape room application
+│   ├── Components/     # Reusable components (Header, ThemeContext, Footer)
+│   └── public/         # Static assets and media
+├── tests/              # Playwright tests
+└── package.json
+```
+
+## Features
+
+- Interactive escape room creation and gameplay
+- Timer-based challenges
+- Puzzle system with key codes
+- Multi-stage treasure chest mechanics
+- Responsive design with theme support
+
+## License
+
+This project is licensed under the MIT License.
