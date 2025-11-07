@@ -171,6 +171,29 @@
     </div>
   </div>
 
+  <!-- Question Modal (hidden by default) -->
+  <div id="questionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#2a2a2a; border:2px solid red; border-radius:8px; padding:20px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; position:relative;">
+      <div style="font-weight:900; color:#EBB800; margin-bottom:12px; font-size:1.1em; text-align:center;">Edit Question</div>
+      <div style="color:#ccc; font-size:0.9em; margin-bottom:12px; text-align:center;">Slot <span id="modalSlotId"></span></div>
+      
+      <div style="margin-bottom:12px;">
+        <label style="display:block; color:#fff; font-size:0.9em; margin-bottom:6px; font-weight:700;">Question:</label>
+        <textarea id="modalQuestion" placeholder="Enter your question here..." style="width:100%; min-height:80px; background:#1a1a1a; color:#fff; border:1px solid #555; border-radius:6px; padding:10px; font-size:0.9em; resize:vertical; box-sizing:border-box;"></textarea>
+      </div>
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block; color:#fff; font-size:0.9em; margin-bottom:6px; font-weight:700;">Answer:</label>
+        <textarea id="modalAnswer" placeholder="Enter the expected answer here..." style="width:100%; min-height:60px; background:#1a1a1a; color:#fff; border:1px solid #555; border-radius:6px; padding:10px; font-size:0.9em; resize:vertical; box-sizing:border-box;"></textarea>
+      </div>
+      
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button id="modalCancel" style="background:transparent; color:#fff; border:1px solid #777; border-radius:6px; padding:8px 16px; font-weight:700; cursor:pointer; font-size:0.9em;">Cancel</button>
+        <button id="modalSave" style="background:#EBB800; color:#111; border:none; border-radius:6px; padding:8px 16px; font-weight:800; cursor:pointer; font-size:0.9em;">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function(){
       var btn = document.getElementById('btnCreate');
@@ -234,13 +257,51 @@
         }
       }); }
 
-      // Requirement status: green once any clickable slot is used
+      // Question modal
+      var modal = document.getElementById('questionModal');
+      var modalSlotId = document.getElementById('modalSlotId');
+      var modalQuestion = document.getElementById('modalQuestion');
+      var modalAnswer = document.getElementById('modalAnswer');
+      var modalSave = document.getElementById('modalSave');
+      var modalCancel = document.getElementById('modalCancel');
+      var slotData = {}; // {slot1: {question:'', answer:''}, ...}
+      var currentSlot = null;
+
+      function showModal(slotId){
+        currentSlot = slotId;
+        var slotNum = slotId.replace('slot','');
+        modalSlotId.textContent = slotNum;
+        modalQuestion.value = (slotData[slotId] && slotData[slotId].question) || '';
+        modalAnswer.value = (slotData[slotId] && slotData[slotId].answer) || '';
+        modal.style.display = 'flex';
+      }
+
+      function hideModal(){
+        modal.style.display = 'none';
+        currentSlot = null;
+      }
+
+      if(modalSave){ modalSave.addEventListener('click', function(){
+        if(!currentSlot) return;
+        var q = (modalQuestion.value||'').trim();
+        var a = (modalAnswer.value||'').trim();
+        if(!q || !a){ alert('Please fill both question and answer.'); return; }
+        if(!slotData[currentSlot]) slotData[currentSlot] = {};
+        slotData[currentSlot].question = q;
+        slotData[currentSlot].answer = a;
+        hideModal();
+        setReqLine(true); // mark requirement as met
+      }); }
+
+      if(modalCancel){ modalCancel.addEventListener('click', hideModal); }
+
+      // Requirement status: green once any slot has question/answer
       var reqLineHasIcon = document.getElementById('req-line-has-icon');
       function setReqLine(ok){ if(!reqLineHasIcon) return; reqLineHasIcon.style.color = ok ? '#28a745' : '#dc3545'; }
 
       function bindSlot(id){
         var a = document.getElementById(id); if(!a) return;
-        a.addEventListener('click', function(ev){ ev.preventDefault(); setReqLine(true); });
+        a.addEventListener('click', function(ev){ ev.preventDefault(); showModal(id); });
       }
       bindSlot('slot1'); bindSlot('slot2'); bindSlot('slot3'); bindSlot('slot4');
       // slot5 is intentionally unclickable
