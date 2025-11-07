@@ -81,6 +81,7 @@
 
       <!-- Requirement box -->
       <div
+        id="requirementBox"
         style="
           position:absolute;
           top:6px;
@@ -93,8 +94,8 @@
           border-radius:0.4em;
           padding:0.6em;
           text-align:left;
-          z-index:10;
-          pointer-events:none;
+          z-index:20;
+          pointer-events:auto;
         "
       >
         <div style="font-weight:800; color:#fff; font-size:0.9em; margin-bottom:0.5em; text-align:center;">Requirement:</div>
@@ -105,7 +106,7 @@
     </div>
 
     <!-- Bottom-right controls -->
-    <div style="position:absolute; right:12px; bottom:12px; display:flex; gap:8px; font-size:1em;">
+    <div id="editorControls" style="position:absolute; right:12px; bottom:12px; display:flex; gap:8px; font-size:1em; z-index:20;">
       <button id="btnBack"
         style="
           background: transparent; color: #ffffff; border: 1px solid #777; border-radius: 0.4em; padding: 0.5em 0.8em; font-weight: 700; cursor: pointer; font-size:0.9em;"
@@ -364,7 +365,32 @@
         editorClickArea.addEventListener('click', function(ev){
           // Don't create circle if clicking on requirement box, buttons, or existing circles
           var target = ev.target;
-          if(target.closest('#req-line-has-icon') || target.closest('button') || target.closest('#plottedCircles > div')) return;
+          var requirementBox = document.getElementById('requirementBox');
+          var editorControls = document.getElementById('editorControls');
+          
+          // Check if click is on buttons or requirement box
+          if(target.closest('button') || target.closest('#requirementBox') || target.closest('#editorControls')) return;
+          
+          // Check if click is within requirement box bounds
+          if(requirementBox){
+            var reqRect = requirementBox.getBoundingClientRect();
+            if(ev.clientX >= reqRect.left && ev.clientX <= reqRect.right && 
+               ev.clientY >= reqRect.top && ev.clientY <= reqRect.bottom){
+              return;
+            }
+          }
+          
+          // Check if click is within button controls bounds
+          if(editorControls){
+            var controlsRect = editorControls.getBoundingClientRect();
+            if(ev.clientX >= controlsRect.left && ev.clientX <= controlsRect.right && 
+               ev.clientY >= controlsRect.top && ev.clientY <= controlsRect.bottom){
+              return;
+            }
+          }
+          
+          // Check if clicking on existing circles
+          if(target.closest('#plottedCircles > div')) return;
           
           var rect = editorClickArea.getBoundingClientRect();
           var x = ev.clientX - rect.left;
