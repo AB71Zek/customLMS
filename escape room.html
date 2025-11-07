@@ -9,10 +9,13 @@
   <!-- Landing (Generator intro) -->
   <div id="landing"
     style="
-      background-color: lightblue; /* NOTE: replace with background-image later */
+      background-image: url('https://lms.latrobe.edu.au/draftfile.php/12009979/user/draft/845876172/treasure-map.png?time=1762479548825');
+      background-size: cover;
+      background-position: center;
+      background-repeat: repeat;
       outline: 2px solid red;
-      width: 96%;
-      height: 50vh;
+      width: 98%;
+      height: 65vh;
       margin: 5vh auto;
       border-radius: 8px;
       position: relative;
@@ -27,7 +30,7 @@
         margin-bottom: 16px;          
         border: 2px solid;
         border-color: #EBB800;
-        background-color: rgba(235, 184, 0, 0.5);
+        background-color: rgba(108, 84, 1, 0.5);
         border-radius: 8px;
         padding: 12px 20px;
         font-weight: 900;">
@@ -54,8 +57,8 @@
   <div id="editor"
     style="
       display: none;
-      width: 96%;
-      height: 50vh;
+      width: 98%;
+      height: 65vh;
       margin: 5vh auto;
       border-radius: 8px;
       outline: 2px solid red;
@@ -66,73 +69,15 @@
       font-size: clamp(10px, 1.1vw, 14px);
     "
   >
-    <!-- STEP 1: Select Timer -->
-    <div id="step1">
-      <div style="font-weight:900; color:#EBB800; margin-bottom:10px; font-size:1.1em; letter-spacing:0.5px; text-align:center;">STEP 1 : SELECT TIMER</div>
-      <div style="position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; text-align:center;">
-        <div style="display:flex; gap:0.6em; flex-wrap:wrap; align-items:center; justify-content:center; margin-bottom:0.5em;">
-          <button id="opt5"
-            style="
-              background:#333; color:#fff; border:1px solid #666; border-radius:0.5em; padding:0.6em 0.9em; cursor:pointer; font-size:1em; font-weight:700; display:inline-block;"
-          >5 min</button>
-          <button id="opt10"
-            style="
-              background:#333; color:#fff; border:1px solid #666; border-radius:0.5em; padding:0.6em 0.9em; cursor:pointer; font-size:1em; font-weight:700; display:inline-block;"
-          >10 min</button>
-        </div>
+    <!-- Room Editor (click to plot) -->
+    <div id="roomEditor" style="width:100%; height:100%; position:relative; cursor:crosshair;">
+      <div style="font-weight:900; color:#EBB800; margin-bottom:0.4em; font-size:1.05em; letter-spacing:0.4px; text-align:center;">ROOM EDITOR</div>
 
-        <div style="font-size:0.9em; color:#ccc; margin:0.4em 0;">OR</div>
+      <!-- Clickable area for plotting -->
+      <div id="editorClickArea" style="position:absolute; inset:0; z-index:1; cursor:crosshair;"></div>
 
-        <div style="font-size:0.9em; color:#ccc; margin:0.3em 0;">Custom Timer (max 1800 seconds)</div>
-        <input id="customSec" type="number" min="1" max="1800" placeholder="e.g., 600"
-          style="
-            width:8em; background:#1a1a1a; color:#fff; border:1px solid #555; border-radius:0.4em; padding:0.5em 0.6em; font-size:0.95em; margin-bottom:0.4em; text-align:center;"
-        >
-        <div id="timerMsg" style="color:#bbb; font-size:0.85em; min-height:1.2em;">&nbsp;</div>
-      </div>
-    </div>
-
-    <!-- STEP 2: Create Room (independent maps per slot) -->
-    <div id="step2" style="display:none; width:100%; height:100%; position:relative;">
-      <div style="font-weight:900; color:#EBB800; margin-bottom:0.4em; font-size:1.05em; letter-spacing:0.4px; text-align:center;">STEP 2 : CREATE ROOM</div>
-
-      <!-- Background placeholder (no usemap) -->
-      <div style="position:absolute; inset:0; z-index:0;"></div>
-
-      <!-- Slot 1 (clickable) -->
-      <div style="position:absolute; left:14%; top:28%; width:12%; height:16%; z-index:1;">
-        <div style="position:absolute; inset:0; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); pointer-events:none;"></div>
-        <img id="s1img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m1" alt="Slot 1" style="width:100%; height:100%; object-fit:contain;">
-        <map name="m1"><area id="slot1" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" href="#" alt="Slot 1"></area></map>
-      </div>
-
-      <!-- Slot 2 (clickable) -->
-      <div style="position:absolute; left:36%; top:24%; width:12%; height:16%; z-index:1;">
-        <div style="position:absolute; inset:0; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); pointer-events:none;"></div>
-        <img id="s2img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m2" alt="Slot 2" style="width:100%; height:100%; object-fit:contain;">
-        <map name="m2"><area id="slot2" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" href="#" alt="Slot 2"></area></map>
-      </div>
-
-      <!-- Slot 3 (clickable) -->
-      <div style="position:absolute; left:60%; top:36%; width:12%; height:16%; z-index:1;">
-        <div style="position:absolute; inset:0; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); pointer-events:none;"></div>
-        <img id="s3img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m3" alt="Slot 3" style="width:100%; height:100%; object-fit:contain;">
-        <map name="m3"><area id="slot3" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" href="#" alt="Slot 3"></area></map>
-      </div>
-
-      <!-- Slot 4 (clickable) -->
-      <div style="position:absolute; left:24%; top:60%; width:12%; height:16%; z-index:1;">
-        <div style="position:absolute; inset:0; border:2px dashed rgba(255,255,255,0.8); background-color:rgba(255,255,255,0.25); pointer-events:none;"></div>
-        <img id="s4img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m4" alt="Slot 4" style="width:100%; height:100%; object-fit:contain;">
-        <map name="m4"><area id="slot4" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" href="#" alt="Slot 4"></area></map>
-      </div>
-
-      <!-- Slot 5 (disabled - yellow) -->
-      <div style="position:absolute; left:76%; top:16%; width:12%; height:16%; z-index:1;">
-        <div style="position:absolute; inset:0; border:2px dashed #EBB800; background-color:rgba(235,184,0,0.25); pointer-events:none;"></div>
-        <img id="s5img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'></svg>" width="1000" height="1000" usemap="#m5" alt="Slot 5" style="width:100%; height:100%; object-fit:contain;">
-        <map name="m5"><area id="slot5" shape="rect" coords="0,0,1000,1000" data-coords="0,0,1000,1000" alt="Slot 5 (disabled)"></area></map>
-      </div>
+      <!-- Container for plotted circles -->
+      <div id="plottedCircles" style="position:absolute; inset:0; z-index:2; pointer-events:none;"></div>
 
       <!-- Requirement box -->
       <div
@@ -148,7 +93,8 @@
           border-radius:0.4em;
           padding:0.6em;
           text-align:left;
-          z-index:2;
+          z-index:10;
+          pointer-events:none;
         "
       >
         <div style="font-weight:800; color:#fff; font-size:0.9em; margin-bottom:0.5em; text-align:center;">Requirement:</div>
@@ -175,7 +121,6 @@
   <div id="questionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center; padding:16px;">
     <div style="background:#2a2a2a; border:2px solid red; border-radius:8px; padding:20px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; position:relative;">
       <div style="font-weight:900; color:#EBB800; margin-bottom:12px; font-size:1.1em; text-align:center;">Edit Question</div>
-      <div style="color:#ccc; font-size:0.9em; margin-bottom:12px; text-align:center;">Slot <span id="modalSlotId"></span></div>
       
       <div style="margin-bottom:12px;">
         <label style="display:block; color:#fff; font-size:0.9em; margin-bottom:6px; font-weight:700;">Question:</label>
@@ -194,6 +139,40 @@
     </div>
   </div>
 
+  <!-- Timer Modal (hidden by default) -->
+  <div id="timerModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#2a2a2a; border:2px solid red; border-radius:8px; padding:20px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; position:relative;">
+      <div style="font-weight:900; color:#EBB800; margin-bottom:12px; font-size:1.1em; text-align:center;">Select time to complete this room</div>
+      
+      <div style="display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:16px;">
+        <div style="display:flex; gap:0.6em; flex-wrap:wrap; align-items:center; justify-content:center; margin-bottom:0.5em;">
+          <button id="timerOpt5"
+            style="
+              background:#333; color:#fff; border:1px solid #666; border-radius:0.5em; padding:0.6em 0.9em; cursor:pointer; font-size:1em; font-weight:700; display:inline-block;"
+          >5 min</button>
+          <button id="timerOpt10"
+            style="
+              background:#333; color:#fff; border:1px solid #666; border-radius:0.5em; padding:0.6em 0.9em; cursor:pointer; font-size:1em; font-weight:700; display:inline-block;"
+          >10 min</button>
+        </div>
+
+        <div style="font-size:0.9em; color:#ccc; margin:0.4em 0;">OR</div>
+
+        <div style="font-size:0.9em; color:#ccc; margin:0.3em 0;">Custom Timer (max 1800 seconds)</div>
+        <input id="timerCustomSec" type="number" min="1" max="1800" placeholder="e.g., 600"
+          style="
+            width:8em; background:#1a1a1a; color:#fff; border:1px solid #555; border-radius:0.4em; padding:0.5em 0.6em; font-size:0.95em; margin-bottom:0.4em; text-align:center;"
+        >
+        <div id="timerModalMsg" style="color:#bbb; font-size:0.85em; min-height:1.2em;">&nbsp;</div>
+      </div>
+      
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button id="timerModalCancel" style="background:transparent; color:#fff; border:1px solid #777; border-radius:6px; padding:8px 16px; font-weight:700; cursor:pointer; font-size:0.9em;">Cancel</button>
+        <button id="timerModalSave" style="background:#EBB800; color:#111; border:none; border-radius:6px; padding:8px 16px; font-weight:800; cursor:pointer; font-size:0.9em;">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function(){
       var btn = document.getElementById('btnCreate');
@@ -201,135 +180,205 @@
       var editor = document.getElementById('editor');
       var btnBack = document.getElementById('btnBack');
       var btnNext = document.getElementById('btnNext');
+      var roomEditor = document.getElementById('roomEditor');
 
-      var step1 = document.getElementById('step1');
-      var step2 = document.getElementById('step2');
-      var currentStep = 1;
-
-      // Timer controls
-      var opt5 = document.getElementById('opt5');
-      var opt10 = document.getElementById('opt10');
-      var customSec = document.getElementById('customSec');
-      var timerMsg = document.getElementById('timerMsg');
+      // Timer modal controls
+      var timerModal = document.getElementById('timerModal');
+      var timerOpt5 = document.getElementById('timerOpt5');
+      var timerOpt10 = document.getElementById('timerOpt10');
+      var timerCustomSec = document.getElementById('timerCustomSec');
+      var timerModalMsg = document.getElementById('timerModalMsg');
+      var timerModalSave = document.getElementById('timerModalSave');
+      var timerModalCancel = document.getElementById('timerModalCancel');
       var selectedSeconds = null;
 
-      function setActive(button){
-        if(!opt5 || !opt10) return;
-        opt5.style.background = '#333'; opt5.style.borderColor = '#666'; opt5.style.color = '#fff';
-        opt10.style.background = '#333'; opt10.style.borderColor = '#666'; opt10.style.color = '#fff';
+      function setTimerActive(button){
+        if(!timerOpt5 || !timerOpt10) return;
+        timerOpt5.style.background = '#333'; timerOpt5.style.borderColor = '#666'; timerOpt5.style.color = '#fff';
+        timerOpt10.style.background = '#333'; timerOpt10.style.borderColor = '#666'; timerOpt10.style.color = '#fff';
         if(button){ button.style.background = '#EBB800'; button.style.borderColor = '#EBB800'; button.style.color = '#111'; }
       }
 
-      if(opt5){ opt5.addEventListener('click', function(){ selectedSeconds = 5*60; setActive(opt5); if(customSec) customSec.value=''; if(timerMsg) timerMsg.textContent = '(300 seconds)'; }); }
-      if(opt10){ opt10.addEventListener('click', function(){ selectedSeconds = 10*60; setActive(opt10); if(customSec) customSec.value=''; if(timerMsg) timerMsg.textContent = '(600 seconds)'; }); }
-      if(customSec){ customSec.addEventListener('input', function(){ setActive(null); var v = parseInt(customSec.value||'0',10); if(!isNaN(v)){ selectedSeconds = v; if(timerMsg) timerMsg.textContent = '('+v+' seconds)'; } else { selectedSeconds = null; if(timerMsg) timerMsg.textContent=''; } }); }
+      function showTimerModal(){
+        selectedSeconds = null;
+        setTimerActive(null);
+        if(timerCustomSec) timerCustomSec.value = '';
+        if(timerModalMsg) timerModalMsg.textContent = '';
+        timerModal.style.display = 'flex';
+      }
+
+      function hideTimerModal(){
+        timerModal.style.display = 'none';
+      }
+
+      if(timerOpt5){ timerOpt5.addEventListener('click', function(){ selectedSeconds = 5*60; setTimerActive(timerOpt5); if(timerCustomSec) timerCustomSec.value=''; if(timerModalMsg) timerModalMsg.textContent = '(300 seconds)'; }); }
+      if(timerOpt10){ timerOpt10.addEventListener('click', function(){ selectedSeconds = 10*60; setTimerActive(timerOpt10); if(timerCustomSec) timerCustomSec.value=''; if(timerModalMsg) timerModalMsg.textContent = '(600 seconds)'; }); }
+      if(timerCustomSec){ timerCustomSec.addEventListener('input', function(){ setTimerActive(null); var v = parseInt(timerCustomSec.value||'0',10); if(!isNaN(v)){ selectedSeconds = v; if(timerModalMsg) timerModalMsg.textContent = '('+v+' seconds)'; } else { selectedSeconds = null; if(timerModalMsg) timerModalMsg.textContent=''; } }); }
+
+      if(timerModalSave){ timerModalSave.addEventListener('click', function(){
+        if(selectedSeconds === null || selectedSeconds <= 0){ alert('Please select a timer or enter custom seconds.'); return; }
+        if(selectedSeconds > 1800){ alert('Maximum allowed is 1800 seconds.'); return; }
+        hideTimerModal();
+        alert('Timer saved: ' + selectedSeconds + ' seconds. Proceeding to next step (to be implemented).');
+      }); }
+
+      if(timerModalCancel){ timerModalCancel.addEventListener('click', hideTimerModal); }
 
       if(btn){ btn.addEventListener('click', function(){
-        landing.style.display = 'none';
-        editor.style.display = 'block';
-        selectedSeconds = null; setActive(null); if(timerMsg) timerMsg.textContent='';
+        if(landing) landing.style.display = 'none';
+        if(editor) {
+          editor.style.display = 'block';
+          editor.style.visibility = 'visible';
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }); }
 
       if(btnBack){ btnBack.addEventListener('click', function(){
-        if(currentStep === 2){
-          step2.style.display = 'none';
-          step1.style.display = 'block';
-          currentStep = 1;
-          return;
-        }
         editor.style.display = 'none';
         landing.style.display = 'flex';
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }); }
 
       if(btnNext){ btnNext.addEventListener('click', function(){
-        if(currentStep === 1){
-          if(selectedSeconds === null || selectedSeconds <= 0){ alert('Please select a timer or enter custom seconds.'); return; }
-          if(selectedSeconds > 1800){ alert('Maximum allowed is 1800 seconds.'); return; }
-          step1.style.display = 'none';
-          step2.style.display = 'block';
-          currentStep = 2;
-          return;
-        }
-        if(currentStep === 2){
-          alert('Proceeding to next setup step (to be implemented).');
-        }
+        showTimerModal();
       }); }
 
       // Question modal
       var modal = document.getElementById('questionModal');
-      var modalSlotId = document.getElementById('modalSlotId');
       var modalQuestion = document.getElementById('modalQuestion');
       var modalAnswer = document.getElementById('modalAnswer');
       var modalSave = document.getElementById('modalSave');
       var modalCancel = document.getElementById('modalCancel');
-      var slotData = {}; // {slot1: {question:'', answer:''}, ...}
-      var currentSlot = null;
+      var circleData = {}; // {circleId: {x, y, question, answer}, ...}
+      var currentCircleId = null;
+      var circleCounter = 0;
+      var plottedCircles = document.getElementById('plottedCircles');
+      var editorClickArea = document.getElementById('editorClickArea');
+      var tempCircle = null; // Temporary circle before saving
 
-      function showModal(slotId){
-        currentSlot = slotId;
-        var slotNum = slotId.replace('slot','');
-        modalSlotId.textContent = slotNum;
-        modalQuestion.value = (slotData[slotId] && slotData[slotId].question) || '';
-        modalAnswer.value = (slotData[slotId] && slotData[slotId].answer) || '';
+      function showModal(circleId, x, y){
+        currentCircleId = circleId;
+        modalQuestion.value = (circleData[circleId] && circleData[circleId].question) || '';
+        modalAnswer.value = (circleData[circleId] && circleData[circleId].answer) || '';
         modal.style.display = 'flex';
       }
 
       function hideModal(){
         modal.style.display = 'none';
-        currentSlot = null;
+        currentCircleId = null;
+      }
+
+      function createCircle(x, y, isTemporary){
+        var circleId = 'circle' + (++circleCounter);
+        var circleSize = 30; // Slightly bigger than cursor
+        var circle = document.createElement('div');
+        circle.id = circleId;
+        circle.style.position = 'absolute';
+        circle.style.left = (x - circleSize/2) + 'px';
+        circle.style.top = (y - circleSize/2) + 'px';
+        circle.style.width = circleSize + 'px';
+        circle.style.height = circleSize + 'px';
+        circle.style.borderRadius = '50%';
+        circle.style.border = '2px solid rgba(255,255,255,0.8)';
+        circle.style.backgroundColor = isTemporary ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.5)';
+        circle.style.cursor = 'pointer';
+        circle.style.pointerEvents = 'auto';
+        circle.style.zIndex = '3';
+        
+        if(isTemporary){
+          tempCircle = circle;
+        } else {
+          // Make saved circles clickable to edit
+          circle.addEventListener('click', function(ev){
+            ev.stopPropagation();
+            var circleRect = circle.getBoundingClientRect();
+            var editorRect = roomEditor.getBoundingClientRect();
+            var circleX = circleRect.left - editorRect.left + circleRect.width/2;
+            var circleY = circleRect.top - editorRect.top + circleRect.height/2;
+            showModal(circleId, circleX, circleY);
+          });
+        }
+        
+        plottedCircles.appendChild(circle);
+        return circle;
+      }
+
+      function saveCircle(circleId, x, y, question, answer){
+        if(!circleData[circleId]) circleData[circleId] = {};
+        circleData[circleId].x = x;
+        circleData[circleId].y = y;
+        circleData[circleId].question = question;
+        circleData[circleId].answer = answer;
+        
+        // Update the circle to be permanent (more visible) and clickable
+        var circle = document.getElementById(circleId);
+        if(circle){
+          circle.style.backgroundColor = 'rgba(255,255,255,0.5)';
+          circle.style.border = '2px solid rgba(255,255,255,0.9)';
+          
+          // Remove any existing click handlers and add new one for editing
+          var newCircle = circle.cloneNode(true);
+          circle.parentNode.replaceChild(newCircle, circle);
+          newCircle.addEventListener('click', function(ev){
+            ev.stopPropagation();
+            showModal(circleId, x, y);
+          });
+        }
+        tempCircle = null;
       }
 
       if(modalSave){ modalSave.addEventListener('click', function(){
-        if(!currentSlot) return;
+        if(!currentCircleId) return;
         var q = (modalQuestion.value||'').trim();
         var a = (modalAnswer.value||'').trim();
         if(!q || !a){ alert('Please fill both question and answer.'); return; }
-        if(!slotData[currentSlot]) slotData[currentSlot] = {};
-        slotData[currentSlot].question = q;
-        slotData[currentSlot].answer = a;
+        
+        var circle = document.getElementById(currentCircleId);
+        if(circle){
+          var rect = circle.getBoundingClientRect();
+          var editorRect = roomEditor.getBoundingClientRect();
+          var x = rect.left - editorRect.left + rect.width/2;
+          var y = rect.top - editorRect.top + rect.height/2;
+          saveCircle(currentCircleId, x, y, q, a);
+        }
+        
         hideModal();
         setReqLine(true); // mark requirement as met
       }); }
 
-      if(modalCancel){ modalCancel.addEventListener('click', hideModal); }
+      if(modalCancel){ modalCancel.addEventListener('click', function(){
+        // Remove temporary circle if it exists
+        if(tempCircle && tempCircle.id === currentCircleId){
+          tempCircle.remove();
+          tempCircle = null;
+        }
+        hideModal();
+      }); }
 
-      // Requirement status: green once any slot has question/answer
+      // Requirement status: green once any circle has question/answer
       var reqLineHasIcon = document.getElementById('req-line-has-icon');
       function setReqLine(ok){ if(!reqLineHasIcon) return; reqLineHasIcon.style.color = ok ? '#28a745' : '#dc3545'; }
 
-      function bindSlot(id){
-        var a = document.getElementById(id); if(!a) return;
-        a.addEventListener('click', function(ev){ ev.preventDefault(); showModal(id); });
+      // Click to plot functionality
+      if(editorClickArea){
+        editorClickArea.addEventListener('click', function(ev){
+          // Don't create circle if clicking on requirement box, buttons, or existing circles
+          var target = ev.target;
+          if(target.closest('#req-line-has-icon') || target.closest('button') || target.closest('#plottedCircles > div')) return;
+          
+          var rect = editorClickArea.getBoundingClientRect();
+          var x = ev.clientX - rect.left;
+          var y = ev.clientY - rect.top;
+          
+          // Create temporary circle (counter is incremented inside createCircle)
+          var newCircleId = 'circle' + (circleCounter + 1);
+          var circle = createCircle(x, y, true);
+          var actualCircleId = circle.id;
+          
+          // Open modal immediately
+          showModal(actualCircleId, x, y);
+        });
       }
-      bindSlot('slot1'); bindSlot('slot2'); bindSlot('slot3'); bindSlot('slot4');
-      // slot5 is intentionally unclickable
-
-      // Scale per-slot maps to their respective img containers (square 1000 intrinsic)
-      function scaleMapFor(imgId, areaId) {
-        var img = document.getElementById(imgId);
-        var area = document.getElementById(areaId);
-        if(!img || !area) return;
-        var nat = 1000;
-        var rect = img.getBoundingClientRect();
-        var sx = rect.width / nat;
-        var sy = rect.height / nat;
-        var base = area.getAttribute('data-coords');
-        var parts = base.split(',').map(function(n){ return parseFloat(n); });
-        var x1 = Math.round(parts[0]*sx), y1 = Math.round(parts[1]*sy), x2 = Math.round(parts[2]*sx), y2 = Math.round(parts[3]*sy);
-        area.coords = x1+','+y1+','+x2+','+y2;
-      }
-      function scaleAll(){
-        scaleMapFor('s1img','slot1');
-        scaleMapFor('s2img','slot2');
-        scaleMapFor('s3img','slot3');
-        scaleMapFor('s4img','slot4');
-        var a5 = document.getElementById('slot5'); if(a5){ scaleMapFor('s5img','slot5'); }
-      }
-      window.addEventListener('resize', scaleAll);
-      window.addEventListener('load', scaleAll);
-      var obs = new MutationObserver(scaleAll); obs.observe(step2, { attributes:true, attributeFilter:['style'] });
     })();
   </script>
 </body>
